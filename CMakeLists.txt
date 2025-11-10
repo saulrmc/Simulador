@@ -5,4 +5,7 @@ set(CMAKE_CXX_STANDARD 20)
 
 add_executable(SimuladorGravitacional main.cpp
         src/CuerpoCeleste.cpp
-        src/CuerpoCeleste.h)
+        src/CuerpoCeleste.h
+        src/Utils.h
+        src/Estrella.cpp
+        src/Estrella.h)
