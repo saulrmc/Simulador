@@ -1,5 +1,5 @@
 //
-// Created by SILVER on 21/12/2025.
+// Created by Saúl on 21/12/2025.
 //
 
 #include "CuerpoCeleste.h"
@@ -7,23 +7,41 @@
 CuerpoCeleste::CuerpoCeleste() {
     velX=0;
     velY=0;
+    velZ=0;
     posX=0;
     posY=0;
+    posZ=0;
     masa=0;
     radio=0;
+
+
+    masaAcumulativo=0;
+    radioAcumulativo=0;
+    velXAcumulativo=0;
+    velYAcumulativo=0;
+    velZAcumulativo=0;
+
 }
 
 CuerpoCeleste::~CuerpoCeleste() {
 }
 
-CuerpoCeleste::CuerpoCeleste(double velX, double velY, double posX,
-    double posY, double masa, double radio) {
-    this->velX = velX;
-    this->velY = velY;
+CuerpoCeleste::CuerpoCeleste(double posX,
+    double posY, double posZ, double masa, double radio) {
+    this->velX = 0;
+    this->velY = 0;
+    this->velZ = 0;
     this->posX = posX;
     this->posY = posY;
+    this->posZ = posZ;
     this->masa = masa;
     this->radio = radio;
+
+    masaAcumulativo=0;
+    radioAcumulativo=0;
+    velXAcumulativo=0;
+    velYAcumulativo=0;
+    velZAcumulativo=0;
 }
 
 double CuerpoCeleste::get_pos_x() const {
@@ -73,13 +91,6 @@ double CuerpoCeleste::get_radio() const {
 void CuerpoCeleste::set_radio(const double radio) {
     this->radio = radio;
 }
-
-void CuerpoCeleste::absorberInsignificante(CuerpoCeleste cuerpo) {
-    this->velXAcumulativo += cuerpo.velX;
-    this->velYAcumulativo += cuerpo.velY;
-    this->masaAcumulativo += cuerpo.masa;
-}
-
 double CuerpoCeleste::get_pos_z() const {
     return posZ;
 }
@@ -95,5 +106,16 @@ double CuerpoCeleste::get_vel_z() const {
 void CuerpoCeleste::set_vel_z(const double vel_z) {
     velZ = vel_z;
 }
+//
 
+void CuerpoCeleste::absorberInsignificante(const CuerpoCeleste &cuerpo) {
+    this->velXAcumulativo += cuerpo.velX;
+    this->velYAcumulativo += cuerpo.velY;
+    this->masaAcumulativo += cuerpo.masa;
+}
 
+bool CuerpoCeleste::esInsignificante(const CuerpoCeleste &cuerpo) {
+
+    if (this->masaAcumulativo + this->masa == this->masa) return true;
+    return false;
+}

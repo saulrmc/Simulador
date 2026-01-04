@@ -1,5 +1,5 @@
 //
-// Created by SILVER on 21/12/2025.
+// Created by Saúl on 21/12/2025.
 //
 
 #ifndef SIMULADORGRAVITACIONAL_MOTORFISICOUTILS_H
