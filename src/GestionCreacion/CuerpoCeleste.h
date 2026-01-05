@@ -4,7 +4,7 @@
 
 #ifndef SIMULADORGRAVITACIONAL_CUERPOCELESTE_H
 #define SIMULADORGRAVITACIONAL_CUERPOCELESTE_H
-#include "MotorFisicoUtils.h"
+#include <string>
 
 class CuerpoCeleste {
 
@@ -12,6 +12,7 @@ public:
     CuerpoCeleste();
     virtual ~CuerpoCeleste();
     CuerpoCeleste(double, double, double, double, double);
+    CuerpoCeleste(std::string, double, double, double, double, double);
 
     double get_pos_x() const;
     void set_pos_x(const double pos_x);
@@ -29,12 +30,16 @@ public:
     void set_pos_z(const double pos_z);
     double get_vel_z() const;
     void set_vel_z(const double vel_z);
+    std::string get_nombre() const;
+    void set_nombre(const std::string &nombre);
 
     //para el caso de las colisiones
     void absorberInsignificante(const CuerpoCeleste &);
     bool esInsignificante(const CuerpoCeleste &);
 
 private:
+    std::string nombre;
+
     double posX;
     double posY;
     double posZ;

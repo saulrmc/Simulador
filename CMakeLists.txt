@@ -6,15 +6,17 @@ set(CMAKE_CXX_STANDARD 20)
 
 file(GLOB_RECURSE SOURCES "src/*.cpp" "src/*.h" "main.cpp")
 add_subdirectory(libs/GLFW)
-add_library(glad libs/glad/glad.c)
+add_library(glad libs/glad/glad.c
+        src/GUI/Interfaz.cpp
+        src/GUI/Interfaz.h)
 target_include_directories(glad PUBLIC libs)
 
 add_executable(SimuladorGravitacional main.cpp
         src/MotorFísico/MotorFisicoUtils.h
         src/MotorFísico/GestorCalculos.cpp
         src/MotorFísico/GestorCalculos.h
-        src/MotorFísico/CuerpoCeleste.cpp
-        src/MotorFísico/CuerpoCeleste.h
+        src/GestionCreacion/CuerpoCeleste.cpp
+        src/GestionCreacion/CuerpoCeleste.h
         src/Visualizacion/Simulacion.cpp
 )
 

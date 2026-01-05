@@ -2,7 +2,7 @@
 // Created by Saúl on 21/12/2025.
 //
 
-#include "CuerpoCeleste.h"
+#include "../GestionCreacion/CuerpoCeleste.h"
 
 CuerpoCeleste::CuerpoCeleste() {
     velX=0;
@@ -43,6 +43,24 @@ CuerpoCeleste::CuerpoCeleste(double posX,
     velYAcumulativo=0;
     velZAcumulativo=0;
 }
+
+CuerpoCeleste::CuerpoCeleste(std::string, double masa, double posX, double posY, double posZ, double radio) {
+    this->velX = 0;
+    this->velY = 0;
+    this->velZ = 0;
+    this->posX = posX;
+    this->posY = posY;
+    this->posZ = posZ;
+    this->masa = masa;
+    this->radio = radio;
+
+    this->masaAcumulativo=0;
+    this->radioAcumulativo=0;
+    this->velXAcumulativo=0;
+    this->velYAcumulativo=0;
+    this->velZAcumulativo=0;
+}
+
 
 double CuerpoCeleste::get_pos_x() const {
     return posX;
@@ -106,7 +124,16 @@ double CuerpoCeleste::get_vel_z() const {
 void CuerpoCeleste::set_vel_z(const double vel_z) {
     velZ = vel_z;
 }
-//
+
+std::string CuerpoCeleste::get_nombre() const {
+    return nombre;
+}
+
+void CuerpoCeleste::set_nombre(const std::string &nombre) {
+    this->nombre = nombre;
+}
+
+
 
 void CuerpoCeleste::absorberInsignificante(const CuerpoCeleste &cuerpo) {
     this->velXAcumulativo += cuerpo.velX;
@@ -115,7 +142,7 @@ void CuerpoCeleste::absorberInsignificante(const CuerpoCeleste &cuerpo) {
 }
 
 bool CuerpoCeleste::esInsignificante(const CuerpoCeleste &cuerpo) {
-
-    if (this->masaAcumulativo + this->masa == this->masa) return true;
+    if (cuerpo.masa + this->masa == this->masa) return true;
     return false;
 }
+
