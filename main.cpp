@@ -1,13 +1,13 @@
 #include <iostream>
-#include "src/MotorFísico/GestorCalculos.h"
+#include "src/Physics/CalculationManager.h"
 #include <string>
-#include "src/GestionCreacion/CuerpoCeleste.h"
+#include "src/Creation/CelestialBody.h"
 
 
 //full hardcodeo, aun sin respetar al 100% la arquitectura xd
 int main() {
     int opcion;
-    GestorCalculos gestor_calculos;
+    CalculationManager gestor_calculos;
 
     while (true) {
         gestor_calculos.simulacion_inicia();
@@ -30,11 +30,11 @@ int main() {
                 std::cout << "Ingrese el radio (en miles de km):"<<std::endl;
                 std::cin >> radio;
                 if (!nombre.empty()) {
-                    CuerpoCeleste cuerpo_celeste(nombre, masa, posX, posY, posZ, radio);
+                    CelestialBody cuerpo_celeste(nombre, masa, posX, posY, posZ, radio);
                 }
                 else {
                     std::cout << "sin nombre"<<std::endl;
-                    CuerpoCeleste cuerpo_celeste("1", masa, posX, posY, posZ, radio);
+                    CelestialBody cuerpo_celeste("1", masa, posX, posY, posZ, radio);
                 }
 
             }

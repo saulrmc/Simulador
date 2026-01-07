@@ -6,10 +6,10 @@
 #define SIMULADORGRAVITACIONAL_INTERFAZ_H
 #include <iostream>
 
-class Interfaz {
+class Interface {
     public:
-    Interfaz();
-    virtual ~Interfaz();
+    Interface();
+    virtual ~Interface();
 
     private:
 

@@ -1,5 +1,0 @@
-//
-// Created by Saúl on 21/12/2025.
-//
-
-#include "GestorCalculos.h"
