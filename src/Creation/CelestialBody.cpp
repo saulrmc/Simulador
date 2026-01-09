@@ -65,19 +65,19 @@ void CelestialBody::set_mass(const double mass) {
     this->mass = mass;
 }
 
-double CelestialBody::get_radio() const {
+double CelestialBody::get_radius() const {
     return radius;
 }
 
-void CelestialBody::set_radio(const double radio) {
+void CelestialBody::set_radius(const double radio) {
     this->radius = radio;
 }
 
-void CelestialBody::absorberInsignificante(const CelestialBody &cuerpo) {
+void CelestialBody::minor_collision(const CelestialBody &cuerpo) {
     this->accumulatedMass += cuerpo.mass;
 }
 
-bool CelestialBody::esInsignificante(const CelestialBody &cuerpo) {
+bool CelestialBody::is_it_insignificant(const CelestialBody &cuerpo) {
     if (cuerpo.mass + this->mass == this->mass) return true;
     return false;
 }

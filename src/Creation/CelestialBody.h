@@ -2,8 +2,8 @@
 // Created by Saúl on 21/12/2025.
 //
 
-#ifndef SIMULADORGRAVITACIONAL_CUERPOCELESTE_H
-#define SIMULADORGRAVITACIONAL_CUERPOCELESTE_H
+#ifndef SIMULADORGRAVITACIONAL_CELESTIALBODY_H
+#define SIMULADORGRAVITACIONAL_CELESTIALBODY_H
 #include <string>
 #include "../Creation/Vec3.h"
 
@@ -12,7 +12,6 @@ class CelestialBody {
     CelestialBody();
     CelestialBody(std::string, Vec3, Vec3, double, double);
     virtual ~CelestialBody();
-
 
     std::string get_name() const;
     void set_name(const std::string &name);
@@ -24,12 +23,12 @@ class CelestialBody {
     void set_force(const Vec3 &force);
     double get_mass() const;
     void set_mass(const double mass);
-    double get_radio() const;
-    void set_radio(const double radio);
+    double get_radius() const;
+    void set_radius(const double radio);
 
     //para el caso de las colisiones
-    void absorberInsignificante(const CelestialBody &);
-    bool esInsignificante(const CelestialBody &);
+    void minor_collision(const CelestialBody &);
+    bool is_it_insignificant(const CelestialBody &);
 
     private:
     std::string name;
@@ -48,4 +47,4 @@ class CelestialBody {
 };
 
 
-#endif //SIMULADORGRAVITACIONAL_CUERPOCELESTE_H
+#endif //SIMULADORGRAVITACIONAL_CELESTIALBODY_H

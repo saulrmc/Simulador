@@ -10,14 +10,14 @@ class CalculationManager {
     public:
     CalculationManager();
     virtual ~CalculationManager();
-    void simulacion_inicia();
-    void mostrar_simulacion();
-    void simulacion_termina();
-    void insertar_cuerpo();
-    void eliminar_cuerpo();
+    void simulation_begin();
+    void show_simulation();
+    void simulation_ends();
+    void add_body();
+    void delete_body();
 
     private:
-    std::vector<CelestialBody> cuerpos{};
+    std::vector<CelestialBody> bodies{};
 };
 
 

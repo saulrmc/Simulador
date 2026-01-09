@@ -10,17 +10,17 @@ CalculationManager::CalculationManager() {
 CalculationManager::~CalculationManager() {
 }
 
-void CalculationManager::simulacion_inicia() {
+void CalculationManager::simulation_begin() {
 }
 
-void CalculationManager::mostrar_simulacion() {
+void CalculationManager::show_simulation() {
 }
 
-void CalculationManager::simulacion_termina() {
+void CalculationManager::simulation_ends() {
 }
 
-void CalculationManager::insertar_cuerpo() {
+void CalculationManager::add_body() {
 }
 
-void CalculationManager::eliminar_cuerpo() {
+void CalculationManager::delete_body() {
 }
