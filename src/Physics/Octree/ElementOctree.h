@@ -24,9 +24,10 @@ public:
     friend class NodeOctree;
     private:
     Vec3 centerOfMass; //centro de masa del cubo
-    double mass; //
-    Vec3 position;  // Centro del cubo
+    double mass; //masa total que está contenida en el espacio cúbico
+    Vec3 center;  // Centro del cubo
     double size;     // Tamaño de un lado del cubo
+
     CelestialBody* body;  // Cuerpo contenido en este nodo si es un nodo externo (sin hijos)
 };
 

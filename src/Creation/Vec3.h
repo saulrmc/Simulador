@@ -5,7 +5,6 @@
 #ifndef SIMULADORGRAVITACIONAL_VEC3_H
 #define SIMULADORGRAVITACIONAL_VEC3_H
 #include <cmath>
-#include <iostream>
 
 class Vec3 {
     public:
@@ -20,6 +19,10 @@ class Vec3 {
     double dot(const Vec3& v) const;
     double magnitude() const;
     Vec3 normalize() const;
+    double distance(const Vec3& v) const;
+    double get_x() const;
+    double get_y() const;
+    double get_z() const;
 
     private:
     double x, y, z;

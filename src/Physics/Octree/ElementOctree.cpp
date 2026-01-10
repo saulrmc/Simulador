@@ -5,6 +5,11 @@
 #include "ElementOctree.h"
 
 ElementOctree::ElementOctree() {
+    centerOfMass = Vec3(0, 0, 0);
+    mass = 0;
+    center = Vec3(0, 0, 0);
+    size = 0;
+    body=nullptr;
 }
 
 ElementOctree::~ElementOctree() {
@@ -27,11 +32,11 @@ void ElementOctree::set_mass(const double mass) {
 }
 
 Vec3 ElementOctree::get_position() const {
-    return position;
+    return center;
 }
 
 void ElementOctree::set_position(const Vec3 &position) {
-    this->position = position;
+    this->center = position;
 }
 
 double ElementOctree::get_size() const {

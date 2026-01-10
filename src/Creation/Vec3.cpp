@@ -48,4 +48,21 @@ Vec3 Vec3::normalize() const {
     return Vec3(x / mag, y / mag, z / mag);
 }
 
+double Vec3::distance(const Vec3 &v) const {
+    return std::sqrt(pow(x - v.x, 2) +
+        pow(y - v.y, 2) + pow(z - v.z, 2));
+}
+
+double Vec3::get_x() const {
+    return x;
+}
+
+double Vec3::get_y() const {
+    return y;
+}
+
+double Vec3::get_z() const {
+    return z;
+}
+
 

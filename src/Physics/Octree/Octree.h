@@ -13,8 +13,12 @@ class Octree {
     void insert();
     void erase();
     void create_space();
+
     private:
     NodeOctree* root;
+
+    NodeOctree* locate_body(NodeOctree* node, CelestialBody* body);
+
     void recursively_insert(NodeOctree*&, CelestialBody *);
     void recursively_erase(NodeOctree*&, CelestialBody *);
 };
