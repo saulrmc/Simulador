@@ -20,13 +20,14 @@ public:
     void set_position(const Vec3 &position);
     double get_size() const;
     void set_size(const double size);
-
+    friend class Octree;
+    friend class NodeOctree;
     private:
-    Vec3 centerOfMass;
-    double mass;
-    Vec3 position;  // La posición de la región del nodo (el centro de la celda)
-    double size;     // El tamaño de la celda representada por este nodo
-    CelestialBody* body;  // Cuerpo contenido en este nodo si es una hoja
+    Vec3 centerOfMass; //centro de masa del cubo
+    double mass; //
+    Vec3 position;  // Centro del cubo
+    double size;     // Tamaño de un lado del cubo
+    CelestialBody* body;  // Cuerpo contenido en este nodo si es un nodo externo (sin hijos)
 };
 
 

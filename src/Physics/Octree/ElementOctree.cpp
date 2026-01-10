@@ -4,6 +4,12 @@
 
 #include "ElementOctree.h"
 
+ElementOctree::ElementOctree() {
+}
+
+ElementOctree::~ElementOctree() {
+}
+
 Vec3 ElementOctree::get_center_of_mass() const {
     return centerOfMass;
 }
@@ -35,3 +41,4 @@ double ElementOctree::get_size() const {
 void ElementOctree::set_size(const double size) {
     this->size = size;
 }
+

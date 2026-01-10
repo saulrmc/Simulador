@@ -26,6 +26,8 @@ class CelestialBody {
     double get_radius() const;
     void set_radius(const double radio);
 
+    void operator=(const CelestialBody &);
+
     //para el caso de las colisiones
     void minor_collision(const CelestialBody &);
     bool is_it_insignificant(const CelestialBody &);
@@ -45,6 +47,5 @@ class CelestialBody {
     double accumulatedVel;
     double accumulatedMass;
 };
-
 
 #endif //SIMULADORGRAVITACIONAL_CELESTIALBODY_H

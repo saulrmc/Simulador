@@ -73,6 +73,18 @@ void CelestialBody::set_radius(const double radio) {
     this->radius = radio;
 }
 
+void CelestialBody::operator=(const CelestialBody &body) {
+    this->name = body.get_name();
+    this->position = body.get_position();
+    this->velocity = body.get_velocity();
+    this->force = body.get_force();
+    this->mass = body.get_mass();
+    this->radius = body.get_radius();
+
+    this->accumulatedMass = body.accumulatedMass;
+    this->accumulatedVel = body.accumulatedVel;
+}
+
 void CelestialBody::minor_collision(const CelestialBody &cuerpo) {
     this->accumulatedMass += cuerpo.mass;
 }

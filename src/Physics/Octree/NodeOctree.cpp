@@ -12,3 +12,7 @@ NodeOctree::~NodeOctree() {
     for (int i = 0; i < 8; i++) delete children[i];
 }
 
+void NodeOctree::create_children() {
+    for (int i = 0; i < 8; i++) children[i]=new NodeOctree();
+}
+

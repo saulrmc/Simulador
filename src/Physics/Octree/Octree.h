@@ -15,9 +15,8 @@ class Octree {
     void create_space();
     private:
     NodeOctree* root;
-    void recursively_create_space(NodeOctree*);
-    void recursively_insert(NodeOctree*);
-    void recursively_erase(NodeOctree*);
+    void recursively_insert(NodeOctree*&, CelestialBody *);
+    void recursively_erase(NodeOctree*&, CelestialBody *);
 };
 
 
