@@ -4,6 +4,8 @@
 
 #ifndef SIMULADORGRAVITACIONAL_GESTORCALCULOS_H
 #define SIMULADORGRAVITACIONAL_GESTORCALCULOS_H
+#include <vector>
+
 #include "../Creation/CelestialBody.h"
 #include "PhysicsUtils.h"
 class CalculationManager {

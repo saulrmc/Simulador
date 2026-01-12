@@ -20,20 +20,22 @@ int main() {
             std::cin >> masa;
             if (masa>0) {
                 std::string nombre{};
-                Vec3
+                double posX, posY, posZ;
                 double radio;
                 std::cout << "Ingrese el nombre del cuerpo" <<  std::endl;
                 std::cin >> nombre;
                 std::cout << "Ingrese la posicion (x, y, z):"<<std::endl;
                 std::cin >> posX >> posY >> posZ;
+                Vec3 posicion(posX, posY, posZ);
+                Vec3 velocidad(1, 1, 1);
                 std::cout << "Ingrese el radio (en miles de km):"<<std::endl;
                 std::cin >> radio;
                 if (!nombre.empty()) {
-                    CelestialBody cuerpo_celeste(nombre, masa, posX, posY, posZ, radio);
+                    CelestialBody cuerpo_celeste(nombre, posicion, velocidad, masa, radio);
                 }
                 else {
                     std::cout << "sin nombre"<<std::endl;
-                    CelestialBody cuerpo_celeste("1", masa, posX, posY, posZ, radio);
+                    CelestialBody cuerpo_celeste("1", posicion, velocidad, masa, radio);
                 }
 
             }

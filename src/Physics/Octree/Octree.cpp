@@ -42,7 +42,7 @@ void Octree::recursively_insert(NodeOctree *&node_octree, CelestialBody *body) {
             CelestialBody* oldBody = node_octree->element_octree.body;
             node_octree->element_octree.body = nullptr;
             node_octree->create_children();
-            NodeOctree *destiny_old = locate_body(oldBody);
+            NodeOctree *destiny_old = locate_body(node_octree, oldBody);
             recursively_insert(destiny_old, oldBody);
         }
         else {
@@ -56,7 +56,7 @@ void Octree::recursively_insert(NodeOctree *&node_octree, CelestialBody *body) {
             return;
         }
     }
-    NodeOctree *destiny_new = locate_body(body);
+    NodeOctree *destiny_new = locate_body(node_octree, body);
     recursively_insert(destiny_new, body);
     node_octree->calc_avg_values();
     node_octree->element_octree.body = nullptr;

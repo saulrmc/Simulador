@@ -5,7 +5,7 @@
 #include "NodeOctree.h"
 
 NodeOctree::NodeOctree() {
-
+    ElementOctree();
 }
 
 NodeOctree::~NodeOctree() {
