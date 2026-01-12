@@ -30,13 +30,20 @@ int main() {
                 Vec3 velocidad(1, 1, 1);
                 std::cout << "Ingrese el radio (en miles de km):"<<std::endl;
                 std::cin >> radio;
+                CelestialBody cuerpo_celeste;
+                cuerpo_celeste.set_position(posicion);
+                cuerpo_celeste.set_velocity(velocidad);
+                cuerpo_celeste.set_mass(masa);
+                cuerpo_celeste.set_radius(radio);
                 if (!nombre.empty()) {
-                    CelestialBody cuerpo_celeste(nombre, posicion, velocidad, masa, radio);
+                    cuerpo_celeste.set_name(nombre);
                 }
                 else {
                     std::cout << "sin nombre"<<std::endl;
-                    CelestialBody cuerpo_celeste("1", posicion, velocidad, masa, radio);
+                    cuerpo_celeste.set_name(" ");
                 }
+                std::cout << "masa: "<< cuerpo_celeste.get_mass() << std::endl;
+                std::cout << "radio: "<< cuerpo_celeste.get_radius() << std::endl;
 
             }
             else {
@@ -49,6 +56,7 @@ int main() {
         else if (opcion == 3) {
             gestor_calculos.show_simulation();
         }
+
         else {
             gestor_calculos.simulation_ends();
             break;
