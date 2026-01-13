@@ -44,7 +44,10 @@ int main() {
                 }
                 std::cout << "masa: "<< cuerpo_celeste.get_mass() << std::endl;
                 std::cout << "radio: "<< cuerpo_celeste.get_radius() << std::endl;
-
+                for (int i=0;i<100;i++) {
+                    //mostrar posicion y velocidad
+                    
+                }
             }
             else {
                 std::cout << "masa incorrecta"<<std::endl;

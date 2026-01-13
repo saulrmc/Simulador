@@ -10,7 +10,7 @@ class Octree {
     public:
     Octree();
     virtual ~Octree();
-    void insert();
+    void insert(CelestialBody *body);
     void erase();
     void create_space();
 
@@ -20,7 +20,7 @@ class Octree {
     NodeOctree* locate_body(NodeOctree* node, CelestialBody* body);
 
     void recursively_insert(NodeOctree*&, CelestialBody *);
-    void recursively_erase(NodeOctree*&, CelestialBody *);
+    bool recursively_erase(NodeOctree*&, CelestialBody *);
 };
 
 

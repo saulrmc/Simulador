@@ -13,7 +13,8 @@ Octree::Octree() {
 Octree::~Octree() {
 }
 
-void Octree::insert() {
+void Octree::insert(CelestialBody *body) {
+    recursively_insert(root, body);
 }
 
 void Octree::erase() {
@@ -28,6 +29,9 @@ NodeOctree * Octree::locate_body(NodeOctree *node, CelestialBody *body) {
     Vec3 pos = body->get_position();
     Vec3 center = node->element_octree.get_position();
 
+    //se le va agregando bits 1's mientras va cumpliendo las condiciones.
+    //Depende directamente de cómo están ordenados los nodos hijos en la función
+    //NodeOctree::create_children()
     uint8_t index = 0;
     if (pos.get_x() >= center.get_x()) index |= 1;
     if (pos.get_y() >= center.get_y()) index |= 2;
@@ -62,6 +66,23 @@ void Octree::recursively_insert(NodeOctree *&node_octree, CelestialBody *body) {
     node_octree->element_octree.body = nullptr;
 }
 
-void Octree::recursively_erase(NodeOctree *&node_octree, CelestialBody *body) {
+bool Octree::recursively_erase(NodeOctree *&node_octree, CelestialBody *body) {
+    if (!node_octree) return false;
+    //nodo externo
+    if (!node_octree->has_children()) {
+        if (node_octree->element_octree.body == body) { //falta implementar esta sobrecarga
+            node_octree->element_octree.body = nullptr;
+            node_octree->element_octree.mass = 0;
+            node_octree->element_octree.centerOfMass = Vec3(0,0,0);
+            return true;
+        }
+        return false;
+    }
+    NodeOctree *destiny = locate_body(node_octree, body);
+    if (!destiny) return false; //para evitar los nullptr
+    bool erased = recursively_erase(destiny, body);
+    if (erased) node_octree->calc_avg_values(); //lógico... solo se debería recalcular los
+    //datos del nodo padre si es que se ha borrado un cuerpo de sus hijos
+    return erased;
 }
 

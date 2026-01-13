@@ -16,7 +16,11 @@ void NodeOctree::create_children() {
     for (int i = 0; i < 8; i++) {
         children[i] = new NodeOctree();
         children[i]->element_octree.size = element_octree.size / 2;
-
+        //de esta manera se le suma +- 1/4 de la longitud de un lado del nodo padre
+        //al centro del nodo padre en todos los ejes y con eso se determina
+        //las posiciones de los centros de los hijos.
+        //Con respecto al offset...tranquilamente pudo haber sido un
+        //if para cada número del 0 al 7 pero creo que queda mejor como está ahora.
         double offset = children[i]->element_octree.size / 2;
         children[i]->element_octree.center = element_octree.center + Vec3(
             (i & 1 ? +offset : -offset),
