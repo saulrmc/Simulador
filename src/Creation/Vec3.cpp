@@ -65,4 +65,8 @@ double Vec3::get_z() const {
     return z;
 }
 
+Vec3 operator/(double scalar, const Vec3 &v) {
+    return Vec3(scalar / v.get_x(), scalar / v.get_y(), scalar / v.get_z());
+}
+
 

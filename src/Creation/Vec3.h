@@ -28,6 +28,7 @@ class Vec3 {
     double x, y, z;
 
 };
+Vec3 operator/(double scalar, const Vec3& v);
 
 
 #endif //SIMULADORGRAVITACIONAL_VEC3_H

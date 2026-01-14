@@ -4,6 +4,7 @@
 
 #ifndef SIMULADORGRAVITACIONAL_PHYSICSUNITS_H
 #define SIMULADORGRAVITACIONAL_PHYSICSUNITS_H
+#include <cmath>
 namespace units {
     //sistema de unidades
     constexpr double MASS_0      = 5.97217e24; //masa de la Tierra en kg xd

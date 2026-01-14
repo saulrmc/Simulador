@@ -85,12 +85,19 @@ void CelestialBody::operator=(const CelestialBody &body) {
     this->accumulatedVel = body.accumulatedVel;
 }
 
+bool CelestialBody::operator==(const CelestialBody &body) const {
+    if (this->name == body.get_name()) return true; //esta es una posible condicion, podría ser permanente
+    //o podría cambiarla por otra, probablemente sea mejor crearlas bajo un ID...
+    return false;
+}
+
 void CelestialBody::minor_collision(const CelestialBody &cuerpo) {
     this->accumulatedMass += cuerpo.mass;
 }
 
 bool CelestialBody::is_it_insignificant(const CelestialBody &cuerpo) {
     if (cuerpo.mass + this->mass == this->mass) return true;
+    //o podría ser en base a un porcentaje, por ejemplo el 0,0001% de la masa
     return false;
 }
 

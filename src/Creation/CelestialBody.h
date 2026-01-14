@@ -27,6 +27,7 @@ class CelestialBody {
     void set_radius(const double radio);
 
     void operator=(const CelestialBody &);
+    bool operator==(const CelestialBody &) const;
 
     //para el caso de las colisiones
     void minor_collision(const CelestialBody &);

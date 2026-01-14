@@ -27,7 +27,6 @@ add_executable(SimuladorGravitacional main.cpp
         src/Creation/Vec3.cpp
         src/Creation/Vec3.h
         src/Physics/Physics.cpp
-        src/Physics/Physics.h
 )
 
 target_link_libraries(SimuladorGravitacional glfw glad opengl32)
