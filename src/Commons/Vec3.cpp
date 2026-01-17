@@ -2,7 +2,7 @@
 // Created by Saúl on 6/01/2026.
 //
 
-#include "../Creation/Vec3.h"
+#include "../Commons/Vec3.h"
 
 Vec3::Vec3() {
     this->x=0;

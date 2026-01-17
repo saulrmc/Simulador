@@ -21,11 +21,11 @@ add_executable(SimuladorGravitacional main.cpp
         src/Physics/PhysicsUtils.h
         src/Physics/CalculationManager.cpp
         src/Physics/CalculationManager.h
-        src/Creation/CelestialBody.cpp
-        src/Creation/CelestialBody.h
+        src/Commons/CelestialBody.cpp
+        src/Commons/CelestialBody.h
         src/Visualization/Simulation.cpp
-        src/Creation/Vec3.cpp
-        src/Creation/Vec3.h
+        src/Commons/Vec3.cpp
+        src/Commons/Vec3.h
         src/Physics/Physics.cpp
 )
 

@@ -5,7 +5,7 @@
 #ifndef SIMULADORGRAVITACIONAL_CELESTIALBODY_H
 #define SIMULADORGRAVITACIONAL_CELESTIALBODY_H
 #include <string>
-#include "../Creation/Vec3.h"
+#include "../Commons/Vec3.h"
 
 class CelestialBody {
     public:

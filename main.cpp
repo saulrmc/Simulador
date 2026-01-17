@@ -1,7 +1,7 @@
 #include <iostream>
 #include "src/Physics/CalculationManager.h"
 #include <string>
-#include "src/Creation/CelestialBody.h"
+#include "src/Commons/CelestialBody.h"
 
 //full hardcodeo, aun sin respetar al 100% la arquitectura xd
 int main() {

@@ -6,7 +6,7 @@
 #define SIMULADORGRAVITACIONAL_GESTORCALCULOS_H
 #include <vector>
 
-#include "../Creation/CelestialBody.h"
+#include "../Commons/CelestialBody.h"
 #include "PhysicsUtils.h"
 class CalculationManager {
     public:

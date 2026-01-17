@@ -1,7 +1,7 @@
 //
 // Created by Saúl on 8/01/2026.
 //
-#include "../Creation/CelestialBody.h"
+#include "../Commons/CelestialBody.h"
 #include "PhysicsUtils.h"
 static constexpr double EPSILON = 1e-4;
 

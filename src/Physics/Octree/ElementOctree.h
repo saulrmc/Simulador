@@ -4,8 +4,8 @@
 
 #ifndef SIMULADORGRAVITACIONAL_ELEMENTOCTREE_H
 #define SIMULADORGRAVITACIONAL_ELEMENTOCTREE_H
-#include "../src/Creation/CelestialBody.h"
-#include "../src/Creation/Vec3.h"
+#include "../src/Commons/CelestialBody.h"
+#include "../src/Commons/Vec3.h"
 
 class ElementOctree {
 public:

@@ -2,7 +2,7 @@
 // Created by Saúl on 21/12/2025.
 //
 
-#include "../Creation/CelestialBody.h"
+#include "../Commons/CelestialBody.h"
 
 CelestialBody::CelestialBody() {
     name = "CelestialBody";
