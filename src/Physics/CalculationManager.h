@@ -8,18 +8,18 @@
 
 #include "../Commons/CelestialBody.h"
 #include "PhysicsUtils.h"
+#include "Octree/Octree.h"
+
 class CalculationManager {
     public:
     CalculationManager();
     virtual ~CalculationManager();
-    void simulation_begin();
-    void show_simulation();
-    void simulation_ends();
-    void add_body();
-    void delete_body();
+    void step();
+    void create_Octree();
+    void reinsert_nodes(std::vector<CelestialBody> &);
 
     private:
-    std::vector<CelestialBody> bodies{};
+    Octree *root;
 };
 
 

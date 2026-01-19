@@ -5,35 +5,25 @@
 #include "CalculationManager.h"
 
 CalculationManager::CalculationManager() {
+    root = nullptr;
 }
 
 CalculationManager::~CalculationManager() {
+    delete root;
 }
 
-void CalculationManager::simulation_begin() {
-    // for each frame:
-    // clear octree
-    // insert all bodies
-    // compute forces
+void CalculationManager::step() {
 
-    //o
-
-    // octree.create_space();
-    // for (auto& body : bodies)
-    //     octree.insert(&body);
-    //
-    // for (auto& body : bodies)
-    //     octree.calc_forces_per_body(&body);
 }
 
-void CalculationManager::show_simulation() {
+void CalculationManager::create_Octree() {
+    root->create_space();
 }
 
-void CalculationManager::simulation_ends() {
+void CalculationManager::reinsert_nodes(std::vector<CelestialBody> &bodies) {
+    for (CelestialBody body : bodies) {
+        root->insert(&body);
+    }
 }
 
-void CalculationManager::add_body() {
-}
 
-void CalculationManager::delete_body() {
-}

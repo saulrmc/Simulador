@@ -14,7 +14,9 @@ add_library(glad libs/glad/glad.c
         src/Physics/Octree/Octree.cpp
         src/Physics/Octree/Octree.h
         src/Physics/Octree/NodeOctree.cpp
-        src/Physics/Octree/NodeOctree.h)
+        src/Physics/Octree/NodeOctree.h
+        src/Simulation.cpp
+        src/Simulation.h)
 target_include_directories(glad PUBLIC libs)
 
 add_executable(SimuladorGravitacional main.cpp
@@ -23,7 +25,6 @@ add_executable(SimuladorGravitacional main.cpp
         src/Physics/CalculationManager.h
         src/Commons/CelestialBody.cpp
         src/Commons/CelestialBody.h
-        src/Visualization/Simulation.cpp
         src/Commons/Vec3.cpp
         src/Commons/Vec3.h
         src/Physics/Physics.cpp

@@ -62,7 +62,7 @@ void Octree::recursively_insert(NodeOctree *&node_octree, CelestialBody *body) {
         else {
             node_octree->element_octree.body = body;
             //como el nodo externo recien tiene un cuerpo entonces
-            //se debe incializar los valores del centro de masa y masa
+            //se debe inicializar los valores del centro de masa y masa
             //total del nodo para que no estén en 0 cuando se le quiera
             //ingresar otro cuerpo en el mismo nodo
             node_octree->element_octree.mass = body->get_mass();
