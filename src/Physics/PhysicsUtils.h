@@ -7,11 +7,14 @@
 #include <cmath>
 namespace units {
     //sistema de unidades
-    constexpr double MASS_0      = 5.97217e24; //masa de la Tierra en kg xd
-    constexpr double DISTANCE_0  = 3.844e8; //distancia real de la Tierra a la Luna en metros
-    constexpr double TIME_0      = 8.64e4; //1 día en segundos
+    constexpr double MASS_0      = 1.0; //masa de la Tierra
+    constexpr double DISTANCE_0  = 1.0; //distancia real de la Tierra a la Luna
+    constexpr double TIME_0      = 1.0; //1 día
     constexpr double G           = 0.0524; //constante G de la ley de gravitación universal del
                                               //nuevo sistema de unidades, sin redondear es 0.052386
+    constexpr double DELTA_TIME = 0.001;   // 0.01 días
+    constexpr double HALF_DELTA_TIME = 0.5 * DELTA_TIME;
+
 }
 
 
