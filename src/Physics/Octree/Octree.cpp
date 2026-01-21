@@ -31,6 +31,8 @@ void Octree::create_space() {
 }
 
 void Octree::calc_forces_per_body(CelestialBody *body) {
+    body->set_force(Vec3(0, 0, 0)); //cada fuerza calculada no debe calcularse con la de un tiempo t anterior
+    //es decir, no debe ser una acumulación temporal de la fuerza por cuerpo.
     recursively_calc_forces(root, body);
 }
 
