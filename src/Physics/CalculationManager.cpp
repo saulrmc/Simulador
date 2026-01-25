@@ -38,7 +38,8 @@ void CalculationManager::leapfrog_integration_drift(std::vector<CelestialBody> &
 }
 
 void CalculationManager::update_forces(std::vector<CelestialBody> &bodies) {
-    delete root;
+    if (root) delete root;
+    root = new Octree();
     create_Octree();
     reinsert_nodes(bodies);
     for (CelestialBody &body : bodies) root->calc_forces_per_body(&body);//fuerzas actualizadas

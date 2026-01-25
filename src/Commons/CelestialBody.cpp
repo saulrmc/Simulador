@@ -13,8 +13,8 @@ CelestialBody::CelestialBody() {
     radius = 0.0f;
 }
 
-CelestialBody::CelestialBody(std::string name, Vec3 position, Vec3 velocity,
-    double mass, double radius) {
+CelestialBody::CelestialBody(const std::string &name, const Vec3& position, const Vec3& velocity,
+    const double mass, const double radius) {
     this->name = name;
     this->position = position;
     this->velocity = velocity;

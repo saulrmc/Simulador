@@ -1,11 +1,10 @@
 //
 // Created by Saúl on 8/01/2026.
 //
-
 #ifndef SIMULADORGRAVITACIONAL_OCTREE_H
 #define SIMULADORGRAVITACIONAL_OCTREE_H
 #include "NodeOctree.h"
-#include "../Physics.cpp"
+#include "../Physics.h"
 
 class Octree {
     public:
@@ -22,7 +21,7 @@ class Octree {
     NodeOctree* locate_body(NodeOctree* node, CelestialBody* body);
     void recursively_insert(NodeOctree*&, CelestialBody *);
     bool recursively_erase(NodeOctree*&, CelestialBody *);
-    void recursively_calc_forces(NodeOctree *node, CelestialBody *body);
+    void recursively_calc_forces(const NodeOctree *node, CelestialBody *body);
 };
 
 

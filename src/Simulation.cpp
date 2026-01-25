@@ -3,3 +3,17 @@
 //
 
 #include "Simulation.h"
+
+Simulation::Simulation() {
+    calcManager = CalculationManager();
+}
+
+Simulation::~Simulation() {
+}
+
+void Simulation::run_simulation() {
+    calcManager.update_forces(bodies);
+    while (true) {
+        calcManager.step(bodies);
+    }
+}

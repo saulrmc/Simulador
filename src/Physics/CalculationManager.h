@@ -1,12 +1,10 @@
 //
 // Created by Saúl on 21/12/2025.
 //
-
+#pragma once
 #ifndef SIMULADORGRAVITACIONAL_GESTORCALCULOS_H
 #define SIMULADORGRAVITACIONAL_GESTORCALCULOS_H
 #include <vector>
-
-#include "../Commons/CelestialBody.h"
 #include "PhysicsUtils.h"
 #include "Octree/Octree.h"
 

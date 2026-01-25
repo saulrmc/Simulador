@@ -4,8 +4,8 @@
 
 #ifndef SIMULADORGRAVITACIONAL_SIMULATION_H
 #define SIMULADORGRAVITACIONAL_SIMULATION_H
-#include <vector>
 #include "Commons/CelestialBody.h"
+#include "Physics/CalculationManager.h"
 
 
 class Simulation {
@@ -15,6 +15,7 @@ class Simulation {
     void run_simulation();
     private:
     std::vector<CelestialBody> bodies{};
+    CalculationManager calcManager{};
 
 };
 

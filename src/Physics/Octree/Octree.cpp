@@ -24,7 +24,7 @@ void Octree::erase(CelestialBody *celestial_body) {
 }
 
 void Octree::create_space() {
-    delete root;
+    if (root != nullptr) delete root;
     root = new NodeOctree();
     root->element_octree.size = 100; //en unidades de distancia xd
     root->element_octree.center = Vec3(0, 0, 0);
@@ -102,7 +102,7 @@ bool Octree::recursively_erase(NodeOctree *&node_octree, CelestialBody *body) {
     return erased;
 }
 
-void Octree::recursively_calc_forces(NodeOctree *node_octree, CelestialBody *body) {
+void Octree::recursively_calc_forces(const NodeOctree *node_octree, CelestialBody *body) {
     //distancia del cuerpo al centro de masa del nodo
     if (!node_octree || node_octree->element_octree.mass == 0) return;
 

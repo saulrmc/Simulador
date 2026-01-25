@@ -13,6 +13,8 @@ ElementOctree::ElementOctree() {
 }
 
 ElementOctree::~ElementOctree() {
+    //los punteros CelestialBody* body NO deben borrarse porque
+    //esta clase no "propietaria" de los cuerpos
 }
 
 Vec3 ElementOctree::get_center_of_mass() const {

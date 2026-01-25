@@ -1,7 +1,7 @@
 //
 // Created by Saúl on 6/01/2026.
 //
-
+#pragma once
 #ifndef SIMULADORGRAVITACIONAL_VEC3_H
 #define SIMULADORGRAVITACIONAL_VEC3_H
 #include <cmath>

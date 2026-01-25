@@ -1,7 +1,7 @@
 //
 // Created by Saúl on 21/12/2025.
 //
-
+#pragma once
 #ifndef SIMULADORGRAVITACIONAL_CELESTIALBODY_H
 #define SIMULADORGRAVITACIONAL_CELESTIALBODY_H
 #include <string>
@@ -10,7 +10,7 @@
 class CelestialBody {
     public:
     CelestialBody();
-    CelestialBody(std::string, Vec3, Vec3, double, double);
+    CelestialBody(const std::string&, const Vec3&, const Vec3&, const double, const double);
     virtual ~CelestialBody();
 
     std::string get_name() const;
