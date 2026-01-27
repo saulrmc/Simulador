@@ -102,7 +102,9 @@ bool Octree::recursively_erase(NodeOctree *&node_octree, CelestialBody *body) {
     return erased;
 }
 
-void Octree::recursively_calc_forces(const NodeOctree *node_octree, CelestialBody *body) {
+void Octree::recursively_calc_forces(const NodeOctree *node_octree, CelestialBody *body) { //esta funcion va a servir
+    //para acumular todas las fuerzas de todos los nodos sobre este cuerpo
+
     //distancia del cuerpo al centro de masa del nodo
     if (!node_octree || node_octree->element_octree.mass == 0) return;
 

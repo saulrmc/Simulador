@@ -5,7 +5,7 @@
 #include "../Commons/CelestialBody.h"
 #include "PhysicsUtils.h"
 #include "Physics.h"
-static constexpr double EPSILON = 1e-4;
+static constexpr double EPSILON = 1e-5;
 
 
 //cuando se usen estas funciones se debe manejar correctamente el uso de dt y dt/2

@@ -12,7 +12,7 @@ namespace units {
     constexpr double TIME_0      = 1.0; //1 día
     constexpr double G           = 0.0524; //constante G de la ley de gravitación universal del
                                               //nuevo sistema de unidades, sin redondear es 0.052386
-    constexpr double DELTA_TIME = 0.001;   // 0.01 días
+    constexpr double DELTA_TIME = 0.0001;   // 0.0001 días
     constexpr double HALF_DELTA_TIME = 0.5 * DELTA_TIME;
 
 }
