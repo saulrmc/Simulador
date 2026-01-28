@@ -15,5 +15,49 @@ Simulation::~Simulation() {
 
 void Simulation::run_simulation() {
     //para probar el correcto funcionamiento...
+    double v_circular = sqrt(units::G * (1.0 + 0.0123) / 1.0);
+    CelestialBody earth("Earth", Vec3(0, 0, 0), Vec3(0, -0.002, 0), 1, 0.0165);
+    CelestialBody moon("Moon", Vec3(1, 0, 0), Vec3(0, v_circular, 0), 0.0123, 0.00452);
+    std::cout << std::setprecision(10) << std::fixed << "v_circular inicial: "<< v_circular << std::fixed << std::endl;
+    bodies.push_back(earth);
+    bodies.push_back(moon);
+    calcManager.update_forces(bodies);
+    int i = 0;
+    double k_energy=0;
+    while (i<=27000) {
+        calcManager.step(bodies);
+        if (i%1000==0) {
+            std::cout << "==============================" << std::endl;
+            for (CelestialBody &body : bodies) {
+                std::cout << "Name: " << body.get_name() << std::endl;
+                std::cout << "Position: (" << body.get_position().get_x() << ", " <<
+                    body.get_position().get_y() << ", " << body.get_position().get_z() <<
+                        ")" << std::endl;
+                std::cout << "Velocity: (" << body.get_velocity().get_x() << ", " <<
+                    body.get_velocity().get_y() << ", " << body.get_velocity().get_z() <<
+                        ")" << std::endl;
+            }
+                //verificar la energía del sistema:
+            double g_energy=0;
+            for (size_t i_2 = 0; i_2 < bodies.size(); i_2++) {
+                for (size_t j = i_2 + 1; j < bodies.size(); j++) {
+                    Vec3 r = bodies[j].get_position() - bodies[i_2].get_position();
+                    double dist = r.magnitude();
+                    // Evitar división por cero
+                    if (dist > 1e-10) {
+                        g_energy += -units::G * bodies[i_2].get_mass() * bodies[j].get_mass() / dist;
+                    }
+                }
+            }
 
+            for (CelestialBody &body : bodies) {
+                k_energy += 0.5*body.get_mass()*body.get_velocity().magnitude()*body.get_velocity().magnitude();
+            }
+            std::cout << "===>Total energy = " << k_energy + g_energy<< std::endl;
+            k_energy = 0;
+            std::cout << "==============================" << std::endl;
+            //i=0;
+        }
+        i++;
+    }
 }
