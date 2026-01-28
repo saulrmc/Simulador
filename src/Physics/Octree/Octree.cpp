@@ -4,7 +4,7 @@
 
 #include "Octree.h"
 #include <cstdint>
-static constexpr double THETA = 0.5;
+static constexpr double THETA = 0.1;
 
 Octree::Octree() {
     root = nullptr;
@@ -26,7 +26,7 @@ void Octree::erase(CelestialBody *celestial_body) {
 void Octree::create_space() {
     if (root != nullptr) delete root;
     root = new NodeOctree();
-    root->element_octree.size = 100; //en unidades de distancia xd
+    root->element_octree.size = 80000; //en unidades de distancia xd
     root->element_octree.center = Vec3(0, 0, 0);
 }
 
