@@ -18,6 +18,8 @@ void Simulation::run_simulation() {
     double v_circular = sqrt(units::G * (1.0 + 0.0123) / 1.0);
     CelestialBody earth("Earth", Vec3(0, 0, 0), Vec3(0, -0.002, 0), 1, 0.0165);
     CelestialBody moon("Moon", Vec3(1, 0, 0), Vec3(0, v_circular, 0), 0.0123, 0.00452);
+    // CelestialBody sun("Sun", Vec3(0, 0, 0), Vec3(0,  -2.01e-5, 0), 333030, 1.80983);
+    // CelestialBody earth("Earth", Vec3(389.1724, 0, 0), Vec3(0, 6.69802, 0), 1, 0.0165);
     std::cout << std::setprecision(10) << std::fixed << "v_circular inicial: "<< v_circular << std::fixed << std::endl;
     bodies.push_back(earth);
     bodies.push_back(moon);

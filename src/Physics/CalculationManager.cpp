@@ -33,6 +33,10 @@ void CalculationManager::leapfrog_integration_kick(std::vector<CelestialBody> &b
 void CalculationManager::leapfrog_integration_drift(std::vector<CelestialBody> &bodies) {
     for (CelestialBody &body : bodies) {
         Vec3 next_position = next_position_for_delta_time(units::DELTA_TIME, body.get_velocity(), body.get_position());
+        if (body.collision(next_position)) colission();
+    }
+    for (CelestialBody &body : bodies) {
+        Vec3 next_position = next_position_for_delta_time(units::DELTA_TIME, body.get_velocity(), body.get_position());
         body.set_position(next_position);
     }
 }
