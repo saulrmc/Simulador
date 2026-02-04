@@ -31,6 +31,10 @@ void CalculationManager::leapfrog_integration_kick(std::vector<CelestialBody> &b
 }
 
 void CalculationManager::leapfrog_integration_drift(std::vector<CelestialBody> &bodies) {
+    //aunque en realidad creo que debería estar separado en fases porque de la manera actual habría un pequeño desfasae temporal
+    //1.-Predicción de una siguiente posicion
+    //2.- detección de una posible colision en base a esa prediccion de posicion
+    //3.- resolver todos los posibles casos de colisiones
     for (CelestialBody &body : bodies) {
         Vec3 next_position = next_position_for_delta_time(units::DELTA_TIME, body.get_velocity(), body.get_position());
         if (body.collision(next_position)) colission();
