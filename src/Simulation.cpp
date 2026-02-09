@@ -18,14 +18,28 @@ void Simulation::run_simulation() {
     double v_circular = sqrt(units::G * (1.0 + 0.0123) / 1.0);
     CelestialBody earth("Earth", Vec3(0, 0, 0), Vec3(0, -0.002, 0), 1, 0.0165);
     CelestialBody moon("Moon", Vec3(1, 0, 0), Vec3(0, v_circular, 0), 0.0123, 0.00452);
+    earth.set_velocity(Vec3(0, -v_circular*moon.get_mass()/(earth.get_mass() + moon.get_mass()), 0));
+    moon.set_velocity(Vec3(0, v_circular*earth.get_mass()/(earth.get_mass() + moon.get_mass()), 0));
+    earth.set_position(Vec3(-moon.get_mass()/(earth.get_mass() + moon.get_mass()), 0, 0));
+    moon.set_position(Vec3(earth.get_mass()/(earth.get_mass() + moon.get_mass()), 0, 0));
     // CelestialBody sun("Sun", Vec3(0, 0, 0), Vec3(0,  -2.01e-5, 0), 333030, 1.80983);
     // CelestialBody earth("Earth", Vec3(389.1724, 0, 0), Vec3(0, 6.69802, 0), 1, 0.0165);
+    //para probar la colision...
+    //CelestialBody earth("Earth", Vec3(0, 0, 0), Vec3(0, 0, 0), 1, 0.0165);
+    //CelestialBody moon("Moon", Vec3(1, 0, 0), Vec3(0, 0, 0), 0.0123, 0.00452);
     std::cout << std::setprecision(10) << std::fixed << "v_circular inicial: "<< v_circular << std::fixed << std::endl;
     bodies.push_back(earth);
     bodies.push_back(moon);
     calcManager.update_forces(bodies);
     int i = 0;
     double k_energy=0;
+    Vec3 momentum;
+
+    for (CelestialBody &body : bodies) momentum = momentum + body.get_velocity() * body.get_mass();
+    std::cout << "Initial momentum: " << "(" << momentum.get_x() << ", " << momentum.get_y() << ", "
+    << momentum.get_z() << std::endl;
+    momentum = Vec3(0, 0, 0);
+
     while (i<=27000) {
         calcManager.step(bodies);
         if (i%1000==0) {
@@ -58,8 +72,15 @@ void Simulation::run_simulation() {
             std::cout << "===>Total energy = " << k_energy + g_energy<< std::endl;
             k_energy = 0;
             std::cout << "==============================" << std::endl;
+            for (CelestialBody &body : bodies) momentum = momentum + body.get_velocity() * body.get_mass();
+            std::cout << "Momentum: " << "(" << momentum.get_x() << ", " << momentum.get_y() << ", "
+            << momentum.get_z() << std::endl;
+            momentum = Vec3(0, 0, 0);
             //i=0;
         }
         i++;
     }
+    for (CelestialBody &body : bodies) momentum = momentum + body.get_velocity() * body.get_mass();
+    std::cout << "Final momentum: " << "(" << momentum.get_x() << ", " << momentum.get_y() << ", "
+    << momentum.get_z() << std::endl;
 }
