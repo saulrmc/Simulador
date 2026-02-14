@@ -9,7 +9,11 @@
 #include "../Physics.h"
 
 class Octree {
-    public:
+public:
+    //getters temporales (tal vez) para testear
+    int get_num_bodies() const;
+    double get_theta() const;
+
     Octree();
     virtual ~Octree();
     void insert(CelestialBody *body);
@@ -26,6 +30,12 @@ class Octree {
     bool recursively_erase(NodeOctree*&, CelestialBody *);
     void recursively_calc_forces(const NodeOctree *node, CelestialBody *body);
     uint8_t octant_for_position(const Vec3 &pos, const Vec3& center);
+    //por las pruebas que realicé es mejor dejar en 0 el valor de THETA cuando hay pocos cuerpos
+    //porque de lo contrario añade error pero tampoco puede quedarse en 0 porque sino no tiene sentido aplicar un
+    //octree si es que los cálculos van a ser por fuerza bruta
+    int num_bodies;
+    double theta = 0;
+
 };
 
 

@@ -19,6 +19,10 @@ class CalculationManager {
     void update_forces(std::vector<CelestialBody> &);
     void step(std::vector<CelestialBody> &);
 
+    //funcion temporal
+    double get_num_bodies() const;
+    double get_theta() const;
+
     private:
     Octree *root;
 };

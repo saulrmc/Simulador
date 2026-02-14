@@ -68,4 +68,12 @@ void CalculationManager::step(std::vector<CelestialBody> &bodies) {
     leapfrog_integration_kick(bodies);
 }
 
+double CalculationManager::get_num_bodies() const {
+    return root->get_num_bodies();
+}
+
+double CalculationManager::get_theta() const {
+    return root->get_theta();
+}
+
 

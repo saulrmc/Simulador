@@ -3,10 +3,20 @@
 //
 
 #include "Octree.h"
-static constexpr double THETA = 0.1;
+//static constexpr double THETA = 0;
+
+int Octree::get_num_bodies() const {
+    return num_bodies;
+}
+
+double Octree::get_theta() const {
+    return theta;
+}
 
 Octree::Octree() {
     root = nullptr;
+    num_bodies = 0;
+    theta = 0;
 }
 
 Octree::~Octree() {
@@ -89,6 +99,15 @@ void Octree::recursively_insert(NodeOctree *&node_octree, CelestialBody *body) {
             //ingresar otro cuerpo en el mismo nodo
             node_octree->element_octree.mass = body->get_mass();
             node_octree->element_octree.centerOfMass = body->get_position();
+
+            this->num_bodies++;
+            if (num_bodies < 100) this->theta = 0;
+            else if (num_bodies >= 100 and num_bodies < 1000) this-> theta = 0.1;//habria que testar cuantos cuerpos calculados por fuerza bruta
+            //puede soportar la computadora de manera fluida
+            else if (num_bodies >= 1000 and num_bodies < 10000) this-> theta = 0.2;
+            else if (num_bodies >= 10000 and num_bodies < 100000) this-> theta = 0.3;
+            else if (num_bodies >= 100000 and num_bodies < 1000000) this-> theta = 0.5;
+            else theta = 0.7;
             return;
         }
     }
@@ -109,7 +128,7 @@ bool Octree::recursively_erase(NodeOctree *&node_octree, CelestialBody *body) {
             node_octree->element_octree.body = nullptr;
             node_octree->element_octree.mass = 0;
             node_octree->element_octree.centerOfMass = Vec3(0,0,0);
-
+            this->num_bodies--;
             return true;
         }
         return false;
@@ -140,7 +159,7 @@ void Octree::recursively_calc_forces(const NodeOctree *node_octree, CelestialBod
             );
         body->set_force(bodyCurrentForce + new_force);
     }
-    else if (node_octree->element_octree.size/d < THETA) { //significa que el nodo está lo suficientemente lejos
+    else if (node_octree->element_octree.size/d < theta) { //significa que el nodo está lo suficientemente lejos
         //y se puede tratar como un solo cuerpo
         Vec3 new_force = force_exerted_from_to(
             node_octree->element_octree.mass, node_octree->element_octree.centerOfMass,
