@@ -13,15 +13,12 @@ class CalculationManager {
     CalculationManager();
     virtual ~CalculationManager();
     void create_Octree();
-    void reinsert_nodes(std::vector<CelestialBody> &);
-    void leapfrog_integration_kick(std::vector<CelestialBody> &);
-    void leapfrog_integration_drift(std::vector<CelestialBody> &);
-    void update_forces(std::vector<CelestialBody> &);
-    void step(std::vector<CelestialBody> &);
-
-    //funcion temporal
-    double get_num_bodies() const;
-    double get_theta() const;
+    void reinsert_nodes(const std::vector<CelestialBody *> &);
+    void leapfrog_integration_kick(std::vector<CelestialBody *> &);
+    void leapfrog_integration_drift(std::vector<CelestialBody *> &);
+    void update_forces(std::vector<CelestialBody*> &);
+    void step(std::vector<CelestialBody *> &);
+    void check_collisions(CelestialBody *, Vec3 &);
 
     private:
     Octree *root;

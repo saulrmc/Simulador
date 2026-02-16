@@ -11,6 +11,7 @@ CelestialBody::CelestialBody() {
     force = Vec3(0.0f, 0.0f, 0.0f);
     mass = 0.0f;
     radius = 0.0f;
+    isDivisible = true;
 }
 
 CelestialBody::CelestialBody(const std::string &name, const Vec3& position, const Vec3& velocity,
@@ -20,6 +21,7 @@ CelestialBody::CelestialBody(const std::string &name, const Vec3& position, cons
     this->velocity = velocity;
     this->mass = mass;
     this->radius = radius;
+    this->isDivisible = true;
 }
 
 CelestialBody::~CelestialBody() {
@@ -99,5 +101,13 @@ bool CelestialBody::is_it_insignificant(const CelestialBody &cuerpo) {
     if (cuerpo.mass + this->mass == this->mass) return true;
     //o podría ser en base a un porcentaje, por ejemplo el 0,0001% de la masa
     return false;
+}
+
+bool CelestialBody::is_is_divisible() const {
+    return isDivisible;
+}
+
+void CelestialBody::set_is_divisible(const bool is_divisible) {
+    isDivisible = is_divisible;
 }
 

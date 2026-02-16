@@ -5,7 +5,8 @@
 #ifndef SIMULADORGRAVITACIONAL_CELESTIALBODY_H
 #define SIMULADORGRAVITACIONAL_CELESTIALBODY_H
 #include <string>
-#include "../Commons/Vec3.h"
+#include "Vec3.h"
+#include "../Physics/PhysicsUtils.h"
 
 class CelestialBody {
     public:
@@ -32,6 +33,7 @@ class CelestialBody {
     //para el caso de las colisiones
     void minor_collision(const CelestialBody &);
     bool is_it_insignificant(const CelestialBody &);
+    virtual double gravitational_biding_energy() = 0;
 
     private:
     std::string name;
@@ -47,6 +49,13 @@ class CelestialBody {
     //despreciar, por ejemplo, sus masas.
     double accumulatedVel;
     double accumulatedMass;
+    //para evitar que los fragmentos también se sigan dividiendo en muchísimos más
+    bool isDivisible;
+
+public:
+    bool is_is_divisible() const;
+
+    void set_is_divisible(const bool is_divisible);
 };
 
 #endif //SIMULADORGRAVITACIONAL_CELESTIALBODY_H

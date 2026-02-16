@@ -13,48 +13,45 @@ CalculationManager::~CalculationManager() {
 }
 
 void CalculationManager::create_Octree() {
+    if (!root) root = new Octree();
     root->create_space();
 }
 
-void CalculationManager::reinsert_nodes(std::vector<CelestialBody> &bodies) {
-    for (CelestialBody &body : bodies) {
-        root->insert(&body);
+void CalculationManager::reinsert_nodes(const std::vector<CelestialBody*> &bodies) {
+    for (CelestialBody *body : bodies) {
+        root->insert(body);
     }
 }
 
-void CalculationManager::leapfrog_integration_kick(std::vector<CelestialBody> &bodies) {
-    for (CelestialBody &body : bodies) {
+void CalculationManager::leapfrog_integration_kick(std::vector<CelestialBody*> &bodies) {
+    for (CelestialBody *&body : bodies) {
         Vec3 next_velocity = next_velocity_for_delta_time(units::HALF_DELTA_TIME,
-            body.get_mass(), body.get_force(), body.get_velocity());
-        body.set_velocity(next_velocity);
+            body->get_mass(), body->get_force(), body->get_velocity());
+        body->set_velocity(next_velocity);
     }
 }
 
-void CalculationManager::leapfrog_integration_drift(std::vector<CelestialBody> &bodies) {
+void CalculationManager::leapfrog_integration_drift(std::vector<CelestialBody *> &bodies) {
     //aunque en realidad creo que debería estar separado en fases porque de la manera actual habría un pequeño desfasae temporal
     //(PERO no sé qué tanto afectaría a la simulación si el delta_time es muy pequeño)
     //1.-Predicción de una siguiente posicion
     //2.- detección de una posible colision en base a esa prediccion de posicion
     //3.- resolver todos los posibles casos de colisiones
-    for (CelestialBody &body : bodies) {
-        Vec3 next_position = next_position_for_delta_time(units::DELTA_TIME, body.get_velocity(), body.get_position());
-        //if (body.collision(next_position)) colission();
-    }
-    for (CelestialBody &body : bodies) {
-        Vec3 next_position = next_position_for_delta_time(units::DELTA_TIME, body.get_velocity(), body.get_position());
-        body.set_position(next_position);
+    for (CelestialBody *&body : bodies) {
+        Vec3 next_position = next_position_for_delta_time(units::DELTA_TIME, body->get_velocity(), body->get_position());
+        check_collisions(body, next_position);
+        body->set_position(next_position);
     }
 }
 
-void CalculationManager::update_forces(std::vector<CelestialBody> &bodies) {
+void CalculationManager::update_forces(std::vector<CelestialBody*> &bodies) {
     if (root) delete root;
-    root = new Octree();
     create_Octree();
     reinsert_nodes(bodies);
-    for (CelestialBody &body : bodies) root->calc_forces_per_body(&body);//fuerzas actualizadas
+    for (CelestialBody *&body : bodies) root->calc_forces_per_body(body);//fuerzas actualizadas
 }
 
-void CalculationManager::step(std::vector<CelestialBody> &bodies) {
+void CalculationManager::step(std::vector<CelestialBody *> &bodies) {
     //este codigo debe implementar una inicializacion de las fuerzas antes de ser llamado
     //porque asume que todos los cuerpos ya tienen las fuerzas inicializadas/actualizadas
     //este código debería ir antes del while principal del programa:
@@ -68,12 +65,9 @@ void CalculationManager::step(std::vector<CelestialBody> &bodies) {
     leapfrog_integration_kick(bodies);
 }
 
-double CalculationManager::get_num_bodies() const {
-    return root->get_num_bodies();
+void CalculationManager::check_collisions(CelestialBody *body, Vec3 &next_position) {
+    //buscar una posible proxima colision en los "hermanos" del nodo en el que se encuentra
+    //actualmente el cuerpo
+
+    //
 }
-
-double CalculationManager::get_theta() const {
-    return root->get_theta();
-}
-
-

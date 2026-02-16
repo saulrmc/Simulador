@@ -91,9 +91,6 @@ void Simulation::run_simulation() {
             std::cout << "Momentum: " << "(" << momentum.get_x() << ", " << momentum.get_y() << ", "
             << momentum.get_z() << ")" << std::endl;
             momentum = Vec3(0, 0, 0);
-
-            std::cout << "Num bodies: " << calcManager.get_num_bodies() << std::endl;
-            std::cout << "Theta: " << calcManager.get_theta() << std::endl;
             //i=0;
         }
         i++;

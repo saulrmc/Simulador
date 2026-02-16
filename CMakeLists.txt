@@ -16,7 +16,9 @@ add_library(glad libs/glad/glad.c
         src/Physics/Octree/NodeOctree.cpp
         src/Physics/Octree/NodeOctree.h
         src/Simulation.cpp
-        src/Simulation.h)
+        src/Simulation.h
+        src/Creation/Creation.cpp
+        src/Creation/Creation.h)
 target_include_directories(glad PUBLIC libs)
 
 add_executable(SimuladorGravitacional main.cpp
@@ -29,6 +31,14 @@ add_executable(SimuladorGravitacional main.cpp
         src/Commons/Vec3.h
         src/Physics/Physics.cpp
         src/Physics/Physics.h
+        src/Commons/Planet.cpp
+        src/Commons/Planet.h
+        src/Commons/Star.cpp
+        src/Commons/Star.h
+        src/Physics/Collisions.h
+        src/Physics/Collisions.cpp
+        src/Commons/BrownDwarf.cpp
+        src/Commons/BrownDwarf.h
 )
 
 target_link_libraries(SimuladorGravitacional glfw glad opengl32)
