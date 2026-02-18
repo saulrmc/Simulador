@@ -20,6 +20,9 @@ public:
     void erase(CelestialBody *body);
     void create_space();
     void calc_forces_per_body(CelestialBody *body);
+    NodeOctree* locate_node_father(CelestialBody*);
+    NodeOctree* locate_body(CelestialBody *);
+    void check_collisions(CelestialBody*, Vec3 &next_position);
 
     private:
     NodeOctree* root;

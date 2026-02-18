@@ -45,6 +45,31 @@ void Octree::calc_forces_per_body(CelestialBody *body) {
     recursively_calc_forces(root, body);
 }
 
+NodeOctree * Octree::locate_node_father(CelestialBody *body) {
+    NodeOctree* father = nullptr; //para no entregar el puntero original
+    father = recursively_locate_node_father(root, body);
+    return father;
+}
+
+NodeOctree * Octree::locate_body(CelestialBody *body) {
+    NodeOctree* node = nullptr;
+    node = recursively_locate_body(root, body);
+    return node;
+}
+
+void Octree::check_collisions(CelestialBody *body, Vec3 &next_position) {
+    //buscar una posible proxima colision en los "hermanos" del nodo en el que se encuentra
+    //actualmente el cuerpo
+    NodeOctree *node = locate_body(body);
+    NodeOctree *father = locate_node_father(body);
+    //Nota: será necesario chequear entre sus nodos "primos"?
+    if (!father or !node) return; //creo que el único caso donde puede existir un nodo
+    //sin su padre es cuando hay un solo cuerpo en toda la simulación
+    for (int i = 0; i < 8; i++) {
+
+    }
+}
+
 
 NodeOctree * Octree::recursively_locate_body(NodeOctree *node, CelestialBody *body) {
     if (!node) return nullptr;
@@ -66,6 +91,13 @@ NodeOctree * Octree::recursively_locate_node_father(NodeOctree *node, CelestialB
     Vec3 pos = body->get_position();
     Vec3 center = node->element_octree.get_position();
     //codigo repetido de la función select_child xd
+    //el chequeo es basándose en la posición del cuerpo y el centro del nodo
+    //pero nunca se verifica explícitamente que los punteros *body y el
+    //puntero al cuerpo que tenga uno de los hijos del nodo apunten al mismo cuerpo
+    //por lo que es más una confianza ciega en que la función octant_for_position hace
+    //bien su trabajo y que además el octree funciona correctamente. Esto en realidad es válido
+    //porque no es responsabilidad de esta función asegurarse que el resto funcione bien
+    //y además ahora tener que ejecutar bucles para buscar entre los 8 hijos del nodo seleccionado
     uint8_t index = octant_for_position(pos, center);
 
     if (!node->children[index]) return nullptr;
