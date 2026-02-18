@@ -9,13 +9,13 @@ class NodeOctree {
 public:
     NodeOctree();
     virtual ~NodeOctree();
-    void create_children();
     bool has_children() const;
     void calc_avg_values();
 
     friend class Octree;
 
 private:
+    void create_children();
     ElementOctree element_octree;
     NodeOctree *children[8]{};
 };

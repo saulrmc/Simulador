@@ -18,7 +18,6 @@ class CalculationManager {
     void leapfrog_integration_drift(std::vector<CelestialBody *> &);
     void update_forces(std::vector<CelestialBody*> &);
     void step(std::vector<CelestialBody *> &);
-    void check_collisions(std::vector<CelestialBody *> &);
 
     private:
     Octree *root;
