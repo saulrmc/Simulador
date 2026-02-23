@@ -59,6 +59,8 @@ void CalculationManager::step(std::vector<CelestialBody *> &bodies) {
     leapfrog_integration_drift(bodies); //avanza de t a t + dt y se actualiza el resto de atributos
     //como las posiciones se actualizaron entonces el octree se debe actualizar
     //porque solo representa un instante t de tiempo
+
+    //acá se deberían resolver las colisiones pero ojo que las velocidades actualizadas van a ser de dt/2
     update_forces(bodies);
     leapfrog_integration_kick(bodies);
 }

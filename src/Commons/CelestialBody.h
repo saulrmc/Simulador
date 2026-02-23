@@ -31,8 +31,8 @@ class CelestialBody {
     bool operator==(const CelestialBody &) const;
 
     //para el caso de las colisiones
-    void minor_collision(const CelestialBody &);
-    bool is_it_insignificant(const CelestialBody &);
+    void minor_collision(const double);
+    bool is_it_insignificant(const double);
     virtual double gravitational_biding_energy() = 0;
 
     private:

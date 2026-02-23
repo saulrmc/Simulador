@@ -8,8 +8,7 @@
 #include "../Commons/CelestialBody.h"
 #include "Octree/Octree.h"
 
-void detect_collisions(Octree *&octree, const std::vector<CelestialBody *> &bodies,
-    std::vector<CelestialBody *> &collidingBodies, int begin, int end);
+void detect_collisions(Octree *&octree, const std::vector<CelestialBody *> &bodies, int begin, int end);
 
 
 #endif //SIMULADORGRAVITACIONAL_COLLISIONS_H

@@ -29,3 +29,11 @@ Vec3 next_position_for_delta_time(const double delta_time, const Vec3& velocity,
     //x(t + dt) = x(t) + v(t + dt/2) * dt
     return Vec3(current_x + velocity*delta_time);
 }
+
+double specific_impact_energy(const double mass1, const double mass2, const Vec3 &vel1, const Vec3 &vel2) {
+    //se obtiene dividiendo la energía total de los dos cuerpos cambiada al sistema del centro de masa por
+    //la masa total de dicho sistema
+    const double reduced_mass = mass1*mass2/(mass1+mass2);
+    const Vec3 relative_velocity = vel1-vel2;
+    return 1.0/2*reduced_mass*relative_velocity.dot(relative_velocity)/(mass1 + mass2);
+}

@@ -93,12 +93,12 @@ bool CelestialBody::operator==(const CelestialBody &body) const {
     return false;
 }
 
-void CelestialBody::minor_collision(const CelestialBody &cuerpo) {
-    this->accumulatedMass += cuerpo.mass;
+void CelestialBody::minor_collision(const double body_mass) {
+    this->accumulatedMass += body_mass;
 }
 
-bool CelestialBody::is_it_insignificant(const CelestialBody &cuerpo) {
-    if (cuerpo.mass + this->mass == this->mass) return true;
+bool CelestialBody::is_it_insignificant(const double body_mass) {
+    if (100*body_mass/this->mass < 0.000001) return true;
     //o podría ser en base a un porcentaje, por ejemplo el 0,0001% de la masa
     return false;
 }
