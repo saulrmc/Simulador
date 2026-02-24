@@ -22,7 +22,8 @@ public:
     void calc_forces_per_body(CelestialBody *body);
     NodeOctree* locate_node_father(CelestialBody*);
     NodeOctree* locate_body(CelestialBody *);
-    void check_collisions(CelestialBody*, Vec3 &next_position);
+    void query_region(NodeOctree *&, void*(*condition)(const Vec3 &, double, double),
+        void*(*action)());
 
     private:
     NodeOctree* root;

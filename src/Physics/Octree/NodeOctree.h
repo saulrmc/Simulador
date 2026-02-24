@@ -11,8 +11,15 @@ public:
     virtual ~NodeOctree();
     bool has_children() const;
     void calc_avg_values();
+    const NodeOctree* n_child(int index) const;
 
     friend class Octree;
+
+    //exclusivo de este problema (osea del simulador)
+    double get_body_mass() const;
+    double get_body_radius() const;
+    Vec3 get_node_center() const;
+    double get_node_size() const;
 
 private:
     void create_children();

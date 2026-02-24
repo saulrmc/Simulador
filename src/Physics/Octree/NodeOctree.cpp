@@ -58,3 +58,31 @@ void NodeOctree::calc_avg_values() {
     }
 }
 
+const NodeOctree * NodeOctree::n_child(int index) const {
+    if (!this->has_children())return nullptr;
+    NodeOctree * n_child = children[index];
+    return n_child;
+}
+
+double NodeOctree::get_body_mass() const {
+    if (this->element_octree.body) { //solo tiene sentido regresar una masa si el nodo contiene un cuerpo
+        return this->element_octree.body->get_mass();
+    }
+    return 0;
+}
+
+double NodeOctree::get_body_radius() const {
+    if (this->element_octree.body) {//solo tiene sentido regresar un radio si el nodo contiene un cuerpo
+        return this->element_octree.body->get_radius();
+    }
+    return 0;
+}
+
+Vec3 NodeOctree::get_node_center() const {
+    return this->element_octree.center;
+}
+
+double NodeOctree::get_node_size() const {
+    return this->element_octree.size;
+}
+

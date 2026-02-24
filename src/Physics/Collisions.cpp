@@ -4,18 +4,22 @@
 
 #include "Collisions.h"
 
-void resolve_collisions(Octree *&octree, const std::vector<CelestialBody *> &bodies, int begin, int end) {
+void resolve_collisions(const Octree *&octree, const NodeOctree *&node,
+    const std::vector<CelestialBody *> &bodies, int begin, int end) {
     if (begin > end) return;
     if (begin == end) {
-        NodeOctree *bodyFatherNode = octree->locate_node_father(bodies[begin]);
-        if (!bodyFatherNode) return; //significa que es el único cuerpo en la simulación
-        for (int i = 0; i < 8; i++) {
-            //detectas colision
-
-            //resuelves colision
-        }
+        detect_collisions(node, bodies[begin]->get_radius());
+        octree->query_region(node, intersection, collision);
     }
     int middle = begin + (end - begin) / 2;
-    detect_collisions(octree, bodies, begin, middle);
-    detect_collisions(octree, bodies, middle + 1,  end);
+    resolve_collisions(octree, node, bodies, begin, middle);
+    resolve_collisions(octree, node, bodies, middle + 1,  end);
+}
+
+bool intersection(const Vec3 &center, const double size, const double radius) {
+
+}
+void collision(double effective_energy, double grav_biding_energy) {
+    if (effective_energy > grav_biding_energy) ;
+
 }

@@ -57,17 +57,13 @@ NodeOctree * Octree::locate_body(CelestialBody *body) {
     return node;
 }
 
-void Octree::check_collisions(CelestialBody *body, Vec3 &next_position) {
-    //buscar una posible proxima colision en los "hermanos" del nodo en el que se encuentra
-    //actualmente el cuerpo
-    NodeOctree *node = locate_body(body);
-    NodeOctree *father = locate_node_father(body);
-    //Nota: será necesario chequear entre sus nodos "primos"?
-    if (!father or !node) return; //creo que el único caso donde puede existir un nodo
-    //sin su padre es cuando hay un solo cuerpo en toda la simulación
-    for (int i = 0; i < 8; i++) {
-
+void Octree::query_region(NodeOctree *&node, void *(*condition)(const Vec3 &, double, double), void *(*action)()) {
+    if (!node) return;
+    if (!condition) return;
+    if (node->has_children()) {
+        for (int i = 0; i < 8; i++) query_region(node->children[0], condition, action);
     }
+    action();
 }
 
 
