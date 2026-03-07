@@ -29,19 +29,19 @@ Vec3 next_position_for_delta_time(const double delta_time, const Vec3& velocity,
 }
 
 //para colisiones simples
-double specific_impact_energy(const double mass1, const double mass2, const Vec3 &relative_velocity) {
-    //se obtiene dividiendo la energía total de los dos cuerpos cambiada al sistema del centro de masa por
-    //la masa total de dicho sistema
-    const double reduced_mass = mass1*mass2/(mass1+mass2);
-    return 1.0/2*reduced_mass*relative_velocity.dot(relative_velocity)/(mass1 + mass2);
-}
-
-double effective_specific_impact_energy(const double mass1, const double mass2, const Vec3 &vel1, const Vec3 &vel2,
-    const Vec3& center1, const Vec3& center2) {
-    //aunque en realidad en cálculo debería ser con las partes de las masas que van a interactuar pero... :/
-    const Vec3 relative_velocity = vel1-vel2;
-    const Vec3 distance = center1-center2;
-    double energy = specific_impact_energy(mass1, mass2, relative_velocity);
-    double cos_angle = relative_velocity.dot(distance)/(relative_velocity.magnitude()*distance.magnitude());
-    return energy*cos_angle*cos_angle;
-}
+// double specific_impact_energy(const double mass1, const double mass2, const Vec3 &relative_velocity) {
+//     //se obtiene dividiendo la energía total de los dos cuerpos cambiada al sistema del centro de masa por
+//     //la masa total de dicho sistema
+//     const double reduced_mass = mass1*mass2/(mass1+mass2);
+//     return 1.0/2*reduced_mass*relative_velocity.dot(relative_velocity)/(mass1 + mass2);
+// }
+//
+// double effective_specific_impact_energy(const double mass1, const double mass2, const Vec3 &vel1, const Vec3 &vel2,
+//     const Vec3& center1, const Vec3& center2) {
+//     //aunque en realidad en cálculo debería ser con las partes de las masas que van a interactuar pero... :/
+//     const Vec3 relative_velocity = vel1-vel2;
+//     const Vec3 distance = center1-center2;
+//     double energy = specific_impact_energy(mass1, mass2, relative_velocity);
+//     double cos_angle = relative_velocity.dot(distance)/(relative_velocity.magnitude()*distance.magnitude());
+//     return energy*cos_angle*cos_angle;
+// }

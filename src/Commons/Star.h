@@ -12,7 +12,7 @@ class Star : public CelestialBody{//por ahora no se hará la distinción entre
     public:
     Star();
     virtual ~Star();
-    double gravitational_biding_energy() override;
+    //double gravitational_biding_energy() override;
     private:
 
 };

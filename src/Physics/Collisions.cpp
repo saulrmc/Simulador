@@ -19,7 +19,3 @@ void resolve_collisions(const Octree *&octree, const NodeOctree *&node,
 bool intersection(const Vec3 &center, const double size, const double radius) {
 
 }
-void collision(double effective_energy, double grav_biding_energy) {
-    if (effective_energy > grav_biding_energy) ;
-
-}
