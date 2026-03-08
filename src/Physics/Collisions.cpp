@@ -4,18 +4,21 @@
 
 #include "Collisions.h"
 
-void resolve_collisions(const Octree *&octree, const NodeOctree *&node,
+void collisions_for_bodies(const Octree *&octree, const NodeOctree *&node,
     const std::vector<CelestialBody *> &bodies, int begin, int end) {
     if (begin > end) return;
     if (begin == end) {
-        detect_collisions(node, bodies[begin]->get_radius());
+
         octree->query_region(node, intersection, collision);
     }
     int middle = begin + (end - begin) / 2;
-    resolve_collisions(octree, node, bodies, begin, middle);
-    resolve_collisions(octree, node, bodies, middle + 1,  end);
+    collisions_for_bodies(octree, node, bodies, begin, middle);
+    collisions_for_bodies(octree, node, bodies, middle + 1,  end);
 }
 
-bool intersection(const Vec3 &center, const double size, const double radius) {
-
+bool intersection(const Vec3 &center1, const Vec3 &center2, const double radius1, const double radius2) {
+    double distance = (center2 - center1).magnitude();
+    return radius1 + radius2 <= distance;
 }
+
+
