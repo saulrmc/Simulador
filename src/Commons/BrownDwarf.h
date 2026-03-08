@@ -12,7 +12,7 @@ class BrownDwarf : public CelestialBody{
     BrownDwarf();
     virtual ~BrownDwarf();
     private:
-    //double gravitational_biding_energy() override;
+    double gravitational_biding_energy() override;
 };
 
 
