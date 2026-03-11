@@ -8,7 +8,7 @@ void collisions_for_bodies(const Octree *&octree, const NodeOctree *&node,
     const std::vector<CelestialBody *> &bodies, int begin, int end) {
     if (begin > end) return;
     if (begin == end) {
-        octree->query_region(node, overlap_node, collision);
+        octree->query_region(node, overlap_node, collision, bodies[begin]);
     }
     int middle = begin + (end - begin) / 2;
     collisions_for_bodies(octree, node, bodies, begin, middle);

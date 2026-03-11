@@ -57,13 +57,18 @@ NodeOctree * Octree::locate_body(CelestialBody *body) {
     return node;
 }
 
-void Octree::query_region(NodeOctree *&node, void *(*condition)(const Vec3 &, double, double), void *(*action)()) {
-    if (!node) return;
-    if (!condition) return;
+void Octree::query_region(NodeOctree *node, bool (*condition)(const Vec3&, double, const Vec3&, double),
+    void (*action)(CelestialBody *, CelestialBody *), CelestialBody *body) {
+    if (!node or !condition or !action or !body) return;
+    if (!condition(node->element_octree.center, node->element_octree.size, body->get_position(),
+                   body->get_radius())) return;
     if (node->has_children()) {
-        for (int i = 0; i < 8; i++) query_region(node->children[0], condition, action);
+        for (int i = 0; i < 8; i++) query_region(node->children[i], condition, action, body);
     }
-    action();
+    else {
+        if (node->element_octree.body and node->element_octree.body != body)
+            action(node->element_octree.body, body);
+    }
 }
 
 
