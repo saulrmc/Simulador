@@ -26,6 +26,8 @@ class CelestialBody {
     void set_mass(const double mass);
     double get_radius() const;
     void set_radius(const double radio);
+    int get_id() const;
+    void set_id(const int id);
 
     void operator=(const CelestialBody &);
     bool operator==(const CelestialBody &) const;
@@ -40,7 +42,7 @@ class CelestialBody {
     Vec3 velocity, position, force;
     double mass;
     double radius;
-
+    int id;
     //pero qué ocurre cuando un objeto enorme colisiona con uno muy pequeño?
     //como en el caso del Sol con la Luna.
     //En la vida real una colisión así mantendría al Sol practicamente igual

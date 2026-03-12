@@ -51,8 +51,8 @@ double mutual_escape_velocity(double mass1, double mass2, Vec3 pos1, Vec3 pos2) 
     return sqrt(2*units::G*(mass1 + mass2)/distance);
 }
 
-double catastrophic_disruption_criterion(Vec3 &vel1, Vec3 &vel2, double radius1, double radius2) {
-    // se asume que ell régimen de fuerza es despreciable para satélites, planetas y demás cuerpos más masivos...
+double catastrophic_disruption_criterion(const Vec3 &vel1, const Vec3 &vel2, double radius1, double radius2) {
+    // se asume que el régimen de fuerza es despreciable para satélites, planetas y demás cuerpos más masivos...
 
     const Vec3 relativeVelocity = vel1-vel2;
     //POR AHORA se va a asumir que los cuerpos son de densidades iguales

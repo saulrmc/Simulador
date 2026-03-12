@@ -66,7 +66,8 @@ void Octree::query_region(NodeOctree *node, bool (*condition)(const Vec3&, doubl
         for (int i = 0; i < 8; i++) query_region(node->children[i], condition, action, body);
     }
     else {
-        if (node->element_octree.body and node->element_octree.body != body)
+        if (node->element_octree.body and node->element_octree.body != body and
+            body->get_id() < node->element_octree.body->get_id())
             action(node->element_octree.body, body);
     }
 }
@@ -125,6 +126,7 @@ void Octree::recursively_insert(NodeOctree *&node_octree, CelestialBody *body) {
             recursively_insert(destinyOld, oldBody);
         }
         else {
+            body->set_id(num_bodies);
             node_octree->element_octree.body = body;
             //como el nodo externo recien tiene un cuerpo entonces
             //se debe inicializar los valores del centro de masa y masa

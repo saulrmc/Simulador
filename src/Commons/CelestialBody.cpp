@@ -103,6 +103,14 @@ bool CelestialBody::is_it_insignificant(const double body_mass) {
     return false;
 }
 
+int CelestialBody::get_id() const {
+    return id;
+}
+
+void CelestialBody::set_id(const int id) {
+    this->id = id;
+}
+
 bool CelestialBody::is_is_divisible() const {
     return isDivisible;
 }
