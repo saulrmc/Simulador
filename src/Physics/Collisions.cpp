@@ -92,7 +92,7 @@ void resolve_collision(CelestialBody *&body1, CelestialBody *&body2) {
     double bCrit = largestBody->get_radius()/(largestBody->get_radius() + smallestBody->get_radius());
     bool grazingImpact = true;
 
-    if (bParameter > bCrit) grazingImpact = false;
+    if (bParameter < bCrit) grazingImpact = false;
 
     //calcular el criterio de disrupción catastrófica y la velocidad crítica de impacto
     const double combinedRadius = pow(largestBody->get_radius() *
@@ -118,39 +118,23 @@ void resolve_collision(CelestialBody *&body1, CelestialBody *&body2) {
 
     double vErosion = impact_velocity(reducedMass, specificImpEnergyErosion,
         totalMass);
-
-    if (mutualEscapeVelMod < relativeVelocity and
-        relativeVelocity < vErosion and grazingImpact) {
-        hit_n_run_regime(largestBody, smallestBody); //pero el régimen de acreción parcial
-        //tiene la misma condición
-        return;
-    }
-
-
     double specificImpEnergySC = specific_impact_energy(0.1 * totalMass,
-        disruptionEnergy, largestBody->get_mass(), smallestBody->get_mass());
+    disruptionEnergy, largestBody->get_mass(), smallestBody->get_mass());
     double vSupercat = impact_velocity(reducedMass, specificImpEnergySC, totalMass);
 
-    if (relativeVelocity > vErosion) {
-        erosion_regime(largestBody, smallestBody);
-        return;
-    }
+    if (relativeVelocity > vSupercat) super_catastrophic_disruption_regime(largestBody, smallestBody);
+    else {
+        if (!grazingImpact) {
+            if (relativeVelocity > vErosion) erosion_disruption_regime_non_grazing(largestBody, smallestBody);
+            else partial_acretion_regime(largestBody, smallestBody);
+        }
+        else {
+            if (relativeVelocity > vErosion)
+                erosion_disruption_regime_grazing(largestBody, smallestBody);// la ley universal
+            //para la masa del remanente más grande se cumple si
+            //esa masa es menor que la masa del cuerpo más grande (masivo)
 
-    if (relativeVelocity > vSupercat) {
-        super_catastrophic_disruption_regime(largestBody, smallestBody);
-        return;
-    }
-
-    if (mutualEscapeVelMod < relativeVelocity and
-        relativeVelocity < vSupercat and !grazingImpact) {
-        disruption_regime(largestBody, smallestBody);
-        return;
-    }
-    if (vErosion < relativeVelocity and
-        relativeVelocity < vSupercat and grazingImpact) {
-        disruption_regime(largestBody, smallestBody);
-        //y la ley universal para la masa del remanente más grande se cumple si
-        //esa masa es menor que la masa del cuerpo más grande (masivo)
-        return;
+            else hit_and_run_regime(largestBody, smallestBody);
+        }
     }
 }
