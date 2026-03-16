@@ -23,7 +23,7 @@ public:
     NodeOctree* locate_node_father(CelestialBody*);
     NodeOctree* locate_body(CelestialBody *);
     void query_region(NodeOctree *node, bool (*condition)(const Vec3&, double, const Vec3&, double),
-        void (*action)(CelestialBody *, CelestialBody *), CelestialBody *body);
+        void (*action)(CelestialBody *&, CelestialBody *&), CelestialBody *body);
 
     private:
     NodeOctree* root;
@@ -39,6 +39,7 @@ public:
     //octree si es que los cálculos van a ser por fuerza bruta
     int num_bodies;
     double theta = 0;
+    int num_id;
 
 };
 

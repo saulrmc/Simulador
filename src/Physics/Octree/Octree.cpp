@@ -17,6 +17,7 @@ Octree::Octree() {
     root = nullptr;
     num_bodies = 0;
     theta = 0;
+    num_id = 0;
 }
 
 Octree::~Octree() {
@@ -58,7 +59,7 @@ NodeOctree * Octree::locate_body(CelestialBody *body) {
 }
 
 void Octree::query_region(NodeOctree *node, bool (*condition)(const Vec3&, double, const Vec3&, double),
-    void (*action)(CelestialBody *, CelestialBody *), CelestialBody *body) {
+    void (*action)(CelestialBody *&, CelestialBody *&), CelestialBody *body) {
     if (!node or !condition or !action or !body) return;
     if (!condition(node->element_octree.center, node->element_octree.size, body->get_position(),
                    body->get_radius())) return;
@@ -126,7 +127,7 @@ void Octree::recursively_insert(NodeOctree *&node_octree, CelestialBody *body) {
             recursively_insert(destinyOld, oldBody);
         }
         else {
-            body->set_id(num_bodies);
+            body->set_id(num_id);
             node_octree->element_octree.body = body;
             //como el nodo externo recien tiene un cuerpo entonces
             //se debe inicializar los valores del centro de masa y masa
@@ -136,6 +137,7 @@ void Octree::recursively_insert(NodeOctree *&node_octree, CelestialBody *body) {
             node_octree->element_octree.centerOfMass = body->get_position();
 
             this->num_bodies++;
+            this->num_id++;
             if (num_bodies < 100) this->theta = 0;
             else if (num_bodies >= 100 and num_bodies < 1000) this-> theta = 0.1;//habria que testar cuantos cuerpos calculados por fuerza bruta
             //puede soportar la computadora de manera fluida
