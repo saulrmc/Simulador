@@ -39,7 +39,7 @@ public:
     //octree si es que los cálculos van a ser por fuerza bruta
     int num_bodies;
     double theta = 0;
-    int num_id;
+    //int num_id;
 
 };
 

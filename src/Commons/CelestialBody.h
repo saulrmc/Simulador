@@ -28,6 +28,8 @@ class CelestialBody {
     void set_radius(const double radio);
     int get_id() const;
     void set_id(const int id);
+    int get_index() const;
+    void set_index(const int index);
 
     void operator=(const CelestialBody &);
     bool operator==(const CelestialBody &) const;
@@ -43,6 +45,9 @@ class CelestialBody {
     double mass;
     double radius;
     int id;
+    int index;//este atributo es la posición en la estructura de datos que se encuentra
+    //por ahora es solo útil por la existencia del vector
+
     //pero qué ocurre cuando un objeto enorme colisiona con uno muy pequeño?
     //como en el caso del Sol con la Luna.
     //En la vida real una colisión así mantendría al Sol practicamente igual

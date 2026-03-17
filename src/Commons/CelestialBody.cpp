@@ -111,6 +111,14 @@ void CelestialBody::set_id(const int id) {
     this->id = id;
 }
 
+int CelestialBody::get_index() const {
+    return index;
+}
+
+void CelestialBody::set_index(const int index) {
+    this->index = index;
+}
+
 bool CelestialBody::is_is_divisible() const {
     return isDivisible;
 }

@@ -10,6 +10,7 @@
 
 Creation::Creation() {
     jupiter_mass = units::MASS_0 * 317.8;
+    num_id = 0;
 }
 
 Creation::~Creation() {
@@ -27,6 +28,8 @@ void Creation::create_planet(const std::string &name, const Vec3& position, cons
     body->set_velocity(velocity);
     body->set_mass(mass);
     body->set_radius(radius);
+    body->set_id(num_id++);
+    body->set_index(static_cast<int>(bodies.size()));
     bodies.push_back(body);
 }
 
@@ -39,6 +42,8 @@ void Creation::create_star(const std::string &name, const Vec3& position, const 
     body->set_velocity(velocity);
     body->set_mass(mass);
     body->set_radius(radius);
+    body->set_id(num_id++);
+    body->set_index(static_cast<int>(bodies.size()));
     bodies.push_back(body);
 }
 
@@ -51,6 +56,8 @@ void Creation::create_brown_dwarf(const std::string &name, const Vec3& position,
     body->set_velocity(velocity);
     body->set_mass(mass);
     body->set_radius(radius);
+    body->set_id(num_id++);
+    body->set_index(static_cast<int>(bodies.size()));
     bodies.push_back(body);
 }
 
@@ -70,4 +77,9 @@ double Creation::get_jupiter_mass() const {
     return jupiter_mass;
 }
 
+void Creation::delete_body(const int index_body) {
+    bodies[index_body] = bodies.back();
+    bodies[index_body]->set_index(index_body);
+    bodies.pop_back();
+}
 
