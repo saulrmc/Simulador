@@ -77,7 +77,7 @@ double Creation::get_jupiter_mass() const {
     return jupiter_mass;
 }
 
-void Creation::delete_body(const int index_body) {
+void delete_body(std::vector<CelestialBody*> &bodies, const int index_body) {
     bodies[index_body] = bodies.back();
     bodies[index_body]->set_index(index_body);
     bodies.pop_back();

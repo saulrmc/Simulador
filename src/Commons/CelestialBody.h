@@ -57,12 +57,6 @@ class CelestialBody {
     double accumulatedVel;
     double accumulatedMass;
     //para evitar que los fragmentos también se sigan dividiendo en muchísimos más
-    bool isDivisible;
-
-public:
-    bool is_is_divisible() const;
-
-    void set_is_divisible(const bool is_divisible);
 };
 
 #endif //SIMULADORGRAVITACIONAL_CELESTIALBODY_H

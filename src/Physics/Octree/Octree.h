@@ -7,7 +7,7 @@
 
 #include "NodeOctree.h"
 #include "../Physics.h"
-
+#include <vector>
 class Octree {
 public:
     //getters temporales (tal vez) para testear
@@ -23,7 +23,8 @@ public:
     NodeOctree* locate_node_father(CelestialBody*);
     NodeOctree* locate_body(CelestialBody *);
     void query_region(NodeOctree *node, bool (*condition)(const Vec3&, double, const Vec3&, double),
-        void (*action)(CelestialBody *&, CelestialBody *&), CelestialBody *body);
+        void (*action)(CelestialBody *&, CelestialBody *&,
+            std::vector<CelestialBody*>&), CelestialBody *body,  std::vector<CelestialBody*>&);
 
     private:
     NodeOctree* root;

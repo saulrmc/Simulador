@@ -17,7 +17,6 @@ class Creation {
     void create_brown_dwarf(const std::string&, const Vec3&, const Vec3&, const double, const double);
     void create_body(const std::string&, const Vec3&, const Vec3&, const double, const double);
     double get_jupiter_mass() const;
-    void delete_body(const int index_body);
 
 
     //funciones para crear cuerpos conocidos y evitar tener que setear sus valores "a mano"
@@ -31,6 +30,6 @@ class Creation {
     double jupiter_mass; //para distinguir planetas de estrellas
     int num_id;
 };
-
+void delete_body(std::vector<CelestialBody*> &bodies, const int index_body);
 
 #endif //SIMULADORGRAVITACIONAL_CREATION_H

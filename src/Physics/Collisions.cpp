@@ -4,13 +4,12 @@
 
 #include "Collisions.h"
 
-#include <algorithm>
-
 void collisions_for_bodies(Octree *const &octree, NodeOctree *const &node,
-                           const std::vector<CelestialBody *> &bodies, int begin, int end) {
+    std::vector<CelestialBody *> &bodies, int begin, int end) {
     if (begin > end) return;
     if (begin == end) {
-        octree->query_region(node, overlap_node, resolve_collision, bodies[begin]);
+        octree->query_region(node, overlap_node,
+            resolve_collision, bodies[begin], bodies);
     }
     int middle = begin + (end - begin) / 2;
     collisions_for_bodies(octree, node, bodies, begin, middle);
@@ -63,7 +62,7 @@ Vec3 closest_point(const Vec3 &nodeCenter, double nodeSize, const Vec3 &bodyCent
     return closestPoint;
 }
 
-void resolve_collision(CelestialBody *&body1, CelestialBody *&body2) {
+void resolve_collision(CelestialBody *&body1, CelestialBody *&body2, std::vector<CelestialBody *> &bodies) {
     if (body2->get_id() > body1->get_id()) return; //para solo resolver las colisiones de un lado del par
     double overlap = overlap_body(body1->get_position(), body2->get_position(),
         body1->get_radius(), body2->get_radius());
@@ -81,14 +80,14 @@ void resolve_collision(CelestialBody *&body1, CelestialBody *&body2) {
         largestBody->get_mass(), massInteract);
 
     if (relativeVelocity < mutualEscapeVelMod) {
-        merge_regime(largestBody, smallestBody);
+        merge_regime(largestBody, smallestBody, bodies);
         return;
     }
 
-    //calcular bcrit, si b < bcrit el impacto es no rozante (no es posible un hit-run)
+    //calcular b_crit, si b < b_crit el impacto es no rozante (no es posible un hit-run)
     double collisionAngle = collision_angle(largestBody->get_velocity(),
-        smallestBody->get_velocity(), body1->get_position(),
-        body2->get_position() );
+        smallestBody->get_velocity(), largestBody->get_position(),
+        smallestBody->get_position() );
     double bParameter = sin(collisionAngle);
     double bCrit = largestBody->get_radius()/(largestBody->get_radius() + smallestBody->get_radius());
     bool grazingImpact = true;
@@ -112,7 +111,7 @@ void resolve_collision(CelestialBody *&body1, CelestialBody *&body2) {
         reducedMass, reducedMassMod);
     double criticalImpVelByAngle = critical_impact_velocity_by_angle(disruptionEnergy,
         totalMass, reducedMass);
-    double specificImpEnergyErosion = specific_impact_energy(
+        double specificImpEnergyErosion = specific_impact_energy(
         largestBody->get_mass(), disruptionEnergy,
         largestBody->get_mass(), smallestBody->get_mass());//Specific impact energy
     //for the collision in center of mass frame
@@ -124,42 +123,69 @@ void resolve_collision(CelestialBody *&body1, CelestialBody *&body2) {
     double vSupercat = impact_velocity(reducedMass, specificImpEnergySC, totalMass);
 
     if (relativeVelocity > vSupercat) super_catastrophic_disruption_regime(largestBody, smallestBody);
+    else if (relativeVelocity > vErosion) erosion_disruption_regime(largestBody, smallestBody,
+                    bodies, specificImpEnergyErosion, disruptionEnergy, bParameter);
     else {
-        if (!grazingImpact) {
-            if (relativeVelocity > vErosion) erosion_disruption_regime_non_grazing(largestBody, smallestBody);
-            else partial_accretion_regime(largestBody, smallestBody);
-        }
-        else {
-            if (relativeVelocity > vErosion)
-                erosion_disruption_regime_grazing(largestBody, smallestBody);// la ley universal
-            //para la masa del remanente más grande se cumple si
-            //esa masa es menor que la masa del cuerpo más grande (masivo)
-
-            else hit_and_run_regime(largestBody, smallestBody);
-        }
+        if (!grazingImpact) partial_accretion_regime(largestBody, smallestBody);
+        else hit_and_run_regime(largestBody, smallestBody);
     }
 }
 
 //regímenes:
 
-void merge_regime(CelestialBody *largestBody, CelestialBody *smallestBody) {
+void merge_regime(CelestialBody *&largestBody, CelestialBody *&smallestBody,
+    std::vector<CelestialBody *> &bodies) {
     //se debe conservar el momento lineal
-
+    Vec3 initialMomentum = momentum(largestBody->get_velocity(), largestBody->get_mass(),
+        smallestBody->get_velocity(), smallestBody->get_mass());
+    double density = density_by_mass_and_radius(largestBody->get_mass(),
+        largestBody->get_radius());
+    largestBody->set_mass(largestBody->get_mass() + smallestBody->get_mass());//absorbe al otro cuerpo
+    largestBody->set_velocity(initialMomentum/largestBody->get_mass());//conservación el momentum
+    double newRadius = radius_by_density_and_mass(largestBody->get_mass(), density);//se ajusta el nuevo radio
+    largestBody->set_radius(newRadius);
+    delete_body(bodies, smallestBody->get_index());
 }
 
-void super_catastrophic_disruption_regime(CelestialBody *largestBody, CelestialBody *smallestBody) {
+void super_catastrophic_disruption_regime(CelestialBody *largestBody,
+    CelestialBody *smallestBody) {
 }
 
-void erosion_disruption_regime_non_grazing(CelestialBody *largestBody, CelestialBody *smallestBody) {
+
+void erosion_disruption_regime(CelestialBody *largestBody,
+    CelestialBody *smallestBody, std::vector<CelestialBody *> &bodies,
+    double specificImpEnergyErosion, double disruptionEnergy, double bParameter) {
+
+    Vec3 initialMomentum = momentum(largestBody->get_velocity(), largestBody->get_mass(),
+            smallestBody->get_velocity(), smallestBody->get_mass());
+    double mLR = mass_largest_remnant(specificImpEnergyErosion,
+        disruptionEnergy, largestBody->get_mass() + smallestBody->get_mass());
+    double mSLR = mass_second_largest_remnant(mLR,
+        largestBody->get_mass() + smallestBody->get_mass());
+    Vec3 velCM = (largestBody->get_velocity() * largestBody->get_mass() +
+            smallestBody->get_velocity() * smallestBody->get_mass()) /
+                (largestBody->get_mass() + smallestBody->get_mass());
+    if (bParameter == 0)//frontal
+        erosion_disruption_regime_collision(largestBody, smallestBody,
+            mLR, mSLR, velCM, initialMomentum);
+    else if (bParameter > 0.7)
+        erosion_disruption_regime_collision(largestBody, smallestBody,
+            mLR, mSLR, largestBody->get_velocity(), initialMomentum);
+    else {
+        Vec3 newVelLR;
+        if (bParameter < 0.175) newVelLR = velCM * 0.8+ largestBody->get_velocity() * 0.2;
+        else if (bParameter < 0.35) newVelLR = velCM * 0.6+ largestBody->get_velocity() * 0.4;
+        else if (bParameter < 0.525) newVelLR = velCM * 0.4+ largestBody->get_velocity() * 0.6;
+        else newVelLR = velCM * 0.2 + largestBody->get_velocity() * 0.8;
+        erosion_disruption_regime_collision(largestBody, smallestBody,
+            mLR, mSLR, newVelLR, initialMomentum);
+    }
 }
 
-void partial_accretion_regime(CelestialBody *largestBody, CelestialBody *smallestBody) {
+void partial_accretion_regime(CelestialBody *&largestBody, CelestialBody *&smallestBody) {
 }
 
-void erosion_disruption_regime_grazing(CelestialBody *largestBody, CelestialBody *smallestBody) {
-}
-
-void hit_and_run_regime(CelestialBody *largestBody, CelestialBody *smallestBody) {
+void hit_and_run_regime(CelestialBody *&largestBody, CelestialBody *&smallestBody) {
 }
 
 
@@ -182,7 +208,7 @@ void hit_and_run_regime(CelestialBody *largestBody, CelestialBody *smallestBody)
 //     return energy*cos_angle*cos_angle;
 // }
 
-double mutual_escape_velocity(double mass1, double mass2, Vec3 pos1, Vec3 pos2) {
+double mutual_escape_velocity(double mass1, double mass2, const Vec3 &pos1, const Vec3 &pos2) {
     double distance = (pos2 - pos1).magnitude();
     return sqrt(2.0*units::G*(mass1 + mass2)/distance);
 }
@@ -224,7 +250,7 @@ double mass_interact(const Vec3 &vel1, const Vec3 &vel2, const Vec3& center1, co
 
 double disruption_curve(double radius1, double radius2) {
     const double combinedRadius = pow(radius1*radius1*radius1 + radius2*radius2*radius2, 1.0/3);
-    double c = 1.9; //representa la diferencia entre la energía de
+    double c = 1.9; //Representa la diferencia entre la energía de
         //enlace gravitacional y el criterio de disipación para masas iguales. El valor recomendado
         //para cuerpos como planetas es de 1.9+-0.3
     return c * (4.0/5) * std::numbers::pi * DENSITY * units::G * combinedRadius * combinedRadius;
@@ -256,7 +282,7 @@ double disruption_energy_by_angle(double disruptionCriterion, double reducedMass
 }
 
 double critical_impact_velocity_by_angle(double disruptionEnergy, double totalMass, double reducedMass) {
-    //así lo llama en el paper pero no usa un ángulo
+    //así lo llama en el paper, pero no usa un ángulo
    return sqrt(2.0*disruptionEnergy*totalMass/reducedMass);
 }
 
@@ -266,4 +292,47 @@ double specific_impact_energy(double massLR, double disruptionEnergy, double lar
 
 double impact_velocity(double reducedMass, double specificImpEnergy, double totalMass) {
     return sqrt(2 * specificImpEnergy*totalMass/reducedMass);
+}
+
+double mass_largest_remnant(double specificImpEnergyErosion, double disruptionEnergy, double totalMass) {
+    return totalMass * (1 - 0.5*specificImpEnergyErosion/disruptionEnergy);
+}
+
+double mass_second_largest_remnant(double mLR, double totalMass) {
+    return (3 - 2.85)*(1 - mLR/totalMass)/(2 * 2.85);
+}
+
+Vec3 momentum(const Vec3 &vel1, double mass1, const Vec3 &vel2, double mass2) {
+    return (vel1 * mass1 + vel2 * mass2) / (mass1 + mass2);
+}
+
+double radius_by_density_and_mass(double mass, double density) {
+    return pow(3 * mass/(4 * std::numbers::pi * density), 1.0/3);
+}
+
+double density_by_mass_and_radius(double mass, double radius) {
+    return 3 * mass / (4 * std::numbers::pi * pow(radius, 3));
+}
+
+void refresh_body(double currentMass, double newMass, double currentRadius,
+    const Vec3 &newVelocity, CelestialBody *&body) {
+    double density = density_by_mass_and_radius(currentMass, currentRadius);
+    body->set_mass(newMass);
+    double newRadius = radius_by_density_and_mass(newMass, density);
+    body->set_radius(newRadius);
+    body->set_velocity(newVelocity);
+}
+
+void erosion_disruption_regime_collision(CelestialBody *&largestBody, CelestialBody *&smallestBody,
+    double mLR, double mSLR, const Vec3 &newVelLR, const Vec3 &initialMomentum) {
+    //el cuerpo más grande se actualiza:
+    refresh_body(largestBody->get_mass(),
+        mLR, largestBody->get_radius(), newVelLR, largestBody);
+    //el cuerpo más pequeño se actualiza
+    refresh_body(smallestBody->get_mass(), mSLR,
+        smallestBody->get_radius(), newVelLR, smallestBody);
+    //se debe corregir la velocidad del segundo fragmento más grande (SLR):
+    Vec3 newVelSLR = (initialMomentum - largestBody->get_velocity()*largestBody->get_mass())/
+        smallestBody->get_mass();
+    smallestBody->set_velocity(newVelSLR);
 }

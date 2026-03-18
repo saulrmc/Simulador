@@ -11,7 +11,6 @@ CelestialBody::CelestialBody() {
     force = Vec3(0.0f, 0.0f, 0.0f);
     mass = 0.0f;
     radius = 0.0f;
-    isDivisible = true;
 }
 
 CelestialBody::CelestialBody(const std::string &name, const Vec3& position, const Vec3& velocity,
@@ -21,7 +20,6 @@ CelestialBody::CelestialBody(const std::string &name, const Vec3& position, cons
     this->velocity = velocity;
     this->mass = mass;
     this->radius = radius;
-    this->isDivisible = true;
 }
 
 CelestialBody::~CelestialBody() {
@@ -117,13 +115,5 @@ int CelestialBody::get_index() const {
 
 void CelestialBody::set_index(const int index) {
     this->index = index;
-}
-
-bool CelestialBody::is_is_divisible() const {
-    return isDivisible;
-}
-
-void CelestialBody::set_is_divisible(const bool is_divisible) {
-    isDivisible = is_divisible;
 }
 
