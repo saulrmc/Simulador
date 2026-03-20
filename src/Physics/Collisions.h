@@ -13,8 +13,8 @@ static constexpr double MI = 0.5; //Medida de cómo la energía y el momentum de
 //obtuve este número se representa como el símbolo "mi" griego pero un sombrero encima
 
 
-void collisions_for_bodies(Octree *const &octree, NodeOctree *const &node,
-    const std::vector<CelestialBody *> &bodies, int begin, int end);
+void collisions_for_bodies(Octree *const &octree, const std::vector<CelestialBody *> &bodies, int begin, int end);
+void collisions_for_bodies(Octree *const &octree, std::vector<CelestialBody *> &bodies);
 double overlap_body(const Vec3 &center1, const Vec3 &center2, const double radius1, const double radius2) ;
 bool overlap_node(const Vec3 &nodeCenter, double nodeSize, const Vec3 &bodyCenter, double bodyRadius) ;
 Vec3 closest_point(const Vec3 &nodeCenter, double nodeSize, const Vec3 &bodyCenter) ;

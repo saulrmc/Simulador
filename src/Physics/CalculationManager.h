@@ -7,6 +7,8 @@
 #include <vector>
 #include "PhysicsUtils.h"
 #include "Octree/Octree.h"
+#include "Collisions.h"
+#include "LeapfrogKDK.h"
 
 class CalculationManager {
     public:
@@ -14,10 +16,9 @@ class CalculationManager {
     virtual ~CalculationManager();
     void create_Octree();
     void reinsert_bodies(const std::vector<CelestialBody *> &);
-    void leapfrog_integration_kick(std::vector<CelestialBody *> &);
-    void leapfrog_integration_drift(std::vector<CelestialBody *> &);
     void update_forces(std::vector<CelestialBody*> &);
     void step(std::vector<CelestialBody *> &);
+    void leapfrogkdk(std::vector<CelestialBody *> &);
 
     private:
     Octree *root;

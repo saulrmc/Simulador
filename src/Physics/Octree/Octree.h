@@ -22,7 +22,7 @@ public:
     void calc_forces_per_body(CelestialBody *body);
     NodeOctree* locate_node_father(CelestialBody*);
     NodeOctree* locate_body(CelestialBody *);
-    void query_region(NodeOctree *node, bool (*condition)(const Vec3&, double, const Vec3&, double),
+    void query_region(bool (*condition)(const Vec3&, double, const Vec3&, double),
         void (*action)(CelestialBody *&, CelestialBody *&,
             std::vector<CelestialBody*>&), CelestialBody *body,  std::vector<CelestialBody*>&);
 
@@ -35,6 +35,9 @@ public:
     bool recursively_erase(NodeOctree*&, CelestialBody *);
     void recursively_calc_forces(const NodeOctree *node, CelestialBody *body);
     uint8_t octant_for_position(const Vec3 &pos, const Vec3& center);
+    void recursive_query_region(NodeOctree *node, bool (*condition)(const Vec3&, double, const Vec3&, double),
+        void (*action)(CelestialBody *&, CelestialBody *&,
+            std::vector<CelestialBody*>&), CelestialBody *body,  std::vector<CelestialBody*>&);
     //por las pruebas que realicé es mejor dejar en 0 el valor de THETA cuando hay pocos cuerpos
     //porque de lo contrario añade error pero tampoco puede quedarse en 0 porque sino no tiene sentido aplicar un
     //octree si es que los cálculos van a ser por fuerza bruta

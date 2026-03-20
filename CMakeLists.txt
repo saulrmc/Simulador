@@ -39,6 +39,8 @@ add_executable(SimuladorGravitacional main.cpp
         src/Physics/Collisions.cpp
         src/Commons/BrownDwarf.cpp
         src/Commons/BrownDwarf.h
+        src/Physics/LeapfrogKDK.h
+        src/Physics/LeapfrogKDK.cpp
 )
 
 target_link_libraries(SimuladorGravitacional glfw glad opengl32)

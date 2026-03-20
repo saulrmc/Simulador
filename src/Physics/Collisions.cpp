@@ -4,17 +4,24 @@
 
 #include "Collisions.h"
 
-void collisions_for_bodies(Octree *const &octree, NodeOctree *const &node,
+void collisions_for_bodies(Octree *const &octree,
     std::vector<CelestialBody *> &bodies, int begin, int end) {
     if (begin > end) return;
     if (begin == end) {
-        octree->query_region(node, overlap_node,
+        octree->query_region(overlap_node,
             resolve_collision, bodies[begin], bodies);
     }
     int middle = begin + (end - begin) / 2;
-    collisions_for_bodies(octree, node, bodies, begin, middle);
-    collisions_for_bodies(octree, node, bodies, middle + 1,  end);
+    collisions_for_bodies(octree, bodies, begin, middle);
+    collisions_for_bodies(octree, bodies, middle + 1,  end);
 }
+void collisions_for_bodies(Octree *const &octree, std::vector<CelestialBody *> &bodies) {
+    for (CelestialBody *&body : bodies) {
+        octree->query_region(overlap_node,
+                             resolve_collision, body, bodies);
+    }
+}
+
 
 double overlap_body(const Vec3 &center1, const Vec3 &center2, const double radius1, const double radius2) {
     double distance = (center2 - center1).magnitude();
@@ -63,7 +70,6 @@ Vec3 closest_point(const Vec3 &nodeCenter, double nodeSize, const Vec3 &bodyCent
 }
 
 void resolve_collision(CelestialBody *&body1, CelestialBody *&body2, std::vector<CelestialBody *> &bodies) {
-    if (body2->get_id() > body1->get_id()) return; //para solo resolver las colisiones de un lado del par
     double overlap = overlap_body(body1->get_position(), body2->get_position(),
         body1->get_radius(), body2->get_radius());
     if (overlap <= 0) return;

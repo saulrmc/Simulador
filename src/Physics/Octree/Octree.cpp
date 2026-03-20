@@ -58,14 +58,21 @@ NodeOctree * Octree::locate_body(CelestialBody *body) {
     return node;
 }
 
-void Octree::query_region(NodeOctree *node, bool (*condition)(const Vec3&, double, const Vec3&, double),
+void Octree::query_region(bool (*condition)(const Vec3&, double, const Vec3&, double),
+    void (*action)(CelestialBody *&, CelestialBody *&, std::vector<CelestialBody*>& ),
+    CelestialBody *body, std::vector<CelestialBody*>& bodies) {
+    recursive_query_region(root, condition, action, body, bodies);
+}
+
+void Octree::recursive_query_region(NodeOctree *node, bool (*condition)(const Vec3&, double, const Vec3&, double),
     void (*action)(CelestialBody *&, CelestialBody *&, std::vector<CelestialBody*>& ),
     CelestialBody *body, std::vector<CelestialBody*>& bodies) {
     if (!node or !condition or !action or !body) return;
     if (!condition(node->element_octree.center, node->element_octree.size, body->get_position(),
                    body->get_radius())) return;
     if (node->has_children()) {
-        for (int i = 0; i < 8; i++) query_region(node->children[i], condition, action, body, bodies);
+        for (int i = 0; i < 8; i++)
+            recursive_query_region(node->children[i], condition, action, body, bodies);
     }
     else {
         if (node->element_octree.body and node->element_octree.body != body and

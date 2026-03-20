@@ -23,25 +23,6 @@ void CalculationManager::reinsert_bodies(const std::vector<CelestialBody*> &bodi
     }
 }
 
-void CalculationManager::leapfrog_integration_kick(std::vector<CelestialBody*> &bodies) {
-    for (CelestialBody *&body : bodies) {
-        Vec3 next_velocity = next_velocity_for_delta_time(units::HALF_DELTA_TIME,
-            body->get_mass(), body->get_force(), body->get_velocity());
-        body->set_velocity(next_velocity);
-    }
-}
-
-void CalculationManager::leapfrog_integration_drift(std::vector<CelestialBody *> &bodies) {
-    //aunque en realidad creo que debería estar separado en fases porque de la manera actual habría un pequeño desfasae temporal
-    //(PERO no sé qué tanto afectaría a la simulación si el delta_time es muy pequeño)
-    //1.-Predicción de una siguiente posicion
-    //2.- detección de una posible colision en base a esa prediccion de posicion
-    //3.- resolver todos los posibles casos de colisiones
-    for (CelestialBody *&body : bodies) {
-        Vec3 next_position = next_position_for_delta_time(units::DELTA_TIME, body->get_velocity(), body->get_position());
-        body->set_position(next_position);
-    }
-}
 
 void CalculationManager::update_forces(std::vector<CelestialBody*> &bodies) {
     if (root) delete root;
@@ -51,6 +32,10 @@ void CalculationManager::update_forces(std::vector<CelestialBody*> &bodies) {
 }
 
 void CalculationManager::step(std::vector<CelestialBody *> &bodies) {
+    leapfrog_integration_kick(bodies);
+}
+
+void CalculationManager::leapfrogkdk(std::vector<CelestialBody *> &bodies) {
     //este codigo debe implementar una inicializacion de las fuerzas antes de ser llamado
     //porque asume que todos los cuerpos ya tienen las fuerzas inicializadas/actualizadas
     //este código debería ir antes del while principal del programa:
@@ -61,6 +46,11 @@ void CalculationManager::step(std::vector<CelestialBody *> &bodies) {
     //porque solo representa un instante t de tiempo
 
     //acá se deberían resolver las colisiones pero ojo que las velocidades actualizadas van a ser de dt/2
+    //version 1:
+    collisions_for_bodies(root, bodies, 0, bodies.size() - 1);
+    //versión 2:
+    //collisions_for_bodies(root, bodies);
+
     update_forces(bodies);
     leapfrog_integration_kick(bodies);
 }
