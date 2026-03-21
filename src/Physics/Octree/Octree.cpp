@@ -17,7 +17,6 @@ Octree::Octree() {
     root = nullptr;
     num_bodies = 0;
     theta = 0;
-    num_id = 0;
 }
 
 Octree::~Octree() {
@@ -68,8 +67,8 @@ void Octree::recursive_query_region(NodeOctree *node, bool (*condition)(const Ve
     void (*action)(CelestialBody *&, CelestialBody *&, std::vector<CelestialBody*>& ),
     CelestialBody *body, std::vector<CelestialBody*>& bodies) {
     if (!node or !condition or !action or !body) return;
-    if (!condition(node->element_octree.center, node->element_octree.size, body->get_position(),
-                   body->get_radius())) return;
+    if (condition(node->element_octree.center, node->element_octree.size, body->get_position(),
+                   body->get_radius()) == false) return;
     if (node->has_children()) {
         for (int i = 0; i < 8; i++)
             recursive_query_region(node->children[i], condition, action, body, bodies);
@@ -130,6 +129,7 @@ void Octree::recursively_insert(NodeOctree *&node_octree, CelestialBody *body) {
         if (node_octree->element_octree.body) {
             CelestialBody* oldBody = node_octree->element_octree.body;
             node_octree->element_octree.body = nullptr;
+            num_bodies--;
             node_octree->create_children();
             NodeOctree *destinyOld = select_child(node_octree, oldBody);
             recursively_insert(destinyOld, oldBody);

@@ -11,6 +11,7 @@ CelestialBody::CelestialBody() {
     force = Vec3(0.0f, 0.0f, 0.0f);
     mass = 0.0f;
     radius = 0.0f;
+    id = 0;
 }
 
 CelestialBody::CelestialBody(const std::string &name, const Vec3& position, const Vec3& velocity,

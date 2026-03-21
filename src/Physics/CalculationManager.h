@@ -15,10 +15,10 @@ class CalculationManager {
     CalculationManager();
     virtual ~CalculationManager();
     void create_Octree();
-    void reinsert_bodies(const std::vector<CelestialBody *> &);
+    void reinsert_bodies(std::vector<CelestialBody *> &);
     void update_forces(std::vector<CelestialBody*> &);
     void step(std::vector<CelestialBody *> &);
-    void leapfrogkdk(std::vector<CelestialBody *> &);
+    void leapfrog_integration_kdk(std::vector<CelestialBody *> &);
 
     private:
     Octree *root;

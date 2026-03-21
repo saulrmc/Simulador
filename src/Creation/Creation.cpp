@@ -4,23 +4,20 @@
 
 #include "Creation.h"
 
-#include "../Commons/BrownDwarf.h"
-#include "../Commons/Planet.h"
-#include "../Commons/Star.h"
 
-Creation::Creation() {
-    jupiter_mass = units::MASS_0 * 317.8;
-    num_id = 0;
-}
+#define JUPITER_MASS  317.8;
 
-Creation::~Creation() {
+void delete_bodies(std::vector<CelestialBody *> &bodies) {
     for (int i = 0; i < bodies.size(); i++) {
         delete bodies[i];
     }
 }
 
-void Creation::create_planet(const std::string &name, const Vec3& position, const Vec3& velocity,
-    const double mass, const double radius) {
+void create_planet(std::vector<CelestialBody *> &bodies, const std::string &name,
+    const Vec3& position, const Vec3& velocity, const double mass, const double radius) {
+    int currentId = 0;
+    if (bodies.size() != 0) currentId = bodies.back()->get_id();
+
     CelestialBody *body=nullptr;
     body = new Planet();
     body->set_name(name);
@@ -28,13 +25,15 @@ void Creation::create_planet(const std::string &name, const Vec3& position, cons
     body->set_velocity(velocity);
     body->set_mass(mass);
     body->set_radius(radius);
-    body->set_id(num_id++);
+    body->set_id(currentId + 1);
     body->set_index(static_cast<int>(bodies.size()));
     bodies.push_back(body);
 }
 
-void Creation::create_star(const std::string &name, const Vec3& position, const Vec3& velocity,
-    const double mass, const double radius) {
+void create_star(std::vector<CelestialBody *> &bodies, const std::string &name,
+    const Vec3& position, const Vec3& velocity, const double mass, const double radius) {
+    int currentId = 0;
+    if (bodies.size() != 0) currentId = bodies.back()->get_id();
     CelestialBody *body=nullptr;
     body = new Star();
     body->set_name(name);
@@ -42,13 +41,15 @@ void Creation::create_star(const std::string &name, const Vec3& position, const 
     body->set_velocity(velocity);
     body->set_mass(mass);
     body->set_radius(radius);
-    body->set_id(num_id++);
+    body->set_id(currentId + 1);
     body->set_index(static_cast<int>(bodies.size()));
     bodies.push_back(body);
 }
 
-void Creation::create_brown_dwarf(const std::string &name, const Vec3& position, const Vec3& velocity,
-    const double mass, const double radius) {
+void create_brown_dwarf(std::vector<CelestialBody *> &bodies, const std::string &name,
+    const Vec3& position, const Vec3& velocity, const double mass, const double radius) {
+    int currentId = 0;
+    if (bodies.size() != 0) currentId = bodies.back()->get_id();
     CelestialBody *body=nullptr;
     body = new BrownDwarf();
     body->set_name(name);
@@ -56,30 +57,42 @@ void Creation::create_brown_dwarf(const std::string &name, const Vec3& position,
     body->set_velocity(velocity);
     body->set_mass(mass);
     body->set_radius(radius);
-    body->set_id(num_id++);
+    body->set_id(currentId + 1);
     body->set_index(static_cast<int>(bodies.size()));
     bodies.push_back(body);
 }
 
-void Creation::create_body(const std::string &name, const Vec3& position, const Vec3& velocity,
-    const double mass, const double radius) {
-    if (mass <= 13 * jupiter_mass) {
+void create_body(std::vector<CelestialBody *> &bodies, const std::string &name,
+    const Vec3& position, const Vec3& velocity, const double mass, const double radius) {
+    double jm = JUPITER_MASS;
+    if (mass <= 13 * jm) {
         //faltaría hacer la distinción entre planetas gaseosos y rocosos en el futuro
-        create_planet(name, position, velocity, mass, radius);
+        create_planet(bodies, name, position, velocity, mass, radius);
     }
-    else if (mass > 13 * jupiter_mass and mass <= 80 * jupiter_mass)
-        create_brown_dwarf(name, position, velocity, mass, radius);
-    else create_star(name, position, velocity, mass, radius);
+    else if (mass > 13 * jm and mass <= 80 * jm)
+        create_brown_dwarf(bodies, name, position, velocity, mass, radius);
+    else create_star(bodies, name, position, velocity, mass, radius);
     //todavia no voy a incluir agujeros negros xd
-}
-
-double Creation::get_jupiter_mass() const {
-    return jupiter_mass;
 }
 
 void delete_body(std::vector<CelestialBody*> &bodies, const int index_body) {
     bodies[index_body] = bodies.back();
     bodies[index_body]->set_index(index_body);
     bodies.pop_back();
+}
+
+//ojo que la complejidad de esto es O(n) pero también se debe considerar que el vector
+//no está ordenado por nombre y que además es poco intuitivo buscar por index
+void update_body(std::vector<CelestialBody*> &bodies, const std::string &currentName,
+    const std::string &newName, const Vec3& newPosition, const Vec3& newVelocity,
+    const double newMass, const double newRadius) {
+    for (int i = 0; i < bodies.size(); i++) {
+        if (bodies[i]->get_name() == currentName) {
+            //puede ser que el cuerpo actualizado ya no tenga la masa para un planeta sino
+            //que ahora sea una enana marrón por ejemplo
+            delete_body(bodies, i);
+            create_body(bodies, newName, newPosition, newVelocity, newMass, newRadius);
+        }
+    }
 }
 

@@ -17,25 +17,28 @@ void CalculationManager::create_Octree() {
     root->create_space();
 }
 
-void CalculationManager::reinsert_bodies(const std::vector<CelestialBody*> &bodies) {
-    for (CelestialBody *body : bodies) {
+void CalculationManager::reinsert_bodies(std::vector<CelestialBody*> &bodies) {
+    for (CelestialBody *&body : bodies) {
         root->insert(body);
     }
 }
 
 
 void CalculationManager::update_forces(std::vector<CelestialBody*> &bodies) {
-    if (root) delete root;
+    if (root) {
+        delete root;
+        root = nullptr;
+    }
     create_Octree();
     reinsert_bodies(bodies);
     for (CelestialBody *&body : bodies) root->calc_forces_per_body(body);//fuerzas actualizadas
 }
 
 void CalculationManager::step(std::vector<CelestialBody *> &bodies) {
-    leapfrog_integration_kick(bodies);
+    leapfrog_integration_kdk(bodies);
 }
 
-void CalculationManager::leapfrogkdk(std::vector<CelestialBody *> &bodies) {
+void CalculationManager::leapfrog_integration_kdk(std::vector<CelestialBody *> &bodies) {
     //este codigo debe implementar una inicializacion de las fuerzas antes de ser llamado
     //porque asume que todos los cuerpos ya tienen las fuerzas inicializadas/actualizadas
     //este código debería ir antes del while principal del programa:

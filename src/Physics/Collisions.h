@@ -13,7 +13,7 @@ static constexpr double MI = 0.5; //Medida de cómo la energía y el momentum de
 //obtuve este número se representa como el símbolo "mi" griego pero un sombrero encima
 
 
-void collisions_for_bodies(Octree *const &octree, const std::vector<CelestialBody *> &bodies, int begin, int end);
+void collisions_for_bodies(Octree *const &octree, std::vector<CelestialBody *> &bodies, int begin, int end);
 void collisions_for_bodies(Octree *const &octree, std::vector<CelestialBody *> &bodies);
 double overlap_body(const Vec3 &center1, const Vec3 &center2, const double radius1, const double radius2) ;
 bool overlap_node(const Vec3 &nodeCenter, double nodeSize, const Vec3 &bodyCenter, double bodyRadius) ;
@@ -27,10 +27,10 @@ void merge_regime(CelestialBody *&largestBody, CelestialBody *&smallestBody,
 void super_catastrophic_disruption_regime(CelestialBody *largestBody,
     CelestialBody *smallestBody, double specificImpEnergySC,
     double disruptionEnergy, double bParameter);
-void disruption_regime(CelestialBody *&largestBody, CelestialBody *&smallestBody,
+void disruption_regime(CelestialBody *largestBody, CelestialBody *smallestBody,
     double specificImpEnergyErosion, double disruptionEnergy, double bParameter);
 void hit_and_run_regime(CelestialBody *&largestBody, CelestialBody *&smallestBody,
-    double massInteract, double bParameter);
+    double massInteract, double impactVelocity, double bParameter);
 
 
 //Cálculos para distinguir regímenes:
@@ -51,7 +51,7 @@ double critical_impact_velocity(double criticalImpVelMod, double relationMass);
 double disruption_energy_by_angle(double disruptionCriterion, double reducedMass, double reducedMassMod);
 double critical_impact_velocity_by_angle(double disruptionEnergy, double totalMass, double reducedMass);
 double specific_impact_energy(double massLR, double disruptionEnergy, double largestMass, double smallestMass);
-double specific_impact_energy(double reducedMass, const Vec3& impactVelocity, double totalMass);
+double specific_impact_energy(double reducedMass, double impactVelocity, double totalMass);
 double impact_velocity(double reducedMass, double specificImpEnergy, double totalMass) ;
 double mass_largest_remnant(double specificImpEnergyErosion, double disruptionEnergy, double totalMass) ;
 double mass_second_largest_remnant(double mLR, double totalMass, int N1, int N2);

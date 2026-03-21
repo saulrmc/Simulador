@@ -10,6 +10,7 @@ void collisions_for_bodies(Octree *const &octree,
     if (begin == end) {
         octree->query_region(overlap_node,
             resolve_collision, bodies[begin], bodies);
+        return;
     }
     int middle = begin + (end - begin) / 2;
     collisions_for_bodies(octree, bodies, begin, middle);
@@ -128,7 +129,7 @@ void resolve_collision(CelestialBody *&body1, CelestialBody *&body2, std::vector
     disruptionEnergy, largestBody->get_mass(), smallestBody->get_mass());
     double vSupercat = impact_velocity(reducedMass, specificImpEnergySC, totalMass);
     double actualImpactEnergy = specific_impact_energy(reducedMass,
-    largestBody->get_velocity() - smallestBody->get_velocity(), totalMass);
+        relativeVelocity, totalMass);
 
     if (relativeVelocity > vSupercat) super_catastrophic_disruption_regime(largestBody,
         smallestBody, actualImpactEnergy, disruptionEnergy, bParameter);
@@ -137,7 +138,7 @@ void resolve_collision(CelestialBody *&body1, CelestialBody *&body2, std::vector
     else {
         if (!grazingImpact) disruption_regime(largestBody, smallestBody,
             actualImpactEnergy, disruptionEnergy, bParameter);
-        else hit_and_run_regime(largestBody, smallestBody, massInteract, bParameter);
+        else hit_and_run_regime(largestBody, smallestBody, massInteract, relativeVelocity,bParameter);
     }
 }
 
@@ -183,7 +184,7 @@ void disruption_regime(CelestialBody *largestBody, CelestialBody *smallestBody,
 }
 
 void hit_and_run_regime(CelestialBody *&largestBody, CelestialBody *&smallestBody, double massInteract,
-    const Vec3 &impactVelocity, double bParameter) {
+    double impactVelocity, double bParameter) {
     //a pesar de que los nombres son similares a las variables que se calcularon antes en realidad
     //este régimen tiene sus propias variables
     double density = density_by_mass_and_radius(smallestBody->get_mass(), smallestBody->get_radius());
@@ -194,12 +195,12 @@ void hit_and_run_regime(CelestialBody *&largestBody, CelestialBody *&smallestBod
     double reducedMass = smallestBody->get_mass()*massInteract/
         (smallestBody->get_mass() + massInteract);
     double relationMass = massInteract / smallestBody->get_mass();
-    double disruptionCriteria = disruption_criterion(disruptionCurve, relationMass);
+    double disruptionCriterion = disruption_criterion(disruptionCurve, relationMass);
     double critImpVel = critical_impact_velocity(critImpVelMod, relationMass);
     double specificImpEnergy = specific_impact_energy(reducedMass, impactVelocity,
         smallestBody->get_mass() + massInteract);
     double massLargestRemnant = mass_largest_remnant(specificImpEnergy,
-        disruptionCriteria, smallestBody->get_mass() + massInteract);
+        disruptionCriterion, smallestBody->get_mass() + massInteract);
     if (relationMass < 1.1 and relationMass > 0.9) {
         //usar N1 = 2 y N2 = 4
         compute_remnant_properties_and_velocities(largestBody, smallestBody,
@@ -311,8 +312,8 @@ double specific_impact_energy(double massLR, double disruptionEnergy, double lar
     return 2 * disruptionEnergy*(1-massLR/(largestMass+smallestMass));
 }
 
-double specific_impact_energy(double reducedMass, const Vec3 &impactVelocity, double totalMass) {
-    return 0.5*reducedMass*impactVelocity.dot(impactVelocity)/totalMass;
+double specific_impact_energy(double reducedMass, double impactVelocity, double totalMass) {
+    return 0.5*reducedMass*impactVelocity * impactVelocity/totalMass;
 }
 
 double impact_velocity(double reducedMass, double specificImpEnergy, double totalMass) {
