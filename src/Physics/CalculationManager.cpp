@@ -4,6 +4,9 @@
 
 #include "CalculationManager.h"
 
+#include <chrono>
+#include <iostream>
+
 CalculationManager::CalculationManager() {
     root = nullptr;
 }
@@ -30,12 +33,24 @@ void CalculationManager::update_forces(std::vector<CelestialBody*> &bodies) {
         root = nullptr;
     }
     create_Octree();
+    // std::chrono::duration<double, std::micro> total_time(0);
+    // auto start = std::chrono::high_resolution_clock::now();
     reinsert_bodies(bodies);
+    // auto end = std::chrono::high_resolution_clock::now();
+    // total_time = end - start;
+    // std::cout << std::endl << "Tiempo de reinsercion de cuerpos en microsegundos : "
+    // << total_time.count() << std::endl;
     for (CelestialBody *&body : bodies) root->calc_forces_per_body(body);//fuerzas actualizadas
 }
 
 void CalculationManager::step(std::vector<CelestialBody *> &bodies) {
+    // std::chrono::duration<double, std::micro> total_time(0);
+    // auto start = std::chrono::high_resolution_clock::now();
     leapfrog_integration_kdk(bodies);
+    // auto end = std::chrono::high_resolution_clock::now();
+    // total_time = end - start;
+    // std::cout << std::endl << "Tiempo en integracion numerica en microsegundos : "
+    // << total_time.count() << std::endl;
 }
 
 void CalculationManager::leapfrog_integration_kdk(std::vector<CelestialBody *> &bodies) {
@@ -50,9 +65,9 @@ void CalculationManager::leapfrog_integration_kdk(std::vector<CelestialBody *> &
 
     //acá se deberían resolver las colisiones pero ojo que las velocidades actualizadas van a ser de dt/2
     //version 1:
-    collisions_for_bodies(root, bodies, 0, bodies.size() - 1);
+    //collisions_for_bodies(root, bodies, 0, bodies.size() - 1);
     //versión 2:
-    //collisions_for_bodies(root, bodies);
+    collisions_for_bodies(root, bodies);
 
     update_forces(bodies);
     leapfrog_integration_kick(bodies);

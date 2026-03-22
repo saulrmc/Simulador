@@ -4,6 +4,7 @@
 
 #include "Simulation.h"
 
+#include <chrono>
 #include <iomanip>
 #include <iostream>
 Simulation::Simulation() {
@@ -15,13 +16,18 @@ Simulation::~Simulation() {
 
 void Simulation::run_simulation() {
     //para probar el correcto funcionamiento...
-    double v_circular = sqrt(units::G * (1.0 + 0.0123) / 1.0);
-    Vec3 earthVel = Vec3(0, -v_circular*0.0123/(1+0.0123), 0);
-    Vec3 earthPos = Vec3(-0.0123/(1+0.0123), 0, 0);
-    Vec3 moonVel = Vec3(0, v_circular*1/(1+0.0123), 0);
-    Vec3 moonPos = Vec3(1/(1+0.0123), 0, 0);
-    create_body(bodies, "Earth", earthPos, earthVel, 1, 0.0165);
-    create_body(bodies, "Moon", moonPos, moonVel, 0.0123, 0.00452);
+    // double v_circular = sqrt(units::G * (1.0 + 0.0123) / 1.0);
+    // Vec3 earthVel = Vec3(0, -v_circular*0.0123/(1+0.0123), 0);
+    // Vec3 earthPos = Vec3(-0.0123/(1+0.0123), 0, 0);
+    // Vec3 moonVel = Vec3(0, v_circular*1/(1+0.0123), 0);
+    // Vec3 moonPos = Vec3(1/(1+0.0123), 0, 0);
+    // create_body(bodies, "Earth", earthPos, earthVel, 1, 0.0165);
+    // create_body(bodies, "Moon", moonPos, moonVel, 0.0123, 0.00452);
+    int nbodies;
+    std::cout << "cantidad de cuerpos en la simulacion: " << std::endl;
+    std::cin >> nbodies;
+    create_many_bodies(bodies, nbodies);
+
 
     // earth.set_velocity(Vec3(0,-v_circular*moon.get_mass()/(earth.get_mass() + moon.get_mass()), 0));
     // moon.set_velocity(Vec3(0,v_circular*earth.get_mass()/(earth.get_mass() + moon.get_mass()), 0));
@@ -57,48 +63,100 @@ void Simulation::run_simulation() {
     std::cout << "Initial momentum: " << "(" << momentum.get_x() << ", " << momentum.get_y() << ", "
     << momentum.get_z() << ")"<<std::endl;
     momentum = Vec3(0, 0, 0);
-
+    std::chrono::duration<double, std::micro> step_time(0);
+    std::chrono::duration<double> total_time(0);
+    auto startTotal = std::chrono::high_resolution_clock::now();
     while (i<=27000) {
+        auto start = std::chrono::high_resolution_clock::now();
         calcManager.step(bodies);
         if (i%1000==0) {
-            std::cout << "==============================" << std::endl;
-            for (CelestialBody *&body : bodies) {
-                std::cout << "Name: " << body->get_name() << std::endl;
-                std::cout << "Position: (" << body->get_position().get_x() << ", " <<
-                    body->get_position().get_y() << ", " << body->get_position().get_z() <<
-                        ")" << std::endl;
-                std::cout << "Velocity: (" << body->get_velocity().get_x() << ", " <<
-                    body->get_velocity().get_y() << ", " << body->get_velocity().get_z() <<
-                        ")" << std::endl;
-            }
-                //verificar la energía del sistema:
-            double g_energy=0;
-            for (size_t i_2 = 0; i_2 < bodies.size(); i_2++) {
-                for (size_t j = i_2 + 1; j < bodies.size(); j++) {
-                    Vec3 r = bodies[j]->get_position() - bodies[i_2]->get_position();
-                    double dist = r.magnitude();
-                    // Evitar división por cero
-                    if (dist > 1e-10) {
-                        g_energy += -units::G * bodies[i_2]->get_mass() * bodies[j]->get_mass() / dist;
-                    }
-                }
-            }
-
-            for (CelestialBody *&body : bodies) {
-                k_energy += 0.5*body->get_mass()*body->get_velocity().magnitude()*body->get_velocity().magnitude();
-            }
-            std::cout << "===>Total energy = " << k_energy + g_energy<< std::endl;
-            k_energy = 0;
-            std::cout << "==============================" << std::endl;
-            for (CelestialBody *&body : bodies) momentum = momentum + body->get_velocity() * body->get_mass();
-            std::cout << "Momentum: " << "(" << momentum.get_x() << ", " << momentum.get_y() << ", "
-            << momentum.get_z() << ")" << std::endl;
-            momentum = Vec3(0, 0, 0);
+            // std::cout << "==============================" << std::endl;
+            // for (CelestialBody *&body : bodies) {
+            //     std::cout << "Name: " << body->get_name() << std::endl;
+            //     std::cout << "Position: (" << body->get_position().get_x() << ", " <<
+            //         body->get_position().get_y() << ", " << body->get_position().get_z() <<
+            //             ")" << std::endl;
+            //     std::cout << "Velocity: (" << body->get_velocity().get_x() << ", " <<
+            //         body->get_velocity().get_y() << ", " << body->get_velocity().get_z() <<
+            //             ")" << std::endl;
+            // }
+            //     //verificar la energía del sistema:
+            // double g_energy=0;
+            // for (size_t i_2 = 0; i_2 < bodies.size(); i_2++) {
+            //     for (size_t j = i_2 + 1; j < bodies.size(); j++) {
+            //         Vec3 r = bodies[j]->get_position() - bodies[i_2]->get_position();
+            //         double dist = r.magnitude();
+            //         // Evitar división por cero
+            //         if (dist > 1e-10) {
+            //             g_energy += -units::G * bodies[i_2]->get_mass() * bodies[j]->get_mass() / dist;
+            //         }
+            //     }
+            // }
+            //
+            // for (CelestialBody *&body : bodies) {
+            //     k_energy += 0.5*body->get_mass()*body->get_velocity().magnitude()*body->get_velocity().magnitude();
+            // }
+            // std::cout << "===>Total energy = " << k_energy + g_energy<< std::endl;
+            // k_energy = 0;
+            // std::cout << "==============================" << std::endl;
+            // for (CelestialBody *&body : bodies) momentum = momentum + body->get_velocity() * body->get_mass();
+            // std::cout << "Momentum: " << "(" << momentum.get_x() << ", " << momentum.get_y() << ", "
+            // << momentum.get_z() << ")" << std::endl;
+            // momentum = Vec3(0, 0, 0);
             //i=0;
         }
         i++;
+        auto end = std::chrono::high_resolution_clock::now();
+        step_time += end - start;
     }
+    auto endTotal = std::chrono::high_resolution_clock::now();
+    total_time = endTotal - startTotal;
     for (CelestialBody *&body : bodies) momentum = momentum + body->get_velocity() * body->get_mass();
     std::cout << "Final momentum: " << "(" << momentum.get_x() << ", " << momentum.get_y() << ", "
     << momentum.get_z() << ")"<< std::endl;
+    std::cout << "AVERAGE TIME (microseconds): " << step_time.count()/i << std::endl;
+    std::cout << "TOTAL TIME (seconds): " << total_time.count() << std::endl;
+}
+
+void create_many_bodies(std::vector<CelestialBody*>& bodies, int N) {
+    double centerMass = 50.0;
+    double radiusMin = 5.0;
+    double radiusMax = 50.0;
+
+
+    create_body(bodies, "Center", Vec3(0,0,0), Vec3(0,0,0), centerMass, 0.5);
+
+    for (int i = 0; i < N; i++) {
+        double t = (double)i / N;
+
+
+        double r = radiusMin + (radiusMax - radiusMin) * t;
+
+
+        double angle = ((double)rand() / RAND_MAX) * 2.0 * M_PI;
+
+
+        Vec3 pos(
+            r * cos(angle),
+            r * sin(angle),
+            0
+        );
+
+
+        double v = sqrt(units::G * centerMass / r);
+
+        Vec3 vel(
+            -v * sin(angle),
+             v * cos(angle),
+             0
+        );
+
+
+        double mass = 0.001 + ((double)rand() / RAND_MAX) * 0.01;
+
+
+        double radius = 0.001;
+
+        create_body(bodies, "Body_" + std::to_string(i), pos, vel, mass, radius);
+    }
 }
