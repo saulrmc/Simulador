@@ -16,11 +16,35 @@ void collisions_for_bodies(Octree *const &octree,
     collisions_for_bodies(octree, bodies, begin, middle);
     collisions_for_bodies(octree, bodies, middle + 1,  end);
 }
+
+void collisions_for_range(Octree *const &octree,
+    std::vector<CelestialBody *> &bodies, int begin, int end) {
+    for (int i=begin; i<end; i++) {
+        octree->query_region(overlap_node,
+                             resolve_collision, bodies[i], bodies);
+    }
+}
 void collisions_for_bodies(Octree *const &octree, std::vector<CelestialBody *> &bodies) {
     for (CelestialBody *&body : bodies) {
         octree->query_region(overlap_node,
                              resolve_collision, body, bodies);
     }
+}
+
+void collisions(Octree *const &octree, std::vector<CelestialBody *> &bodies) {
+    if (bodies.size() < 100) collisions_for_bodies(octree, bodies);
+    else {
+        uint8_t num_threads = 4;
+        uint8_t range = bodies.size()/num_threads;
+        std::vector<std::thread> threads;
+        for (int i = 0; i < num_threads; ++i) {
+            int begin = i * range;
+            int end = (i == num_threads - 1) ? bodies.size() : (i + 1) * range;
+            threads.emplace_back(collisions_for_range, std::ref(octree), std::ref(bodies), begin, end);
+        }
+        for (auto &thread : threads) thread.join();
+    }
+
 }
 
 
