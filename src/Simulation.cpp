@@ -119,30 +119,30 @@ void Simulation::run_simulation() {
 }
 
 void create_many_bodies(std::vector<CelestialBody*>& bodies, int N) {
-    double centerMass = 50.0; // masa central grande
+    double centerMass = 50.0;
     double radiusMin = 5.0;
     double radiusMax = 50.0;
 
-    // cuerpo central (tipo "estrella")
+
     create_body(bodies, "Center", Vec3(0,0,0), Vec3(0,0,0), centerMass, 0.5);
 
     for (int i = 0; i < N; i++) {
         double t = (double)i / N;
 
-        // radio creciente (evita clustering)
+
         double r = radiusMin + (radiusMax - radiusMin) * t;
 
-        // ángulo aleatorio
+
         double angle = ((double)rand() / RAND_MAX) * 2.0 * M_PI;
 
-        // posición en el plano XY
+
         Vec3 pos(
             r * cos(angle),
             r * sin(angle),
             0
         );
 
-        // velocidad tangencial aproximada (órbita circular)
+
         double v = sqrt(units::G * centerMass / r);
 
         Vec3 vel(
@@ -151,10 +151,10 @@ void create_many_bodies(std::vector<CelestialBody*>& bodies, int N) {
              0
         );
 
-        // masa pequeña (para no desestabilizar todo)
+
         double mass = 0.001 + ((double)rand() / RAND_MAX) * 0.01;
 
-        // radio pequeño
+
         double radius = 0.001;
 
         create_body(bodies, "Body_" + std::to_string(i), pos, vel, mass, radius);

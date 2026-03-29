@@ -63,9 +63,19 @@ void Octree::query_region(bool (*condition)(const Vec3&, double, const Vec3&, do
     recursive_query_region(root, condition, action, body, bodies);
 }
 
+void Octree::refresh_theta_value() {
+    if (num_bodies < 100) this->theta = 0;
+    else if (num_bodies >= 100 and num_bodies < 1000) this-> theta = 0.3;//habria que testar cuantos cuerpos calculados por fuerza bruta
+    //puede soportar la computadora de manera fluida
+    else if (num_bodies >= 1000 and num_bodies < 10000) this-> theta = 0.5;
+    else if (num_bodies >= 10000 and num_bodies < 100000) this-> theta = 0.6;
+    else if (num_bodies >= 100000 and num_bodies < 1000000) this-> theta = 0.7;
+    else theta = 0.8;
+}
+
 void Octree::recursive_query_region(NodeOctree *node, bool (*condition)(const Vec3&, double, const Vec3&, double),
-    void (*action)(CelestialBody *&, CelestialBody *&, std::vector<CelestialBody*>& ),
-    CelestialBody *body, std::vector<CelestialBody*>& bodies) {
+                                    void (*action)(CelestialBody *&, CelestialBody *&, std::vector<CelestialBody*>& ),
+                                    CelestialBody *body, std::vector<CelestialBody*>& bodies) {
     if (!node or !condition or !action or !body) return;
     if (condition(node->element_octree.center, node->element_octree.size, body->get_position(),
                    body->get_radius()) == false) return;
@@ -146,13 +156,6 @@ void Octree::recursively_insert(NodeOctree *&node_octree, CelestialBody *body) {
 
             this->num_bodies++;
             //this->num_id++;
-            if (num_bodies < 100) this->theta = 0;
-            else if (num_bodies >= 100 and num_bodies < 1000) this-> theta = 0.3;//habria que testar cuantos cuerpos calculados por fuerza bruta
-            //puede soportar la computadora de manera fluida
-            else if (num_bodies >= 1000 and num_bodies < 10000) this-> theta = 0.5;
-            else if (num_bodies >= 10000 and num_bodies < 100000) this-> theta = 0.6;
-            else if (num_bodies >= 100000 and num_bodies < 1000000) this-> theta = 0.7;
-            else theta = 0.8;
             return;
         }
     }

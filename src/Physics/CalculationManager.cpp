@@ -36,6 +36,7 @@ void CalculationManager::update_forces(std::vector<CelestialBody*> &bodies) {
     std::chrono::duration<double, std::micro> total_time(0);
     auto start = std::chrono::high_resolution_clock::now();
     reinsert_bodies(bodies);
+    root->refresh_theta_value();
     auto end = std::chrono::high_resolution_clock::now();
     total_time = end - start;
     std::cout << std::endl << "Tiempo de reinsercion de cuerpos en microsegundos : "
@@ -44,13 +45,7 @@ void CalculationManager::update_forces(std::vector<CelestialBody*> &bodies) {
 }
 
 void CalculationManager::step(std::vector<CelestialBody *> &bodies) {
-    std::chrono::duration<double, std::micro> total_time(0);
-    auto start = std::chrono::high_resolution_clock::now();
     leapfrog_integration_kdk(bodies);
-    auto end = std::chrono::high_resolution_clock::now();
-    total_time = end - start;
-    std::cout << std::endl << "Tiempo en integracion numerica en microsegundos : "
-    << total_time.count() << std::endl;
 }
 
 void CalculationManager::leapfrog_integration_kdk(std::vector<CelestialBody *> &bodies) {

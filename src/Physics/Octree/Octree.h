@@ -25,6 +25,7 @@ public:
     void query_region(bool (*condition)(const Vec3&, double, const Vec3&, double),
         void (*action)(CelestialBody *&, CelestialBody *&,
             std::vector<CelestialBody*>&), CelestialBody *body,  std::vector<CelestialBody*>&);
+    void refresh_theta_value();
 
     private:
     NodeOctree* root;
