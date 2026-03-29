@@ -10,6 +10,14 @@
 #include <vector>
 class Octree {
 public:
+    double get_size() const;
+
+    void set_size(const double size);
+
+    Vec3 get_center() const;
+
+    void set_center(const Vec3 &center);
+
     //getters temporales (tal vez) para testear
     int get_num_bodies() const;
     double get_theta() const;
@@ -26,6 +34,7 @@ public:
         void (*action)(CelestialBody *&, CelestialBody *&,
             std::vector<CelestialBody*>&), CelestialBody *body,  std::vector<CelestialBody*>&);
     void refresh_theta_value();
+    void refresh_mass_centers();
 
     private:
     NodeOctree* root;
@@ -39,12 +48,15 @@ public:
     void recursive_query_region(NodeOctree *node, bool (*condition)(const Vec3&, double, const Vec3&, double),
         void (*action)(CelestialBody *&, CelestialBody *&,
             std::vector<CelestialBody*>&), CelestialBody *body,  std::vector<CelestialBody*>&);
+    void recursive_refresh_mass_centers(NodeOctree *node);
     //por las pruebas que realicé es mejor dejar en 0 el valor de THETA cuando hay pocos cuerpos
     //porque de lo contrario añade error pero tampoco puede quedarse en 0 porque sino no tiene sentido aplicar un
     //octree si es que los cálculos van a ser por fuerza bruta
     int num_bodies;
     double theta = 0;
     //int num_id;
+    double size;
+    Vec3 center;
 
 };
 

@@ -5,6 +5,22 @@
 #include "Octree.h"
 //static constexpr double THETA = 0;
 
+double Octree::get_size() const {
+    return size;
+}
+
+void Octree::set_size(const double size) {
+    this->size = size;
+}
+
+Vec3 Octree::get_center() const {
+    return center;
+}
+
+void Octree::set_center(const Vec3 &center) {
+    this->center = center;
+}
+
 int Octree::get_num_bodies() const {
     return num_bodies;
 }
@@ -24,7 +40,6 @@ Octree::~Octree() {
 }
 
 void Octree::insert(CelestialBody *body) {
-    if (!root) create_space();
     recursively_insert(root, body);
 }
 
@@ -35,8 +50,8 @@ void Octree::erase(CelestialBody *celestial_body) {
 void Octree::create_space() {
     if (root != nullptr) delete root;
     root = new NodeOctree();
-    root->element_octree.size = 80000; //en unidades de distancia xd
-    root->element_octree.center = Vec3(0, 0, 0);
+    root->element_octree.size = this->size;
+    root->element_octree.center = this->center;
 }
 
 void Octree::calc_forces_per_body(CelestialBody *body) {
@@ -71,6 +86,20 @@ void Octree::refresh_theta_value() {
     else if (num_bodies >= 10000 and num_bodies < 100000) this-> theta = 0.6;
     else if (num_bodies >= 100000 and num_bodies < 1000000) this-> theta = 0.7;
     else theta = 0.8;
+}
+
+void Octree::refresh_mass_centers() {
+    recursive_refresh_mass_centers(root);
+}
+
+void Octree::recursive_refresh_mass_centers(NodeOctree *node) {
+    if (!node) return;
+    if (node->has_children()) {
+        for (auto & i : node->children) {
+            recursive_refresh_mass_centers(i);
+        }
+        node->calc_avg_values();
+    }
 }
 
 void Octree::recursive_query_region(NodeOctree *node, bool (*condition)(const Vec3&, double, const Vec3&, double),

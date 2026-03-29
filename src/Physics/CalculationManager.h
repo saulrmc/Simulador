@@ -18,10 +18,15 @@ class CalculationManager {
     void reinsert_bodies(std::vector<CelestialBody *> &);
     void update_forces(std::vector<CelestialBody*> &);
     void step(std::vector<CelestialBody *> &);
+
+    void preserve_root_and_update_forces(std::vector<CelestialBody *> & bodies);
+
     void leapfrog_integration_kdk(std::vector<CelestialBody *> &);
+    void root_space(std::vector<CelestialBody *> &bodies);
 
     private:
     Octree *root;
+    unsigned int numStep;
 };
 
 

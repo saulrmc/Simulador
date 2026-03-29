@@ -66,7 +66,7 @@ void Simulation::run_simulation() {
     std::chrono::duration<double, std::micro> step_time(0);
     std::chrono::duration<double> total_time(0);
     auto startTotal = std::chrono::high_resolution_clock::now();
-    // while (i<=27000) {
+     while (i<=27000) {
         auto start = std::chrono::high_resolution_clock::now();
         calcManager.step(bodies);
         if (i%1000==0) {
@@ -108,7 +108,7 @@ void Simulation::run_simulation() {
         i++;
         auto end = std::chrono::high_resolution_clock::now();
         step_time += end - start;
-    //}
+    }
     auto endTotal = std::chrono::high_resolution_clock::now();
     total_time = endTotal - startTotal;
     for (CelestialBody *&body : bodies) momentum = momentum + body->get_velocity() * body->get_mass();
