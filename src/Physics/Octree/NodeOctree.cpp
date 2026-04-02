@@ -45,14 +45,14 @@ void NodeOctree::calc_avg_values() {
     //para el cálculo del centro de masa...
     //rcm = SUM(ri*mi/M);
     //donde:
-    //r: vector posicion de la masa de un hijo con respecto al centro del cubo
+    //r: vector posicion de la masa de un hijo
     //m: masa de un hijo
     //M: masa total de todos los hijos del nodo
     this->element_octree.centerOfMass = Vec3(0,0,0);
     for (int i = 0; i < 8; i++) {
         if (this->children[i]->element_octree.mass > 0) {
             this->element_octree.centerOfMass = this->element_octree.centerOfMass +
-                (this->children[i]->element_octree.centerOfMass - this->element_octree.center)*
+                (this->children[i]->element_octree.centerOfMass)*
                     this->children[i]->element_octree.mass / this->element_octree.mass;
         }
     }

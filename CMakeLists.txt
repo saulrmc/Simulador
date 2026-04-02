@@ -42,5 +42,5 @@ add_executable(SimuladorGravitacional main.cpp
         src/Physics/LeapfrogKDK.h
         src/Physics/LeapfrogKDK.cpp
 )
-
-target_link_libraries(SimuladorGravitacional glfw glad opengl32)
+find_package(OpenGL REQUIRED)
+target_link_libraries(SimuladorGravitacional glfw glad OpenGL::GL)
