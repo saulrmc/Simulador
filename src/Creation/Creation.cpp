@@ -76,9 +76,11 @@ void create_body(std::vector<CelestialBody *> &bodies, const std::string &name,
 }
 
 void delete_body(std::vector<CelestialBody*> &bodies, const int index_body) {
+    CelestialBody *erase = bodies[index_body];
     bodies[index_body] = bodies.back();
     bodies[index_body]->set_index(index_body);
     bodies.pop_back();
+    delete erase;
 }
 
 //ojo que la complejidad de esto es O(n) pero también se debe considerar que el vector

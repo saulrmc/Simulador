@@ -30,7 +30,7 @@ public:
     void calc_forces_per_body(CelestialBody *body);
     NodeOctree* locate_node_father(CelestialBody*);
     NodeOctree* locate_body(CelestialBody *);
-    void query_region(bool (*condition)(NodeOctree *const &,  CelestialBody *const&,  CelestialBody*const&),
+    void query_region(bool (*condition)(NodeOctree *const &, CelestialBody*const&),
         void (*action)(CelestialBody *&, CelestialBody *&,
         std::vector<CelestialBody*>&), CelestialBody *body,  std::vector<CelestialBody*>&);
     void refresh_theta_value();
@@ -46,7 +46,7 @@ public:
     void recursively_calc_forces(const NodeOctree *node, CelestialBody *body);
     uint8_t octant_for_position(const Vec3 &pos, const Vec3& center);
     void recursive_query_region(NodeOctree *node,
-    bool (*condition)(NodeOctree *const &,  CelestialBody *const&,  CelestialBody*const&),
+    bool (*condition)(NodeOctree *const &, CelestialBody*const&),
     void (*action)(CelestialBody *&, CelestialBody *&, std::vector<CelestialBody*>& ),
     CelestialBody *body, std::vector<CelestialBody*>& bodies);
     void recursive_refresh_mass_centers(NodeOctree *node);

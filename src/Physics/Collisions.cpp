@@ -11,10 +11,10 @@ void collisions_for_bodies(Octree *const &octree,
     if (begin > end) return;
     if (begin == end) {
         if (bodies.size()<100)
-        octree->query_region(overlap,
+        octree->query_region(overlap_node,
             resolve_collision, bodies[begin], bodies);
 
-        else octree->query_region(overlap,
+        else octree->query_region(overlap_node,
             simplified_resolve_collision, bodies[begin], bodies);
         return;
     }
@@ -26,20 +26,20 @@ void collisions_for_bodies(Octree *const &octree,
 void collisions_for_range(Octree *const &octree,
     std::vector<CelestialBody *> &bodies, int begin, int end) {
     for (int i=begin; i<end; i++) {
-        octree->query_region(overlap,
+        octree->query_region(overlap_node,
                              resolve_collision, bodies[i], bodies);
     }
 }
 void collisions_for_bodies(Octree *const &octree, std::vector<CelestialBody *> &bodies) {
     if (bodies.size()<100) {
         for (CelestialBody *&body : bodies) {
-            octree->query_region(overlap,
+            octree->query_region(overlap_node,
                                  resolve_collision, body, bodies);
         }
     }
     else {
         for (CelestialBody *&body : bodies) {
-            octree->query_region(overlap,
+            octree->query_region(overlap_node,
                                  simplified_resolve_collision, body, bodies);
         }
     }
@@ -68,24 +68,24 @@ bool overlap_body(const Vec3 &center1, const Vec3 &center2, const double radius1
     return radius1 + radius2 - distance >= 0;
 }
 
-bool overlap_node(const Vec3 &nodeCenter, double nodeSize, const Vec3 &bodyCenter, double bodyRadius) {
+bool overlap_node(NodeOctree *const &node, CelestialBody*const& body) {
     //para determinar si el cuerpo atraviesa parcialmente el espacio en otro nodo...
-    Vec3 closestPoint = closest_point(nodeCenter, nodeSize, bodyCenter);
-    double distance = closestPoint.distance(bodyCenter);
-    if (distance <= bodyRadius)std::cout << "colision detectada" <<std::endl;
-    if (distance <= bodyRadius) return true;
+    Vec3 closestPoint = closest_point(node->get_node_center(), node->get_node_size(),
+        body->get_position());
+    double distance = closestPoint.distance(body->get_position());
+    if (distance <= body->get_radius()) return true;
     return false;
 }
 
-bool overlap(NodeOctree *const &node,  CelestialBody *const& nodeBody,  CelestialBody*const& body) {
-    if (!overlap_node(node->get_node_center(), node->get_node_size(),
-                      body->get_position(), body->get_radius()))
-        return false;
-    if (nodeBody and body)
-        return overlap_body(nodeBody->get_position(), body->get_position(),
-                            nodeBody->get_radius(), body->get_radius());
-    return false;
-}
+// bool overlap(NodeOctree *const &node,  CelestialBody *const& nodeBody,  CelestialBody*const& body) {
+//     if (!overlap_node(node->get_node_center(), node->get_node_size(),
+//                       body->get_position(), body->get_radius()))
+//         return false;
+//     if (nodeBody and body)
+//         return overlap_body(nodeBody->get_position(), body->get_position(),
+//                             nodeBody->get_radius(), body->get_radius());
+//     return false;
+// }
 
 //el punto más cercano de un nodo a un cuerpo
 Vec3 closest_point(const Vec3 &nodeCenter, double nodeSize, const Vec3 &bodyCenter) {
@@ -118,14 +118,19 @@ void simplified_resolve_collision(CelestialBody *&body1, CelestialBody *&body2, 
     bool overlap = overlap_body(body1->get_position(), body2->get_position(),
         body1->get_radius(), body2->get_radius());
     if (!overlap) return;
+    Vec3 normal = (body2->get_position() - body1->get_position()).normalize();
+    Vec3 relVel = body2->get_velocity() - body1->get_velocity();
+    if (relVel.dot(normal) >= 0) {
+        return; //significa que se están separando
+    }
+
     CelestialBody *largestBody = (body1->get_mass() >= body2->get_mass()) ? body1 : body2;
-    CelestialBody *smallestBody = (body1->get_mass() > body2->get_mass()) ? body2 : body1;
+    CelestialBody *smallestBody = (body1->get_mass() >= body2->get_mass()) ? body2 : body1;
     double totalMass = smallestBody->get_mass() + largestBody->get_mass();
     const double relativeVelocity = (largestBody->get_velocity()
         -smallestBody->get_velocity()).magnitude();
-    double massInteract = mass_interact(largestBody->get_velocity(),
-        smallestBody->get_velocity(), largestBody->get_position(),
-        smallestBody->get_position(), smallestBody->get_mass());
+    double massInteract = mass_interact(largestBody, smallestBody);
+    std::cout << "masa a interactuar: " << massInteract << std::endl;
     const double mutualEscapeVelMod = mutual_escape_velocity_mod(
         largestBody->get_mass(), massInteract);
 
@@ -151,15 +156,19 @@ void resolve_collision(CelestialBody *&body1, CelestialBody *&body2, std::vector
     bool overlap = overlap_body(body1->get_position(), body2->get_position(),
         body1->get_radius(), body2->get_radius());
     if (!overlap) return;
+    Vec3 normal = (body2->get_position() - body1->get_position()).normalize();
+    Vec3 relVel = body2->get_velocity() - body1->get_velocity();
+    if (relVel.dot(normal) >= 0) {
+        return; //significa que se están separando
+    }
 
     CelestialBody *largestBody = (body1->get_mass() >= body2->get_mass()) ? body1 : body2;
-    CelestialBody *smallestBody = (body1->get_mass() > body2->get_mass()) ? body2 : body1;
+    CelestialBody *smallestBody = (body1->get_mass() >= body2->get_mass()) ? body2 : body1;
     double totalMass = smallestBody->get_mass() + largestBody->get_mass();
     const double relativeVelocity = (largestBody->get_velocity()
         -smallestBody->get_velocity()).magnitude();
-    double massInteract = mass_interact(largestBody->get_velocity(),
-        smallestBody->get_velocity(), largestBody->get_position(),
-        smallestBody->get_position(), smallestBody->get_mass());
+    double massInteract = mass_interact(largestBody, smallestBody);
+    std::cout << "masa a interactuar: " << massInteract << std::endl;
     const double mutualEscapeVelMod = mutual_escape_velocity_mod(
         largestBody->get_mass(), massInteract);
 
@@ -233,6 +242,14 @@ void merge_regime(CelestialBody *&largestBody, CelestialBody *&smallestBody,
     double newRadius = radius_by_density_and_mass(largestBody->get_mass(), density);//se ajusta el nuevo radio
     largestBody->set_radius(newRadius);
     delete_body(bodies, smallestBody->get_index());
+    //como la función anterior solo borra el cuerpo del vector entonces ahora el puntero
+    //smallesBody apunta a un cuerpo que no está en el vector pero aun EXISTE.
+    //Para evitar llamar a una función del octree y limpiar este cuerpo lo más rápido
+    //es setear sus valores en 0 y que en la siguiente reinserción de cuerpos en el arbol
+    smallestBody->set_mass(0);
+    smallestBody->set_velocity(Vec3(0, 0, 0));
+    smallestBody->set_radius(0);
+    smallestBody->set_force(Vec3(0, 0, 0));
 }
 
 void super_catastrophic_disruption_regime(CelestialBody *largestBody,
@@ -339,14 +356,26 @@ double collision_angle(const Vec3 &vel1, const Vec3 &vel2, const Vec3& center1, 
     const Vec3 relativeVelocity = vel1 - vel2;
     const Vec3 distance = center1-center2;
     double cos_angle = relativeVelocity.dot(distance)/(relativeVelocity.magnitude()*distance.magnitude());
-    cos_angle = (cos_angle < 0) ? -cos_angle : cos_angle;
-    return acos(cos_angle);
+    //cos_angle = (cos_angle < 0) ? -cos_angle : cos_angle;
+    cos_angle = (cos_angle < -1)? -1: cos_angle;
+    cos_angle = (cos_angle > 1)? 1: cos_angle;
+    double angle = acos(cos_angle);
+    return angle;
 }
 
-double mass_interact(const Vec3 &vel1, const Vec3 &vel2, const Vec3& center1, const Vec3& center2, double radius2) {
-    double collisionAngle = collision_angle(vel1, vel2, center1, center2);
-    double l_parameter = (center1 - center2).magnitude() * (1 - sin(collisionAngle));
-    return DENSITY * std::numbers::pi * l_parameter*l_parameter * (radius2 - l_parameter/3.0);
+double mass_interact(CelestialBody *const &largestBody, CelestialBody *const &smallestBody) {
+    double collisionAngle = collision_angle(largestBody->get_velocity(),
+        smallestBody->get_velocity(), largestBody->get_position(),
+        smallestBody->get_position());
+    double l_parameter = (largestBody->get_radius() - smallestBody->get_radius())
+    * (1 - sin(collisionAngle));
+    double density1 = density_by_mass_and_radius(largestBody->get_mass(),
+        largestBody->get_radius());
+    double density2 = density_by_mass_and_radius(smallestBody->get_mass(),
+        smallestBody->get_radius());
+    double avgDensity = (density1 + density2)/2;
+    return avgDensity * std::numbers::pi * l_parameter*l_parameter *
+        (smallestBody->get_radius() - l_parameter/3.0);
 }
 
 double disruption_curve(double combinedRadius) {
@@ -443,6 +472,27 @@ void update_bodies_after_fragmentation(CelestialBody *&largestBody, CelestialBod
     Vec3 newVelSLR = (initialMomentum - largestBody->get_velocity()*largestBody->get_mass())/
         smallestBody->get_mass();
     smallestBody->set_velocity(newVelSLR);
+
+    fix_positions_after_fragmentation(largestBody, smallestBody);
+}
+
+void fix_positions_after_fragmentation(CelestialBody *&largestBody, CelestialBody *&smallestBody) {
+    double penetration = largestBody->get_radius() + smallestBody->get_radius() -
+        (largestBody->get_position()-smallestBody->get_position()).magnitude();
+    if (penetration > 0) {
+        Vec3 normal;
+        Vec3 delta = smallestBody->get_position() - largestBody->get_position();
+        double dist = delta.magnitude();
+        if (dist < 1e-8) normal = Vec3(1,0,0);
+        else normal = delta/dist;
+        double totalMass = largestBody->get_mass() + smallestBody->get_mass();
+
+        double w1 = smallestBody->get_mass() / totalMass;
+        double w2 = largestBody->get_mass() / totalMass;
+
+        largestBody->set_position(largestBody->get_position() - normal * penetration * w1);
+        smallestBody->set_position(smallestBody->get_position() + normal * penetration * w2);
+    }
 }
 
 double mass_largest_remnant_supcat(double specificImpEnergySC, double disruptionEnergy,
