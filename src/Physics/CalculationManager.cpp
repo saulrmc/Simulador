@@ -101,9 +101,9 @@ void CalculationManager::root_space(std::vector<CelestialBody *> &bodies) {
             frontierValues[3] = body->get_position().get_y();
 
         if (body->get_position().get_z() < frontierValues[4])
-            frontierValues[4] = body->get_position().get_y();
+            frontierValues[4] = body->get_position().get_z();
         else if (body->get_velocity().get_z() > frontierValues[5])
-            frontierValues[5] = body->get_velocity().get_x();
+            frontierValues[5] = body->get_position().get_z();
     }
     root->set_size( 1.2 * std::max(std::max(frontierValues[1] - frontierValues[0],
         frontierValues[3] - frontierValues[2]),

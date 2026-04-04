@@ -20,8 +20,9 @@ void collisions_for_bodies(Octree *const &octree,
     std::vector<CelestialBody *> &bodies, int begin, int end);
 void collisions_for_bodies(Octree *const &octree, std::vector<CelestialBody *> &bodies);
 void collisions(Octree *const &octree, std::vector<CelestialBody *> &bodies);
-double overlap_body(const Vec3 &center1, const Vec3 &center2, const double radius1, const double radius2) ;
+bool overlap_body(const Vec3 &center1, const Vec3 &center2, const double radius1, const double radius2) ;
 bool overlap_node(const Vec3 &nodeCenter, double nodeSize, const Vec3 &bodyCenter, double bodyRadius) ;
+bool overlap(NodeOctree *const &node,  CelestialBody *const& nodeBody,  CelestialBody*const& body);
 Vec3 closest_point(const Vec3 &nodeCenter, double nodeSize, const Vec3 &bodyCenter) ;
 void resolve_collision(CelestialBody *&, CelestialBody *&,  std::vector<CelestialBody*>& bodies);
 void simplified_resolve_collision(CelestialBody *&body1, CelestialBody *&body2, std::vector<CelestialBody *> &bodies);
@@ -62,6 +63,7 @@ double impact_velocity(double reducedMass, double specificImpEnergy, double tota
 double mass_largest_remnant(double specificImpEnergyErosion, double disruptionEnergy, double totalMass) ;
 double mass_second_largest_remnant(double mLR, double totalMass, int N1, int N2);
 Vec3 momentum(const Vec3 &vel1, double mass1, const Vec3 &vel2, double mass2) ;
+Vec3 velCM(const Vec3 &vel1, double mass1, const Vec3 &vel2, double mass2);
 double radius_by_density_and_mass(double mass, double density) ;
 double density_by_mass_and_radius(double mass, double radius) ;
 void refresh_body(double currentMass, double newMass, double currentRadius,
