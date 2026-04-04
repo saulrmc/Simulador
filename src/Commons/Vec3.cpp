@@ -65,6 +65,18 @@ double Vec3::get_z() const {
     return z;
 }
 
+void Vec3::set_x(const double x) {
+    this->x = x;
+}
+
+void Vec3::set_y(const double y) {
+    this->y = y;
+}
+
+void Vec3::set_z(const double z) {
+    this->z = z;
+}
+
 Vec3 operator/(double scalar, const Vec3 &v) {
     return Vec3(scalar / v.get_x(), scalar / v.get_y(), scalar / v.get_z());
 }

@@ -23,6 +23,9 @@ class Vec3 {
     double get_x() const;
     double get_y() const;
     double get_z() const;
+    void set_x(const double x);
+    void set_y(const double y);
+    void set_z(const double z);
 
     private:
     double x, y, z;

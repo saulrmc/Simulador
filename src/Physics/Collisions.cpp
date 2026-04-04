@@ -84,38 +84,32 @@ bool overlap(NodeOctree *const &node,  CelestialBody *const& nodeBody,  Celestia
     if (nodeBody and body)
         return overlap_body(nodeBody->get_position(), body->get_position(),
                             nodeBody->get_radius(), body->get_radius());
-    return true;
+    return false;
 }
 
 //el punto más cercano de un nodo a un cuerpo
 Vec3 closest_point(const Vec3 &nodeCenter, double nodeSize, const Vec3 &bodyCenter) {
-    Vec3 closestPoint = nodeCenter;
-    if (nodeCenter.get_x() + nodeSize/2 < bodyCenter.get_x()) {
-        closestPoint = closestPoint + Vec3(nodeSize/2, 0, 0);
-    }
-    else if (nodeCenter.get_x() - nodeSize/2 > bodyCenter.get_x()) {
-        closestPoint = closestPoint - Vec3(nodeSize/2, 0, 0);
-    }
-    else closestPoint = closestPoint + Vec3(bodyCenter.get_x(), 0, 0);
+    Vec3 closestPoint;
+    if (nodeCenter.get_x() - nodeSize/2 < bodyCenter.get_x() and
+        nodeCenter.get_x() + nodeSize/2 > bodyCenter.get_x())
+        closestPoint.set_x(bodyCenter.get_x());
+    else if (nodeCenter.get_x() < bodyCenter.get_x())
+        closestPoint.set_x(nodeCenter.get_x() + nodeSize/2);
+    else closestPoint.set_x(nodeCenter.get_x() - nodeSize/2);
 
+    if (nodeCenter.get_y() - nodeSize/2 < bodyCenter.get_y() and
+        nodeCenter.get_y() + nodeSize/2 > bodyCenter.get_y())
+        closestPoint.set_y(bodyCenter.get_y());
+    else if (nodeCenter.get_y() < bodyCenter.get_y())
+        closestPoint.set_y(nodeCenter.get_y() + nodeSize/2);
+    else closestPoint.set_y(nodeCenter.get_y() - nodeSize/2);
 
-    if (nodeCenter.get_y() + nodeSize/2 < bodyCenter.get_y()) {
-        closestPoint = closestPoint + Vec3(0, nodeSize/2, 0);
-    }
-    else if (nodeCenter.get_y() - nodeSize/2 > bodyCenter.get_y()) {
-        closestPoint = closestPoint - Vec3(0, nodeSize/2, 0);
-    }
-    else closestPoint = closestPoint + Vec3(0, bodyCenter.get_y(), 0);
-
-
-    if (nodeCenter.get_z() + nodeSize/2 < bodyCenter.get_z()) {
-        closestPoint = closestPoint + Vec3(0, 0, nodeSize/2);
-    }
-    else if (nodeCenter.get_z() - nodeSize/2 > bodyCenter.get_z()) {
-        closestPoint = closestPoint - Vec3(0, 0, nodeSize/2);
-    }
-    else closestPoint = closestPoint + Vec3(0, 0, bodyCenter.get_z());
-
+    if (nodeCenter.get_z() - nodeSize/2 < bodyCenter.get_z() and
+            nodeCenter.get_z() + nodeSize/2 > bodyCenter.get_z())
+        closestPoint.set_z(bodyCenter.get_z());
+    else if (nodeCenter.get_z() < bodyCenter.get_z())
+        closestPoint.set_z(nodeCenter.get_z() + nodeSize/2);
+    else closestPoint.set_z(nodeCenter.get_z() - nodeSize/2);
 
     return closestPoint;
 }
