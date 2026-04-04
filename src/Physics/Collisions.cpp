@@ -367,8 +367,10 @@ double mass_interact(CelestialBody *const &largestBody, CelestialBody *const &sm
     double collisionAngle = collision_angle(largestBody->get_velocity(),
         smallestBody->get_velocity(), largestBody->get_position(),
         smallestBody->get_position());
-    double l_parameter = (largestBody->get_radius() - smallestBody->get_radius())
-    * (1 - sin(collisionAngle));
+    double l_parameter = largestBody->get_radius() == smallestBody->get_radius()?
+    (largestBody->get_position() - smallestBody->get_position()).magnitude()* (1 - sin(collisionAngle))
+    :
+    (largestBody->get_radius() - smallestBody->get_radius())*(1 - sin(collisionAngle));
     double density1 = density_by_mass_and_radius(largestBody->get_mass(),
         largestBody->get_radius());
     double density2 = density_by_mass_and_radius(smallestBody->get_mass(),
