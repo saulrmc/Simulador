@@ -37,7 +37,7 @@ void super_catastrophic_disruption_regime(CelestialBody *largestBody,
 void disruption_regime(CelestialBody *largestBody, CelestialBody *smallestBody,
     double specificImpEnergyErosion, double disruptionEnergy, double bParameter);
 void hit_and_run_regime(CelestialBody *&largestBody, CelestialBody *&smallestBody,
-    double massInteract, double impactVelocity, double bParameter);
+    double massInteract, double impactVelocity, double bParameter, double avgDensity);
 
 
 //Cálculos para distinguir regímenes:
@@ -46,13 +46,14 @@ void hit_and_run_regime(CelestialBody *&largestBody, CelestialBody *&smallestBod
 // double effective_specific_impact_energy(const double mass1, const double mass2, const Vec3 &vel1, const Vec3 &vel2,
 //     const Vec3& center1, const Vec3& center2);
 double mutual_escape_velocity(double mass1, double mass2, const Vec3 &pos1, const Vec3 &pos2) ;
-double mutual_escape_velocity_mod(double largestMass, double massInteract) ;
-double catastrophic_disruption_criterion(const Vec3 &vel1, const Vec3 &vel2, double combinedRadius) ;
+double mutual_escape_velocity_mod(double largestMass, double massInteract,  double avgDensity) ;
+double catastrophic_disruption_criterion(const Vec3 &vel1, const Vec3 &vel2, double combinedRadius,
+    double avgDensity) ;
 double collision_timescale(double radius1, double radius2, double distance, double relativeVelocity) ;
 double collision_angle(const Vec3 &vel1, const Vec3 &vel2, const Vec3& center1, const Vec3& center2);
 double mass_interact(CelestialBody *const &largestBody, CelestialBody *const &smallestBody);
-double disruption_curve(double combinedRadius);
-double critical_impact_velocity_mod(double combinedRadius);
+double disruption_curve(double combinedRadius, double avgDensity);
+double critical_impact_velocity_mod(double combinedRadius, double avgDensity);
 double disruption_criterion(double disruptionCurve, double relationMass);
 double critical_impact_velocity(double criticalImpVelMod, double relationMass);
 double disruption_energy_by_angle(double disruptionCriterion, double reducedMass, double reducedMassMod);
