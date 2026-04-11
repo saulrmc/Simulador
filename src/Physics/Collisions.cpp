@@ -113,6 +113,13 @@ Vec3 closest_point(const Vec3 &nodeCenter, double nodeSize, const Vec3 &bodyCent
     return closestPoint;
 }
 
+/*  Modelo de colisiones obtenido de:
+ *  Leinhardt, Z. M., & Stewart, S. T. (2012).
+ * "Collisions between gravity-dominated bodies. I. Outcome regimes and scaling laws".
+ * The Astrophysical Journal, 745(1), 79.
+ */
+
+//Algoritmo adaptado de: A.1. A General Formulation for Collision Outcomes de Leinhardt & Stewart (2012)
 void simplified_resolve_collision(CelestialBody *&body1, CelestialBody *&body2, std::vector<CelestialBody *> &bodies) {
     if (body1->get_mass() <= 0 || body2->get_mass() <= 0) return;
     if (body1->get_radius() <= 0 || body2->get_radius() <= 0) return;
@@ -162,6 +169,7 @@ void simplified_resolve_collision(CelestialBody *&body1, CelestialBody *&body2, 
 
 }
 
+//Algoritmo adaptado de: A.1. A General Formulation for Collision Outcomes de Leinhardt & Stewart (2012)
 void resolve_collision(CelestialBody *&body1, CelestialBody *&body2, std::vector<CelestialBody *> &bodies) {
     if (body1->get_mass() <= 0 || body2->get_mass() <= 0) return;
     if (body1->get_radius() <= 0 || body2->get_radius() <= 0) return;
@@ -222,12 +230,11 @@ void resolve_collision(CelestialBody *&body1, CelestialBody *&body2, std::vector
         smallestBody->get_mass()/largestBody->get_mass());
     double disruptionEnergy = disruption_energy_by_angle(disruptionCriterion,
         reducedMass, reducedMassMod);
-    double criticalImpVelByAngle = critical_impact_velocity_by_angle(disruptionEnergy,
+    double criticalImpVelByAngle = impact_velocity(disruptionEnergy,
         totalMass, reducedMass);
         double specificImpEnergyErosion = specific_impact_energy(
         largestBody->get_mass(), disruptionEnergy,
-        largestBody->get_mass(), smallestBody->get_mass());//Specific impact energy
-    //for the collision in center of mass frame
+        largestBody->get_mass(), smallestBody->get_mass());
 
     double vErosion = impact_velocity(reducedMass, specificImpEnergyErosion,
         totalMass);
@@ -249,8 +256,7 @@ void resolve_collision(CelestialBody *&body1, CelestialBody *&body2, std::vector
     }
 }
 
-//regímenes:
-
+//Régimen de fusión obtenido de: Leinhardt & Stewart (2012)
 void merge_regime(CelestialBody *&largestBody, CelestialBody *&smallestBody,
     std::vector<CelestialBody *> &bodies) {
     //se debe conservar el momento lineal
@@ -273,6 +279,7 @@ void merge_regime(CelestialBody *&largestBody, CelestialBody *&smallestBody,
     smallestBody->set_force(Vec3(0, 0, 0));
 }
 
+//Régimen super catastrófico obtenido de: Leinhardt & Stewart (2012)
 void super_catastrophic_disruption_regime(CelestialBody *largestBody,
     CelestialBody *smallestBody, double specificImpEnergySC,
     double disruptionEnergy, double bParameter) {
@@ -282,7 +289,7 @@ void super_catastrophic_disruption_regime(CelestialBody *largestBody,
         mLR, 1, 2);
 }
 
-
+//Régimen de distrupción obtenido de: Leinhardt & Stewart (2012)
 void disruption_regime(CelestialBody *largestBody, CelestialBody *smallestBody,
     double specificImpEnergyErosion, double disruptionEnergy, double bParameter) {
     //El régimen de disrupción incluye:
@@ -298,6 +305,7 @@ void disruption_regime(CelestialBody *largestBody, CelestialBody *smallestBody,
         mLR, 1, 2);
 }
 
+//Régimen hit-and-run obtenido de: Leinhardt & Stewart (2012)
 void hit_and_run_regime(CelestialBody *&largestBody, CelestialBody *&smallestBody, double massInteract,
     double impactVelocity, double bParameter, double avgDensity) {
     //a pesar de que los nombres son similares a las variables que se calcularon antes en realidad
@@ -350,10 +358,12 @@ double mutual_escape_velocity(double mass1, double mass2, const Vec3 &pos1, cons
     return sqrt(2.0*units::G*(mass1 + mass2)/distance);
 }
 
+//Adaptado de: Leinhardt & Stewart (2012). Ecuación (53)
 double mutual_escape_velocity_mod(double largestMass, double massInteract, double avgDensity) {
     const double R = pow(3*(largestMass + massInteract)/(4 * std::numbers::pi * avgDensity), 1.0/3);
     return sqrt(2*units::G*(largestMass + massInteract)/R);
 }
+
 
 double catastrophic_disruption_criterion(const Vec3 &vel1, const Vec3 &vel2, double combinedRadius,
     double avgDensity) {
@@ -373,6 +383,7 @@ double collision_timescale(double radius1, double radius2, double distance, doub
     return (radius1 + radius2 - distance) / std::max(relativeVelocity, 1e-8);
 }
 
+//Adaptado de: Leinhardt & Stewart (2012). Ecuación (7) y Figura (2)
 double collision_angle(const Vec3 &vel1, const Vec3 &vel2, const Vec3& center1, const Vec3& center2) {
     const Vec3 relativeVelocity = vel1 - vel2;
     const Vec3 distance = center1-center2;
@@ -384,6 +395,7 @@ double collision_angle(const Vec3 &vel1, const Vec3 &vel2, const Vec3& center1, 
     return angle;
 }
 
+//Adaptado de: Leinhardt & Stewart (2012). Ecuación (10)
 double mass_interact(CelestialBody *const &largestBody, CelestialBody *const &smallestBody) {
     double collisionAngle = collision_angle(largestBody->get_velocity(),
         smallestBody->get_velocity(), largestBody->get_position(),
@@ -401,6 +413,7 @@ double mass_interact(CelestialBody *const &largestBody, CelestialBody *const &sm
         (smallestBody->get_radius() - l_parameter/3.0);
 }
 
+//Obtenido de: Leinhardt & Stewart (2012). Ecuación (28)
 double disruption_curve(double combinedRadius, double avgDensity) {
     double c = 1.9; //Representa la diferencia entre la energía de
         //enlace gravitacional y el criterio de disipación para masas iguales. El valor recomendado
@@ -408,11 +421,13 @@ double disruption_curve(double combinedRadius, double avgDensity) {
     return c * (4.0/5) * std::numbers::pi * avgDensity * units::G * combinedRadius * combinedRadius;
 }
 
+//Obtenido de: Leinhardt & Stewart (2012). Ecuación (30)
 double critical_impact_velocity_mod(double combinedRadius, double avgDensity) {
     double c = 1.9;
     return sqrt(32.0 * std::numbers::pi * c/5) * sqrt(avgDensity * units::G) * combinedRadius;
 }
 
+//Obtenido de: Leinhardt & Stewart (2012). Ecuación (23)
 double disruption_criterion(double disruptionCurve, double relationMass) {
     double exp = 2.0/(3*MI) - 1;
     double secondTerm = pow(0.25*(relationMass + 1)*
@@ -420,6 +435,7 @@ double disruption_criterion(double disruptionCurve, double relationMass) {
     return disruptionCurve*secondTerm;
 }
 
+//Obtenido de: Leinhardt & Stewart (2012). Ecuación (22)
 double critical_impact_velocity(double criticalImpVelMod, double relationMass) {
     double exp = 1.0/(3*MI);
     double firstTerm = pow(0.25*(relationMass + 1) *
@@ -427,33 +443,35 @@ double critical_impact_velocity(double criticalImpVelMod, double relationMass) {
     return firstTerm * criticalImpVelMod;
 }
 
+//Obtenido de: Leinhardt & Stewart (2012). Ecuación (15)
 double disruption_energy_by_angle(double disruptionCriterion, double reducedMass, double reducedMassMod) {
     double exp = 2 - 3.0*MI/2;
     double firstTerm = pow(reducedMass/reducedMassMod,exp);
     return firstTerm * disruptionCriterion;
 }
 
-double critical_impact_velocity_by_angle(double disruptionEnergy, double totalMass, double reducedMass) {
-    //así lo llama en el paper, pero no usa un ángulo
-   return sqrt(2.0*disruptionEnergy*totalMass/reducedMass);
-}
 
+//Adaptado de: Leinhardt & Stewart (2012). Ecuación (5)
 double specific_impact_energy(double massLR, double disruptionEnergy, double largestMass, double smallestMass) {
     return 2 * disruptionEnergy*(1-massLR/(largestMass+smallestMass));
 }
 
+//Obtenido de: Leinhardt & Stewart (2012). Ecuación (1)
 double specific_impact_energy(double reducedMass, double impactVelocity, double totalMass) {
     return 0.5*reducedMass*impactVelocity * impactVelocity/totalMass;
 }
 
+//Obtenido de: Leinhardt & Stewart (2012). Ecuación (16)
 double impact_velocity(double reducedMass, double specificImpEnergy, double totalMass) {
     return sqrt(2 * specificImpEnergy*totalMass/reducedMass);
 }
 
+//Adaptado de: Leinhardt & Stewart (2012). Ecuación (5)
 double mass_largest_remnant(double specificImpEnergyErosion, double disruptionEnergy, double totalMass) {
     return totalMass * (1 - 0.5*specificImpEnergyErosion/disruptionEnergy);
 }
 
+//Obtenido de: Leinhardt & Stewart (2012). Ecuación (37)
 double mass_second_largest_remnant(double mLR, double totalMass, int N1, int N2) {
     return (3 - 2.85)*(1 - N1*mLR/totalMass)/(N2 * 2.85);
 }
@@ -499,6 +517,7 @@ void update_bodies_after_fragmentation(CelestialBody *&largestBody, CelestialBod
     fix_positions_after_fragmentation(largestBody, smallestBody);
 }
 
+//para separar los cuerpos después de la colision
 void fix_positions_after_fragmentation(CelestialBody *&largestBody, CelestialBody *&smallestBody) {
     double penetration = largestBody->get_radius() + smallestBody->get_radius() -
         (largestBody->get_position()-smallestBody->get_position()).magnitude();
@@ -518,6 +537,7 @@ void fix_positions_after_fragmentation(CelestialBody *&largestBody, CelestialBod
     }
 }
 
+//OBtenido de: Leinhardt & Stewart (2012). Ecuación (44)
 double mass_largest_remnant_supcat(double specificImpEnergySC, double disruptionEnergy,
     double totalMass) {
     const double n =-1.5; //valor aproximado que se sugiere

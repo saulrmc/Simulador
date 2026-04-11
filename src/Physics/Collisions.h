@@ -57,7 +57,6 @@ double critical_impact_velocity_mod(double combinedRadius, double avgDensity);
 double disruption_criterion(double disruptionCurve, double relationMass);
 double critical_impact_velocity(double criticalImpVelMod, double relationMass);
 double disruption_energy_by_angle(double disruptionCriterion, double reducedMass, double reducedMassMod);
-double critical_impact_velocity_by_angle(double disruptionEnergy, double totalMass, double reducedMass);
 double specific_impact_energy(double massLR, double disruptionEnergy, double largestMass, double smallestMass);
 double specific_impact_energy(double reducedMass, double impactVelocity, double totalMass);
 double impact_velocity(double reducedMass, double specificImpEnergy, double totalMass) ;
