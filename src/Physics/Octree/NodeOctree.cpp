@@ -52,7 +52,9 @@ void NodeOctree::calc_avg_values() {
     for (int i = 0; i < 8; i++) {
         if (this->children[i]->element_octree.mass > 0) {
             this->element_octree.centerOfMass = this->element_octree.centerOfMass +
-                (this->children[i]->element_octree.centerOfMass)*
+                (this->children[i]->element_octree.centerOfMass)* //como aquí antes le restaba el
+                    //centro de masa eso provocaba que la poda de nodos en la profundidad de acceso
+                        //al octree sea muy temprana e incorrecta. Esto hacía al programa más rápido de lo que debía
                     this->children[i]->element_octree.mass / this->element_octree.mass;
         }
     }
