@@ -16,6 +16,7 @@ class Vec3 {
     Vec3 operator+(const Vec3& v) const;
     Vec3 operator*(double scalar) const;
     Vec3 operator/(double scalar) const;
+    Vec3 operator/(const Vec3 &v) const;
     double dot(const Vec3& v) const;
     double magnitude() const;
     Vec3 normalize() const;
