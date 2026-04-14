@@ -24,7 +24,8 @@ public:
 private:
     void create_children();
     ElementOctree element_octree;
-    NodeOctree *children[8]{};
+    //NodeOctree *children[8]{};
+    std::vector<NodeOctree*> children;
 };
 
 
