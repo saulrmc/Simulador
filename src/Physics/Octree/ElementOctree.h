@@ -7,7 +7,7 @@
 #include "../src/Commons/CelestialBody.h"
 #include "../src/Commons/Vec3.h"
 #include <vector>
-constexpr int CAPACITY=8;
+constexpr int CAPACITY=4;
 class ElementOctree {
 public:
     ElementOctree();

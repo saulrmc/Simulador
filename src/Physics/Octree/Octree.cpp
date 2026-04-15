@@ -110,8 +110,8 @@ void Octree::recursive_query_region(NodeOctree *node,
     if (!node or !condition or !action or !body) return;
     if (condition(node, body) == false) return;
     if (node->has_children()) {
-        int index = octant_for_position(body->get_position(), node->element_octree.get_position());
-        //for (int i = 0; i < 8; i++)
+        //int index = octant_for_position(body->get_position(), node->element_octree.get_position());
+        for (int index = 0; index < 8; index++)
             recursive_query_region(node->children[index], condition, action, body, bodies);
     }
     else {
@@ -173,13 +173,12 @@ void Octree::recursively_insert(NodeOctree *&node_octree, CelestialBody *body) {
     if (!node_octree->has_children()) {//si el nodo es externo...
         if (node_octree->element_octree.bodies.size() == CAPACITY) {//si está lleno
             node_octree->create_children();
-            node_octree->element_octree.mass = 0;
-            node_octree->element_octree.centerOfMass = Vec3(0, 0, 0);
             for (int i = 0; i < CAPACITY; i++) {
                 CelestialBody* oldBody = node_octree->element_octree.bodies[i];
+                uint8_t index = octant_for_position(oldBody->get_position(), node_octree->element_octree.get_position());
                 num_bodies--;
-                NodeOctree *destinyOld = select_child(node_octree, oldBody);
-                recursively_insert(destinyOld, oldBody);
+                //NodeOctree *destinyOld = select_child(node_octree, oldBody);
+                recursively_insert(node_octree->children[index], oldBody);
             }
             node_octree->element_octree.bodies.clear();
         }
@@ -200,8 +199,9 @@ void Octree::recursively_insert(NodeOctree *&node_octree, CelestialBody *body) {
             return;
         }
     }
-    NodeOctree *destiny_new = select_child(node_octree, body);
-    recursively_insert(destiny_new, body);
+    //NodeOctree *destiny_new = select_child(node_octree, body);
+    uint8_t index = octant_for_position(body->get_position(), node_octree->element_octree.get_position());
+    recursively_insert(node_octree->children[index], body);
     node_octree->calc_avg_values();
     node_octree->element_octree.bodies.clear();
 }
@@ -244,26 +244,24 @@ void Octree::recursively_calc_forces(const NodeOctree *node_octree, CelestialBod
     const double d = (body->get_position() - node_octree->element_octree.centerOfMass).magnitude();
     if (d == 0) return; //para evitar una division entre 0
 
-    Vec3 bodyCurrentForce = body->get_force();
-
-    if (!node_octree->has_children()) {
+    if (node_octree->element_octree.size/d < theta) { //significa que el nodo está lo suficientemente lejos
+        //y se puede tratar como un solo cuerpo
+        Vec3 new_force = force_exerted_from_to(
+            node_octree->element_octree.mass, node_octree->element_octree.centerOfMass,
+            body->get_mass(), body->get_position()
+            );
+        body->set_force(body->get_force() + new_force);
+    }
+    else if (!node_octree->has_children()) {
         for (int i = 0; i < node_octree->element_octree.bodies.size(); i++) {
             if (node_octree->element_octree.bodies[i] != body) {
                 Vec3 new_force = force_exerted_from_to(
                 node_octree->element_octree.bodies[i]->get_mass(),node_octree->element_octree.bodies[i]->get_position(), //1
                 body->get_mass(),body->get_position() //2
                 );
-                body->set_force(bodyCurrentForce + new_force);
+                body->set_force(body->get_force() + new_force);
             }
         }
-    }
-    else if (node_octree->element_octree.size/d < theta) { //significa que el nodo está lo suficientemente lejos
-        //y se puede tratar como un solo cuerpo
-        Vec3 new_force = force_exerted_from_to(
-            node_octree->element_octree.mass, node_octree->element_octree.centerOfMass,
-            body->get_mass(), body->get_position()
-            );
-        body->set_force(bodyCurrentForce + new_force);
     }
     else for (int i=0; i < 8;i++) recursively_calc_forces(node_octree->children[i], body);
 }
