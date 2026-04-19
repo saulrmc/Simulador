@@ -39,15 +39,21 @@ void CalculationManager::update_forces(std::vector<CelestialBody*> &bodies) {
     }
     root_space(bodies);
     create_Octree();
-    // std::chrono::duration<double, std::micro> total_time(0);
-    // auto start = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double, std::micro> total_time(0);
+    auto start = std::chrono::high_resolution_clock::now();
     reinsert_bodies(bodies);
     root->refresh_theta_value();
-    // auto end = std::chrono::high_resolution_clock::now();
-    // total_time = end - start;
-    // std::cout << std::endl << "Tiempo de reinsercion de cuerpos en microsegundos : "
-    // << total_time.count() << std::endl;
+    auto end = std::chrono::high_resolution_clock::now();
+    total_time = end - start;
+    std::cout << std::endl << "Tiempo de reinsercion de cuerpos en microsegundos : "
+    << total_time.count() << std::endl;
+    std::chrono::duration<double, std::micro> total_time2(0);
+    auto start2 = std::chrono::high_resolution_clock::now();
     for (CelestialBody *&body : bodies) root->calc_forces_per_body(body);//fuerzas actualizadas
+    auto end2 = std::chrono::high_resolution_clock::now();
+    total_time2 = end2 - start2;
+    std::cout << "Tiempo de calculo de fuerzas de cuerpos en microsegundos : "
+    << total_time2.count() << std::endl;
 }
 
 void CalculationManager::step(std::vector<CelestialBody *> &bodies) {
@@ -88,7 +94,6 @@ void CalculationManager::root_space(std::vector<CelestialBody *> &bodies) {
     //el index 2 y 3 para yMin & yMax
     //el index 4 y 5 para zMin y zMax
     double frontierValues[6]{};
-    #pragma omp parallel for
     for (CelestialBody *&body : bodies) {
         if (body->get_position().get_x() < frontierValues[0])
             frontierValues[0] = body->get_position().get_x();
@@ -105,9 +110,16 @@ void CalculationManager::root_space(std::vector<CelestialBody *> &bodies) {
         else if (body->get_position().get_z() > frontierValues[5])
             frontierValues[5] = body->get_position().get_z();
     }
-    root->set_size( 1.2 * std::max(std::max(frontierValues[1] - frontierValues[0],
+    double exactSize = std::max(std::max(frontierValues[1] - frontierValues[0],
         frontierValues[3] - frontierValues[2]),
-            frontierValues[5] - frontierValues[4])); //lo hace un 20% más grande del tamaño exacto
+            frontierValues[5] - frontierValues[4]);
+    double nearestPow2 = log2(exactSize);
+    int minPow2 = (int)nearestPow2;
+    int maxPow2 = minPow2 + 1;
+
+    root->set_size(pow(2, maxPow2));
+    // std::cout << exactSize << std::endl;
+    // std::cout << root->get_size()<<std::endl;
     root->set_center(Vec3((frontierValues[0] + frontierValues[1])/2,
         (frontierValues[2] + frontierValues[3])/2,
         (frontierValues[4] + frontierValues[5])/2));
