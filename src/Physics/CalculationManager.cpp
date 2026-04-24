@@ -49,6 +49,10 @@ void CalculationManager::update_forces(std::vector<CelestialBody*> &bodies) {
     << total_time.count() << std::endl;
     std::chrono::duration<double, std::micro> total_time2(0);
     auto start2 = std::chrono::high_resolution_clock::now();
+    #pragma omp parallel for schedule(dynamic, 10)
+    //#pragma omp parallel for schedule(dynamic, 100)
+    //#pragma omp parallel for schedule(dynamic, 1000)
+    //#pragma omp parallel for schedule(dynamic, 10000)
     for (CelestialBody *&body : bodies) root->calc_forces_per_body(body);//fuerzas actualizadas
     auto end2 = std::chrono::high_resolution_clock::now();
     total_time2 = end2 - start2;
