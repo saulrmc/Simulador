@@ -42,6 +42,7 @@ public:
     NodeOctree* select_child(NodeOctree* node, CelestialBody* body);
     NodeOctree* recursively_locate_body(NodeOctree *node, CelestialBody *body);
     void recursively_insert(NodeOctree*&, CelestialBody *);
+    void iterative_insert(CelestialBody *&body);
     bool recursively_erase(NodeOctree*&, CelestialBody *);
     void recursively_calc_forces(const NodeOctree *node, CelestialBody *body);
     uint8_t octant_for_position(const Vec3 &pos, const Vec3& center);

@@ -206,6 +206,33 @@ void Octree::recursively_insert(NodeOctree *&node_octree, CelestialBody *body) {
     node_octree->element_octree.bodies.clear();
 }
 
+void Octree::iterative_insert(CelestialBody *&body) {
+    NodeOctree *node = root;
+    while (node!=nullptr and node->has_children()) {
+        int octant = octant_for_position(body->get_position(),
+            node->element_octree.get_position());
+        node = node->children[octant];
+    }
+    if (node->element_octree.bodies.size() == CAPACITY) {
+        node->create_children();
+        for (int i = 0; i < CAPACITY; i++) {
+            int octant = octant_for_position(node->element_octree.bodies[i]->get_position(),
+            node->element_octree.get_position());
+            node->children[octant]->element_octree.bodies.push_back(
+                node->element_octree.bodies[i]
+            );
+        }
+        node->element_octree.bodies.clear();
+    }
+    else {
+        node->element_octree.bodies.push_back(body);
+        this->num_bodies++;
+    }
+}
+
+//todo: faltaria resolver la actualización de centros de masa
+
+
 bool Octree::recursively_erase(NodeOctree *&node_octree, CelestialBody *body) {
     if (!node_octree) return false;
     //nodo externo
