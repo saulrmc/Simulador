@@ -18,7 +18,13 @@ add_library(glad libs/glad/glad.c
         src/Simulation.cpp
         src/Simulation.h
         src/Creation/Creation.cpp
-        src/Creation/Creation.h)
+        src/Creation/Creation.h
+        src/Physics/LinearOctree/LinearOctree.cpp
+        src/Physics/LinearOctree/LinearOctree.h
+        src/Physics/LinearOctree/LinearNode.cpp
+        src/Physics/LinearOctree/LinearNode.h
+        src/Physics/LinearOctree/LinearElement.cpp
+        src/Physics/LinearOctree/LinearElement.h)
 target_include_directories(glad PUBLIC libs)
 
 add_executable(SimuladorGravitacional main.cpp
