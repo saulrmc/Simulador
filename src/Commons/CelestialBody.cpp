@@ -118,3 +118,27 @@ void CelestialBody::set_index(const int index) {
     this->index = index;
 }
 
+double CelestialBody::get_posX() const {
+    return position.get_x();
+}
+
+void CelestialBody::set_posX(const double x) {
+    position.set_x(x);
+}
+
+double CelestialBody::get_posY() const {
+    return position.get_y();
+}
+
+void CelestialBody::set_posY(const double y) {
+    position.set_y(y);
+}
+
+double CelestialBody::get_posZ() const {
+    return position.get_z();
+}
+
+void CelestialBody::set_posZ(const double z) {
+    position.set_z(z);
+}
+

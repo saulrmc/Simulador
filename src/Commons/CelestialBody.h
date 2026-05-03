@@ -30,6 +30,13 @@ class CelestialBody {
     void set_id(const int id);
     int get_index() const;
     void set_index(const int index);
+    double get_posX() const;
+    void set_posX(const double x);
+    double get_posY() const;
+    void set_posY(const double y);
+    double get_posZ() const;
+    void set_posZ(const double z);
+
 
     void operator=(const CelestialBody &);
     bool operator==(const CelestialBody &) const;
