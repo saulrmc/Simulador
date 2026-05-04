@@ -45,10 +45,11 @@ void LinearElement<T>::set_object_posZ(const double object_posZ) {
 }
 
 template<typename T>
-unsigned int LinearElement<T>::get_morton_code() const {
+unsigned long long int LinearElement<T>::get_morton_code() const {
     return mortonCode;
 }
+
 template<typename T>
-void LinearElement<T>::set_morton_code(const unsigned int morton_code) {
+void LinearElement<T>::set_morton_code(const unsigned long long int morton_code) {
     mortonCode = morton_code;
 }

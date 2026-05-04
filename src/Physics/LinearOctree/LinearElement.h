@@ -16,11 +16,18 @@ class LinearElement {
     void set_object_posX(const double object_posX);
     void set_object_posY(const double object_posY);
     void set_object_posZ(const double object_posZ);
-    unsigned int get_morton_code() const;
-    void set_morton_code(const unsigned int morton_code);
+    unsigned long long int get_morton_code() const;
+    void set_morton_code(const unsigned long long int morton_code);
     private:
     T *object;
-    unsigned int mortonCode;
+
+    //aprovechando
+    //los 64 bits del dato tendría 21
+    //bits para cada coordenada, lo que me daría un total de
+    //2 097 152 celdas en cada eje como máximo.
+    unsigned long long int mortonCode;
+
+
 };
 
 
