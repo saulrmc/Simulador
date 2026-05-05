@@ -3,6 +3,8 @@
 //
 
 #include "LinearOctree.h"
+#include <algorithm>
+
 template<typename T>
 LinearOctree<T>::LinearOctree() {
 }
@@ -55,9 +57,28 @@ bool LinearOctree<T>::refresh_all_morton_codes() {
 }
 
 template<typename T>
-void LinearOctree<T>::insert(T) {
-    LinearElement<T> node = new LinearElement<T>();
+void LinearOctree<T>::sort_all_morton_codes() {
+    std::sort(elements.begin(), elements.end(),
+        [](const LinearElement<T> &a, const LinearElement<T> &b) {
+        a.get_morton_code() < b.get_morton_code();
+    });
+}
 
+template<typename T>
+void LinearOctree<T>::refresh_all_node_ranges() {
+    unsigned long long start = 0;
+    for (LinearNode<T> &node : nodes) {
+        if (start + 7 > elements.size() - 1) break;
+        set_range(node, start, start + 7);
+        start += 8;
+    }
+}
+
+template<typename T>
+void LinearOctree<T>::insert(T *&object) {
+    LinearElement<T> element = new LinearElement<T>();
+    element.object = object;
+    elements.push_back(element);
 }
 
 template<typename T>
@@ -96,6 +117,12 @@ void LinearOctree<T>::set_minPosZ() {
 }
 
 template<typename T>
+void LinearOctree<T>::set_range(LinearNode<T> &node, unsigned int minRange, unsigned int maxRange) {
+    node.set_minRange(minRange);
+    node.set_maxRange(maxRange);
+}
+
+template<typename T>
 unsigned long long int LinearOctree<T>::expand_bits_64(unsigned long long int number) const {
     //El objetivo es separar todos los bits del número dejando 2
     //espacios en 0 entre cada bit.
@@ -107,4 +134,5 @@ unsigned long long int LinearOctree<T>::expand_bits_64(unsigned long long int nu
     number = (number | (number << 2))  & 0x1249249249249249;
     return number;
 }
+
 

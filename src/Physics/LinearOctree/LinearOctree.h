@@ -7,6 +7,8 @@
 #include "LinearElement.h"
 #include <vector>
 
+#include "LinearNode.h"
+
 template<typename T>
 class LinearOctree {
 public:
@@ -19,16 +21,19 @@ public:
     double get_center_pos_z() const;
     void set_center_pos_z(double centerPosZ);
     bool refresh_all_morton_codes();
-
-    void insert(T);
+    void sort_all_morton_codes();
+    void refresh_all_node_ranges();
+    void insert(T *&object);
 
     private:
     std::vector<LinearElement<T>> elements{};
+    std::vector<LinearNode<T>> nodes{};
     int get_integer_posN(double posN, double minPosN) const;
     bool calculate_morton_code(LinearElement<T> &element) const;
     void set_minPosX();
     void set_minPosY();
     void set_minPosZ();
+    void set_range(LinearNode<T> &node, unsigned int minRange, unsigned int maxRange);
     unsigned long long int expand_bits_64(unsigned long long int number) const;
     double size;
     double centerPosX;
