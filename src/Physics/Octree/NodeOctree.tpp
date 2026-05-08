@@ -5,7 +5,7 @@
 #include "NodeOctree.h"
 template<typename T>
 NodeOctree<T>::NodeOctree() {
-    ElementOctree();
+    ElementOctree<T>();
 }
 
 template<typename T>
@@ -17,7 +17,7 @@ NodeOctree<T>::~NodeOctree() {
 template<typename T>
 void NodeOctree<T>::create_children() {
     for (int i = 0; i < 8; i++) {
-        children[i] = new NodeOctree();
+        children[i] = new NodeOctree<T>();
         children[i]->element_octree.size = element_octree.size / 2;
         //de esta manera se le suma +- 1/4 de la longitud de un lado del nodo padre
         //al centro del nodo padre en todos los ejes y con eso se determina
@@ -67,9 +67,9 @@ void NodeOctree<T>::calc_avg_values() {
 }
 
 template<typename T>
-const NodeOctree * NodeOctree<T>::n_child(int index) const {
+const NodeOctree<T> * NodeOctree<T>::n_child(int index) const {
     if (!this->has_children())return nullptr;
-    NodeOctree * n_child = children[index];
+    NodeOctree<T> * n_child = children[index];
     return n_child;
 }
 

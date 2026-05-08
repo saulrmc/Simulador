@@ -17,7 +17,7 @@ CalculationManager::~CalculationManager() {
 }
 
 void CalculationManager::create_Octree() {
-    if (!root) root = new Octree();
+    if (!root) root = new Octree<CelestialBody>();
     root->create_space();
 }
 
@@ -49,8 +49,8 @@ void CalculationManager::update_forces(std::vector<CelestialBody*> &bodies) {
     << total_time.count() << std::endl;
     std::chrono::duration<double, std::micro> total_time2(0);
     auto start2 = std::chrono::high_resolution_clock::now();
-    #pragma omp parallel for schedule(dynamic, 10)
-    //#pragma omp parallel for schedule(dynamic, 100)
+    //#pragma omp parallel for schedule(dynamic, 10)
+    #pragma omp parallel for schedule(dynamic, 100)
     //#pragma omp parallel for schedule(dynamic, 1000)
     //#pragma omp parallel for schedule(dynamic, 10000)
     for (CelestialBody *&body : bodies) root->calc_forces_per_body(body);//fuerzas actualizadas
@@ -93,7 +93,7 @@ void CalculationManager::leapfrog_integration_kdk(std::vector<CelestialBody *> &
 }
 
 void CalculationManager::root_space(std::vector<CelestialBody *> &bodies) {
-    if (!root) root = new Octree();
+    if (!root) root = new Octree<CelestialBody>();
     //el index 0 y 1 para xMin y xMax
     //el index 2 y 3 para yMin & yMax
     //el index 4 y 5 para zMin y zMax
@@ -122,8 +122,8 @@ void CalculationManager::root_space(std::vector<CelestialBody *> &bodies) {
     int maxPow2 = minPow2 + 1;
 
     root->set_size(pow(2, maxPow2));
-    // std::cout << exactSize << std::endl;
-    // std::cout << root->get_size()<<std::endl;
+    std::cout << "tamanio espacial exacto " << exactSize << std::endl;
+    std::cout << "tamanio espacial escalado "  << root->get_size()<<std::endl;
     root->set_center(Vec3((frontierValues[0] + frontierValues[1])/2,
         (frontierValues[2] + frontierValues[3])/2,
         (frontierValues[4] + frontierValues[5])/2));

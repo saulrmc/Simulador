@@ -5,6 +5,8 @@
 #ifndef SIMULADORGRAVITACIONAL_NODEOCTREE_H
 #define SIMULADORGRAVITACIONAL_NODEOCTREE_H
 #include "ElementOctree.h"
+template<typename T>
+class Octree;
 
 template<typename T>
 class NodeOctree {
@@ -13,9 +15,9 @@ public:
     virtual ~NodeOctree();
     bool has_children() const;
     void calc_avg_values();
-    const NodeOctree* n_child(int index) const;
+    const NodeOctree<T>* n_child(int index) const;
 
-    friend class Octree;
+    friend class Octree<T>;
 
     //exclusivo de este problema (osea del simulador)
     double get_body_mass() const;
@@ -27,12 +29,8 @@ private:
     void create_children();
 
     ElementOctree<T> element_octree;
-    NodeOctree *children[8]{};
+    NodeOctree<T> *children[8]{};
     //std::vector<NodeOctree*> children;
 };
-
-
-template<typename T>
-::NodeOctree<T>::NodeOctree() {
-}
+#include "NodeOctree.tpp"
 #endif //SIMULADORGRAVITACIONAL_NODEOCTREE_H

@@ -6,7 +6,7 @@
 
 #include <iostream>
 
-void collisions_for_bodies(Octree *const &octree,
+void collisions_for_bodies(Octree<CelestialBody> *const &octree,
                            std::vector<CelestialBody *> &bodies, int begin, int end) {
     if (begin > end) return;
     if (begin == end) {
@@ -23,14 +23,16 @@ void collisions_for_bodies(Octree *const &octree,
     collisions_for_bodies(octree, bodies, middle + 1,  end);
 }
 
-void collisions_for_range(Octree *const &octree,
+void collisions_for_range(Octree<CelestialBody> *const &octree,
     std::vector<CelestialBody *> &bodies, int begin, int end) {
     for (int i=begin; i<end; i++) {
         octree->query_region(overlap_node,
                              resolve_collision, bodies[i], bodies);
     }
 }
-void collisions_for_bodies(Octree *const &octree, std::vector<CelestialBody *> &bodies) {
+void collisions_for_bodies(Octree<CelestialBody> *const &octree, std::vector<CelestialBody *> &bodies) {
+    // std::chrono::duration<double, std::micro> total_time(0);
+    // auto start = std::chrono::high_resolution_clock::now();
     if (bodies.size()<100) {
         for (CelestialBody *&body : bodies) {
             octree->query_region(overlap_node,
@@ -38,14 +40,19 @@ void collisions_for_bodies(Octree *const &octree, std::vector<CelestialBody *> &
         }
     }
     else {
+#pragma omp parallel for schedule(dynamic, 10)
         for (CelestialBody *&body : bodies) {
             octree->query_region(overlap_node,
                                  simplified_resolve_collision, body, bodies);
         }
     }
+    // auto end = std::chrono::high_resolution_clock::now();
+    // total_time = end - start;
+    // std::cout << std::endl << "Tiempo de colisiones en microsegundos : "
+    // << total_time.count() << std::endl;
 }
 
-void collisions(Octree *const &octree, std::vector<CelestialBody *> &bodies) {
+void collisions(Octree<CelestialBody> *const &octree, std::vector<CelestialBody *> &bodies) {
     if (bodies.size() < 100) collisions_for_bodies(octree, bodies);
     else {
         uint8_t num_threads = 4;
@@ -67,7 +74,7 @@ bool overlap_body(const Vec3 &center1, const Vec3 &center2, const double radius1
     return radius1 + radius2 - distance >= 0;
 }
 
-bool overlap_node(NodeOctree *const &node, CelestialBody*const& body) {
+bool overlap_node(NodeOctree<CelestialBody> *const &node, CelestialBody*const& body) {
     //para determinar si el cuerpo atraviesa parcialmente el espacio en otro nodo...
     Vec3 closestPoint = closest_point(node->get_node_center(), node->get_node_size(),
         body->get_position());
@@ -136,12 +143,12 @@ void simplified_resolve_collision(CelestialBody *&body1, CelestialBody *&body2, 
     CelestialBody *smallestBody = (body1->get_mass() >= body2->get_mass()) ? body2 : body1;
     if (largestBody->get_radius() + smallestBody->get_radius()
         - (largestBody->get_position() - smallestBody->get_position()).magnitude() >= 0)
-        std::cout << "colision detectada" <<std::endl;
+        //std::cout << "colision detectada" <<std::endl;
     double totalMass = smallestBody->get_mass() + largestBody->get_mass();
     const double relativeVelocity = (largestBody->get_velocity()
         -smallestBody->get_velocity()).magnitude();
     double massInteract = mass_interact(largestBody, smallestBody);
-    std::cout << "masa a interactuar: " << massInteract << std::endl;
+    //std::cout << "masa a interactuar: " << massInteract << std::endl;
     double density1 = density_by_mass_and_radius(largestBody->get_mass(),
         largestBody->get_radius());
     double density2 = density_by_mass_and_radius(smallestBody->get_mass(),

@@ -62,9 +62,5 @@ public:
     Vec3 center;
 
 };
-
-
-template<typename T>
-::Octree<T>::Octree() {
-}
+#include "Octree.tpp"
 #endif //SIMULADORGRAVITACIONAL_OCTREE_H

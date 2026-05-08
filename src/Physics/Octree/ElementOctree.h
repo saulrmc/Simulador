@@ -9,6 +9,12 @@
 #include <vector>
 constexpr int CAPACITY=4;
 template<typename T>
+class Octree;
+
+template<typename T>
+class NodeOctree;
+
+template<typename T>
 class ElementOctree {
 public:
     ElementOctree();
@@ -22,8 +28,8 @@ public:
     void set_position(const Vec3 &position);
     double get_size() const;
     void set_size(const double size);
-    friend class Octree;
-    friend class NodeOctree;
+    friend class Octree<T>;
+    friend class NodeOctree<T>;
     private:
     Vec3 centerOfMass; //centro de masa del cubo
     double mass; //masa total que está contenida en el espacio cúbico
@@ -34,5 +40,5 @@ public:
     std::vector<T*> bodies{};
 };
 
-
+#include "ElementOctree.tpp"
 #endif //SIMULADORGRAVITACIONAL_ELEMENTOCTREE_H

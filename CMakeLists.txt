@@ -9,11 +9,11 @@ add_subdirectory(libs/GLFW)
 add_library(glad libs/glad/glad.c
         src/GUI/Interface.cpp
         src/GUI/Interface.h
-        src/Physics/Octree/ElementOctree.cpp
+        src/Physics/Octree/ElementOctree.tpp
         src/Physics/Octree/ElementOctree.h
-        src/Physics/Octree/Octree.cpp
+        src/Physics/Octree/Octree.tpp
         src/Physics/Octree/Octree.h
-        src/Physics/Octree/NodeOctree.cpp
+        src/Physics/Octree/NodeOctree.tpp
         src/Physics/Octree/NodeOctree.h
         src/Simulation.cpp
         src/Simulation.h

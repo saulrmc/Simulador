@@ -25,7 +25,7 @@ class CalculationManager {
     void root_space(std::vector<CelestialBody *> &bodies);
 
     private:
-    Octree *root;
+    Octree<CelestialBody> *root;
     unsigned int numStep;
 };
 

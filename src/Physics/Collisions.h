@@ -14,14 +14,14 @@ static constexpr double MI = 0.5; //Medida de cómo la energía y el momentum de
 //obtuve este número se representa como el símbolo "mi" griego pero un sombrero encima
 
 
-void collisions_for_range(Octree *const &octree,
+void collisions_for_range(Octree<CelestialBody> *const &octree,
     std::vector<CelestialBody *> &bodies, int begin, int end);
-void collisions_for_bodies(Octree *const &octree,
+void collisions_for_bodies(Octree<CelestialBody> *const &octree,
     std::vector<CelestialBody *> &bodies, int begin, int end);
-void collisions_for_bodies(Octree *const &octree, std::vector<CelestialBody *> &bodies);
-void collisions(Octree *const &octree, std::vector<CelestialBody *> &bodies);
+void collisions_for_bodies(Octree<CelestialBody> *const &octree, std::vector<CelestialBody *> &bodies);
+void collisions(Octree<CelestialBody> *const &octree, std::vector<CelestialBody *> &bodies);
 bool overlap_body(const Vec3 &center1, const Vec3 &center2, const double radius1, const double radius2) ;
-bool overlap_node(NodeOctree *const &node, CelestialBody*const& body) ;
+bool overlap_node(NodeOctree<CelestialBody>*const &node, CelestialBody*const& body) ;
 // bool overlap(NodeOctree *const &node,  CelestialBody *const& nodeBody,  CelestialBody*const& body);
 Vec3 closest_point(const Vec3 &nodeCenter, double nodeSize, const Vec3 &bodyCenter) ;
 void resolve_collision(CelestialBody *&, CelestialBody *&,  std::vector<CelestialBody*>& bodies);
