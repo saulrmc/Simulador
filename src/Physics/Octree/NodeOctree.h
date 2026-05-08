@@ -5,6 +5,8 @@
 #ifndef SIMULADORGRAVITACIONAL_NODEOCTREE_H
 #define SIMULADORGRAVITACIONAL_NODEOCTREE_H
 #include "ElementOctree.h"
+
+template<typename T>
 class NodeOctree {
 public:
     NodeOctree();
@@ -23,10 +25,14 @@ public:
 
 private:
     void create_children();
-    ElementOctree element_octree;
+
+    ElementOctree<T> element_octree;
     NodeOctree *children[8]{};
     //std::vector<NodeOctree*> children;
 };
 
 
+template<typename T>
+::NodeOctree<T>::NodeOctree() {
+}
 #endif //SIMULADORGRAVITACIONAL_NODEOCTREE_H

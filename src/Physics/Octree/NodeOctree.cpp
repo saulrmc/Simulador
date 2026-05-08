@@ -3,17 +3,19 @@
 //
 
 #include "NodeOctree.h"
-
-NodeOctree::NodeOctree() {
+template<typename T>
+NodeOctree<T>::NodeOctree() {
     ElementOctree();
 }
 
-NodeOctree::~NodeOctree() {
+template<typename T>
+NodeOctree<T>::~NodeOctree() {
     for (int i = 0; i < 8; i++) delete children[i];
     //children.clear();
 }
 
-void NodeOctree::create_children() {
+template<typename T>
+void NodeOctree<T>::create_children() {
     for (int i = 0; i < 8; i++) {
         children[i] = new NodeOctree();
         children[i]->element_octree.size = element_octree.size / 2;
@@ -31,12 +33,14 @@ void NodeOctree::create_children() {
     }
 }
 
-bool NodeOctree::has_children() const {
+template<typename T>
+bool NodeOctree<T>::has_children() const {
     return this->children[0] != nullptr;
     //return !children.empty();
 }
 
-void NodeOctree::calc_avg_values() {
+template<typename T>
+void NodeOctree<T>::calc_avg_values() {
     this->element_octree.mass = 0;
     for (int i = 0; i < 8; i++) {
         if (this->children[i]->element_octree.mass > 0) { //ya que los nodos internos también almacenan masa
@@ -62,31 +66,34 @@ void NodeOctree::calc_avg_values() {
     }
 }
 
-const NodeOctree * NodeOctree::n_child(int index) const {
+template<typename T>
+const NodeOctree * NodeOctree<T>::n_child(int index) const {
     if (!this->has_children())return nullptr;
     NodeOctree * n_child = children[index];
     return n_child;
 }
 
-// double NodeOctree::get_body_mass() const {
+// double NodeOctree<T>::get_body_mass() const {
 //     if (this->element_octree.body) { //solo tiene sentido regresar una masa si el nodo contiene un cuerpo
 //         return this->element_octree.body->get_mass();
 //     }
 //     return 0;
 // }
 //
-// double NodeOctree::get_body_radius() const {
+// double NodeOctree<T>::get_body_radius() const {
 //     if (this->element_octree.body) {//solo tiene sentido regresar un radio si el nodo contiene un cuerpo
 //         return this->element_octree.body->get_radius();
 //     }
 //     return 0;
 // }
 
-Vec3 NodeOctree::get_node_center() const {
+template<typename T>
+Vec3 NodeOctree<T>::get_node_center() const {
     return this->element_octree.center;
 }
 
-double NodeOctree::get_node_size() const {
+template<typename T>
+double NodeOctree<T>::get_node_size() const {
     return this->element_octree.size;
 }
 

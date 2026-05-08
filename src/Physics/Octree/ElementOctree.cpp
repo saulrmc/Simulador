@@ -4,7 +4,8 @@
 
 #include "ElementOctree.h"
 
-ElementOctree::ElementOctree() {
+template<typename T>
+ElementOctree<T>::ElementOctree() {
     centerOfMass = Vec3(0, 0, 0);
     mass = 0;
     center = Vec3(0, 0, 0);
@@ -12,41 +13,50 @@ ElementOctree::ElementOctree() {
     //body=nullptr;
 }
 
-ElementOctree::~ElementOctree() {
-    //los punteros CelestialBody* body NO deben borrarse porque
+template<typename T>
+ElementOctree<T>::~ElementOctree() {
+    //los punteros T* body NO deben borrarse porque
     //esta clase no "propietaria" de los cuerpos
     bodies.clear();
 }
 
-Vec3 ElementOctree::get_center_of_mass() const {
+template<typename T>
+Vec3 ElementOctree<T>::get_center_of_mass() const {
     return centerOfMass;
 }
 
-void ElementOctree::set_center_of_mass(const Vec3 &center_of_mass) {
+template<typename T>
+void ElementOctree<T>::set_center_of_mass(const Vec3 &center_of_mass) {
     centerOfMass = center_of_mass;
 }
 
-double ElementOctree::get_mass() const {
+template<typename T>
+double ElementOctree<T>::get_mass() const {
     return mass;
 }
 
-void ElementOctree::set_mass(const double mass) {
+template<typename T>
+void ElementOctree<T>::set_mass(const double mass) {
     this->mass = mass;
 }
 
-Vec3 ElementOctree::get_position() const {
+template<typename T>
+Vec3 ElementOctree<T>::get_position() const {
     return center;
 }
 
-void ElementOctree::set_position(const Vec3 &position) {
+template<typename T>
+void ElementOctree<T>::set_position(const Vec3 &position) {
     this->center = position;
 }
 
-double ElementOctree::get_size() const {
+template<typename T>
+double ElementOctree<T>::get_size() const {
     return size;
 }
 
-void ElementOctree::set_size(const double size) {
+template<typename T>
+void ElementOctree<T>::set_size(const double size) {
     this->size = size;
 }
 

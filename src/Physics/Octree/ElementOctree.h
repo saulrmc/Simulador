@@ -4,10 +4,11 @@
 
 #ifndef SIMULADORGRAVITACIONAL_ELEMENTOCTREE_H
 #define SIMULADORGRAVITACIONAL_ELEMENTOCTREE_H
-#include "../src/Commons/CelestialBody.h"
+
 #include "../src/Commons/Vec3.h"
 #include <vector>
 constexpr int CAPACITY=4;
+template<typename T>
 class ElementOctree {
 public:
     ElementOctree();
@@ -29,8 +30,8 @@ public:
     Vec3 center;  // Centro del cubo
     double size;     // Tamaño de un lado del cubo
 
-    //CelestialBody* body;  // Cuerpo contenido en este nodo si es un nodo externo (sin hijos)
-    std::vector<CelestialBody*> bodies{};
+    //T* body;  // Cuerpo contenido en este nodo si es un nodo externo (sin hijos)
+    std::vector<T*> bodies{};
 };
 
 
