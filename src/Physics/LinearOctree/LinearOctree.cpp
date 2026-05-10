@@ -60,7 +60,7 @@ template<typename T>
 void LinearOctree<T>::sort_all_morton_codes() {
     std::sort(elements.begin(), elements.end(),
         [](const LinearElement<T> &a, const LinearElement<T> &b) {
-        a.get_morton_code() < b.get_morton_code();
+        return a.get_morton_code() < b.get_morton_code();
     });
 }
 

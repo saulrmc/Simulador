@@ -16,13 +16,25 @@ void Octree<T>::set_size(const double size) {
 }
 
 template<typename T>
-Vec3 Octree<T>::get_center() const {
-    return center;
+double Octree<T>::get_centerX() const {
+    return centerX;
 }
 
 template<typename T>
-void Octree<T>::set_center(const Vec3 &center) {
-    this->center = center;
+double Octree<T>::get_centerY() const {
+    return centerY;
+}
+
+template<typename T>
+double Octree<T>::get_centerZ() const {
+    return centerZ;
+}
+
+template<typename T>
+void Octree<T>::set_center(double centerX, double centerY, double centerZ) {
+    this->centerX = centerX;
+    this->centerY = centerY;
+    this->centerZ = centerZ;
 }
 
 template<typename T>
@@ -64,7 +76,9 @@ void Octree<T>::create_space() {
     if (root != nullptr) delete root;
     root = new NodeOctree<T>();
     root->element_octree.size = this->size;
-    root->element_octree.center = this->center;
+    root->element_octree.centerX = this->centerX;
+    root->element_octree.centerY = this->centerY;
+    root->element_octree.centerZ = this->centerZ;
 }
 
 template<typename T>
@@ -323,7 +337,8 @@ void Octree<T>::recursively_calc_forces(const NodeOctree<T> *node_octree, T *bod
         for (int i = 0; i < node_octree->element_octree.bodies.size(); i++) {
             if (node_octree->element_octree.bodies[i] != body) {
                 Vec3 new_force = force_exerted_from_to(
-                node_octree->element_octree.bodies[i]->get_mass(),node_octree->element_octree.bodies[i]->get_position(), //1
+                node_octree->element_octree.bodies[i]->get_mass(),
+                node_octree->element_octree.bodies[i]->get_position(), //1
                 body->get_mass(),body->get_position() //2
                 );
                 body->set_force(body->get_force() + new_force);
@@ -365,13 +380,14 @@ void Octree<T>::recursively_calc_forces(const NodeOctree<T> *node_octree, T *bod
 // }
 
 template<typename T>
-uint8_t Octree<T>::octant_for_position(const Vec3& pos, const Vec3& center) {
+uint8_t Octree<T>::octant_for_position(double posX, double posY, double posZ,
+        double centerX, double centerY, double centerZ){
     uint8_t index = 0;
     //se le va agregando bits 1's mientras va cumpliendo las condiciones.
     //Depende directamente de cómo están ordenados los nodos hijos en la función
     //NodeOctree<T>::create_children()
-    if (pos.get_x() >= center.get_x()) index |= 1;
-    if (pos.get_y() >= center.get_y()) index |= 2;
-    if (pos.get_z() >= center.get_z()) index |= 4;
+    if (posX >= centerX) index |= 1;
+    if (posY >= centerY) index |= 2;
+    if (posZ >= centerZ) index |= 4;
     return index;
 }

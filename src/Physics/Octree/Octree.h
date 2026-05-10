@@ -12,12 +12,11 @@ template<typename T>
 class Octree {
 public:
     double get_size() const;
-
     void set_size(const double size);
-
-    Vec3 get_center() const;
-
-    void set_center(const Vec3 &center);
+    double get_centerX() const;
+    double get_centerY() const;
+    double get_centerZ() const;
+    void set_center(double centerX, double centerY, double centerZ);
 
     //getters temporales (tal vez) para testear
     int get_num_bodies() const;
@@ -46,7 +45,8 @@ public:
     void recursively_insert_2(T *&);
     bool recursively_erase(NodeOctree<T>*&, T *);
     void recursively_calc_forces(const NodeOctree<T> *node, T *);
-    uint8_t octant_for_position(const Vec3 &pos, const Vec3& center);
+    uint8_t octant_for_position(double posX, double posY, double posZ,
+        double centerX, double centerY, double centerZ);
     void recursive_query_region(NodeOctree<T> *node,
     bool (*condition)(NodeOctree<T> *const &, T*const&),
     void (*action)(T *&, T *&, std::vector<T*>& ),
@@ -59,7 +59,10 @@ public:
     double theta = 0;
     //int num_id;
     double size;
-    Vec3 center;
+    //Vec3 center;
+    double centerX;
+    double centerY;
+    double centerZ;
 
 };
 #include "Octree.tpp"

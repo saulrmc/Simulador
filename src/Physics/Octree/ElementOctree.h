@@ -5,7 +5,6 @@
 #ifndef SIMULADORGRAVITACIONAL_ELEMENTOCTREE_H
 #define SIMULADORGRAVITACIONAL_ELEMENTOCTREE_H
 
-#include "../src/Commons/Vec3.h"
 #include <vector>
 constexpr int CAPACITY=4;
 template<typename T>
@@ -20,20 +19,39 @@ public:
     ElementOctree();
     virtual ~ElementOctree();
 
-    Vec3 get_center_of_mass() const;
-    void set_center_of_mass(const Vec3 &center_of_mass);
+    double get_center_x() const;
+    void set_center_x(const double center_x);
+    double get_center_y() const;
+    void set_center_y(const double center_y);
+    double get_center_z() const;
+    void set_center_z(const double center_z);
+    double get_center_of_mass_x() const;
+    void set_center_of_mass_x(const double center_of_mass_x);
+    double get_center_of_mass_y() const;
+    void set_center_of_mass_y(const double center_of_mass_y);
+    double get_center_of_mass_z() const;
+    void set_center_of_mass_z(const double center_of_mass_z);
     double get_mass() const;
     void set_mass(const double mass);
-    Vec3 get_position() const;
-    void set_position(const Vec3 &position);
+    double get_positionX() const;
+    double get_positionY() const;
+    double get_positionZ() const;
+    void set_position(double X, double Y, double Z);
     double get_size() const;
     void set_size(const double size);
     friend class Octree<T>;
     friend class NodeOctree<T>;
     private:
-    Vec3 centerOfMass; //centro de masa del cubo
+     //centro de masa del cubo
+    double centerOfMassX;
+    double centerOfMassY;
+    double centerOfMassZ;
     double mass; //masa total que está contenida en el espacio cúbico
-    Vec3 center;  // Centro del cubo
+
+    // Centro del cubo
+    double centerX;
+    double centerY;
+    double centerZ;
     double size;     // Tamaño de un lado del cubo
 
     //T* body;  // Cuerpo contenido en este nodo si es un nodo externo (sin hijos)

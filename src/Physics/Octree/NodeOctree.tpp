@@ -25,11 +25,18 @@ void NodeOctree<T>::create_children() {
         //Con respecto al offset...tranquilamente pudo haber sido un
         //if para cada número del 0 al 7 pero creo que queda mejor como está ahora.
         double offset = children[i]->element_octree.size / 2;
-        children[i]->element_octree.center = element_octree.center + Vec3(
-            (i & 1 ? +offset : -offset),
-            (i & 2 ? +offset : -offset),
-            (i & 4 ? +offset : -offset)
-        );
+        // children[i]->element_octree.center = element_octree.center + Vec3(
+        //     (i & 1 ? +offset : -offset),
+        //     (i & 2 ? +offset : -offset),
+        //     (i & 4 ? +offset : -offset)
+        // );
+
+        children[i]->element_octree.centerX = element_octree.centerX +
+            (i & 1 ? +offset : -offset);
+        children[i]->element_octree.centerY = element_octree.centerY +
+            (i & 2 ? +offset : -offset);
+        children[i]->element_octree.centerZ = element_octree.centerZ +
+            (i & 4 ? +offset : -offset);
     }
 }
 
@@ -54,13 +61,24 @@ void NodeOctree<T>::calc_avg_values() {
     //r: vector posicion de la masa de un hijo
     //m: masa de un hijo
     //M: masa total de todos los hijos del nodo
-    this->element_octree.centerOfMass = Vec3(0,0,0);
+    this->element_octree.centerOfMassX = 0;
+    this->element_octree.centerOfMassY = 0;
+    this->element_octree.centerOfMassZ = 0;
+
     for (int i = 0; i < 8; i++) {
         if (this->children[i]->element_octree.mass > 0) {
-            this->element_octree.centerOfMass = this->element_octree.centerOfMass +
-                (this->children[i]->element_octree.centerOfMass)* //como aquí antes le restaba el
+            this->element_octree.centerOfMassX = this->element_octree.centerOfMassX +
+                (this->children[i]->element_octree.centerOfMassX)* //como aquí antes le restaba el
                     //centro del nodo eso provocaba que la poda de nodos en la profundidad de acceso
                         //al octree sea muy temprana e incorrecta. Esto hacía al programa más rápido de lo que debía
+                    this->children[i]->element_octree.mass / this->element_octree.mass;
+
+            this->element_octree.centerOfMassY = this->element_octree.centerOfMassY +
+                (this->children[i]->element_octree.centerOfMassY)*
+                    this->children[i]->element_octree.mass / this->element_octree.mass;
+
+            this->element_octree.centerOfMassZ = this->element_octree.centerOfMassZ +
+                (this->children[i]->element_octree.centerOfMassZ)*
                     this->children[i]->element_octree.mass / this->element_octree.mass;
         }
     }
@@ -73,23 +91,19 @@ const NodeOctree<T> * NodeOctree<T>::n_child(int index) const {
     return n_child;
 }
 
-// double NodeOctree<T>::get_body_mass() const {
-//     if (this->element_octree.body) { //solo tiene sentido regresar una masa si el nodo contiene un cuerpo
-//         return this->element_octree.body->get_mass();
-//     }
-//     return 0;
-// }
-//
-// double NodeOctree<T>::get_body_radius() const {
-//     if (this->element_octree.body) {//solo tiene sentido regresar un radio si el nodo contiene un cuerpo
-//         return this->element_octree.body->get_radius();
-//     }
-//     return 0;
-// }
+template<typename T>
+double NodeOctree<T>::get_node_centerX() const {
+    return this->element_octree.centerX;
+}
 
 template<typename T>
-Vec3 NodeOctree<T>::get_node_center() const {
-    return this->element_octree.center;
+double NodeOctree<T>::get_node_centerY() const {
+    return this->element_octree.centerY;
+}
+
+template<typename T>
+double NodeOctree<T>::get_node_centerZ() const {
+    return this->element_octree.centerZ;
 }
 
 template<typename T>

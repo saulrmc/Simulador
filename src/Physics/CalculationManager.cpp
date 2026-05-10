@@ -124,7 +124,9 @@ void CalculationManager::root_space(std::vector<CelestialBody *> &bodies) {
     root->set_size(pow(2, maxPow2));
     std::cout << "tamanio espacial exacto " << exactSize << std::endl;
     std::cout << "tamanio espacial escalado "  << root->get_size()<<std::endl;
-    root->set_center(Vec3((frontierValues[0] + frontierValues[1])/2,
+    root->set_center(
+        (frontierValues[0] + frontierValues[1])/2,
         (frontierValues[2] + frontierValues[3])/2,
-        (frontierValues[4] + frontierValues[5])/2));
+        (frontierValues[4] + frontierValues[5])/2
+        );
 }

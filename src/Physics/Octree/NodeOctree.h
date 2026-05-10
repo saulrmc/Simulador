@@ -20,9 +20,9 @@ public:
     friend class Octree<T>;
 
     //exclusivo de este problema (osea del simulador)
-    double get_body_mass() const;
-    double get_body_radius() const;
-    Vec3 get_node_center() const;
+    double get_node_centerX() const;
+    double get_node_centerY() const;
+    double get_node_centerZ() const;
     double get_node_size() const;
 
 private:
