@@ -33,10 +33,8 @@ public:
     void set_center_of_mass_z(const double center_of_mass_z);
     double get_mass() const;
     void set_mass(const double mass);
-    double get_positionX() const;
-    double get_positionY() const;
-    double get_positionZ() const;
     void set_position(double X, double Y, double Z);
+    void set_center_of_mass(double X, double Y, double Z);
     double get_size() const;
     void set_size(const double size);
     friend class Octree<T>;

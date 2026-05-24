@@ -95,6 +95,20 @@ void ElementOctree<T>::set_mass(const double mass) {
 }
 
 template<typename T>
+void ElementOctree<T>::set_position(double X, double Y, double Z) {
+    this->centerX = X;
+    this->centerY = Y;
+    this->centerZ = Z;
+}
+
+template<typename T>
+void ElementOctree<T>::set_center_of_mass(double X, double Y, double Z) {
+    this->centerOfMassX = X;
+    this->centerOfMassY = Y;
+    this->centerOfMassZ = Z;
+}
+
+template<typename T>
 double ElementOctree<T>::get_size() const {
     return size;
 }

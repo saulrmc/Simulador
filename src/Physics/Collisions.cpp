@@ -76,7 +76,8 @@ bool overlap_body(const Vec3 &center1, const Vec3 &center2, const double radius1
 
 bool overlap_node(NodeOctree<CelestialBody> *const &node, CelestialBody*const& body) {
     //para determinar si el cuerpo atraviesa parcialmente el espacio en otro nodo...
-    Vec3 closestPoint = closest_point(node->get_node_center(), node->get_node_size(),
+    Vec3 nodeCenter(node->get_node_centerX(), node->get_node_centerY(), node->get_node_centerZ());
+    Vec3 closestPoint = closest_point(nodeCenter, node->get_node_size(),
         body->get_position());
     double distance = closestPoint.distance(body->get_position());
     if (distance <= body->get_radius()) return true;

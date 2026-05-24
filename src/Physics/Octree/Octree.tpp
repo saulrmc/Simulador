@@ -212,7 +212,13 @@ void Octree<T>::recursively_insert(NodeOctree<T> *&node_octree, T *body) {
             node_octree->create_children();
             for (int i = 0; i < CAPACITY; i++) {
                 T* oldBody = node_octree->element_octree.bodies[i];
-                uint8_t index = octant_for_position(oldBody->get_position(), node_octree->element_octree.get_position());
+                uint8_t index = octant_for_position(
+                    oldBody->get_posX(),
+                    oldBody->get_posY(),
+                    oldBody->get_posY(),
+                    node_octree->element_octree.get_center_x(),
+                    node_octree->element_octree.get_center_y(),
+                    node_octree->element_octree.get_center_z());
                 num_bodies--;
                 //NodeOctree<T> *destinyOld = select_child(node_octree, oldBody);
                 recursively_insert(node_octree->children[index], oldBody);
@@ -226,8 +232,17 @@ void Octree<T>::recursively_insert(NodeOctree<T> *&node_octree, T *body) {
             //total del nodo para que no estén en 0 cuando se le quiera
             //ingresar otro cuerpo en el mismo nodo
             double new_mass = node_octree->element_octree.mass + body->get_mass();
-            node_octree->element_octree.centerOfMass = (node_octree->element_octree.centerOfMass
-                * node_octree->element_octree.mass + body->get_position() * body->get_mass()) / new_mass;
+
+            node_octree->element_octree.centerOfMassX =
+                (node_octree->element_octree.centerOfMassX * node_octree->element_octree.mass
+                    + body->get_posX() * body->get_mass())/ new_mass;
+            node_octree->element_octree.centerOfMassY =
+                (node_octree->element_octree.centerOfMassY * node_octree->element_octree.mass
+                    + body->get_posY() * body->get_mass())/ new_mass;
+            node_octree->element_octree.centerOfMassZ =
+                (node_octree->element_octree.centerOfMassZ * node_octree->element_octree.mass
+                    + body->get_posZ() * body->get_mass())/ new_mass;
+
             node_octree->element_octree.mass = new_mass;
             node_octree->element_octree.bodies.push_back(body);
 
@@ -237,7 +252,14 @@ void Octree<T>::recursively_insert(NodeOctree<T> *&node_octree, T *body) {
         }
     }
     //NodeOctree<T> *destiny_new = select_child(node_octree, body);
-    uint8_t index = octant_for_position(body->get_position(), node_octree->element_octree.get_position());
+    uint8_t index = octant_for_position(
+        body->get_posX(),
+        body->get_posY(),
+        body->get_posZ(),
+        node_octree->element_octree.get_center_x(),
+        node_octree->element_octree.get_center_y(),
+        node_octree->element_octree.get_center_z());
+
     recursively_insert(node_octree->children[index], body);
     node_octree->calc_avg_values();
     node_octree->element_octree.bodies.clear();
@@ -322,14 +344,23 @@ void Octree<T>::recursively_calc_forces(const NodeOctree<T> *node_octree, T *bod
     //distancia del cuerpo al centro de masa del nodo
     if (!node_octree || node_octree->element_octree.mass == 0) return;
 
-    const double d = (body->get_position() - node_octree->element_octree.centerOfMass).magnitude();
+    //const double d = (body->get_position() - node_octree->element_octree.centerOfMass).magnitude();
+
+    const double d = sqrt(pow(body->get_posX() - node_octree->element_octree.centerOfMassX, 2)
+        + pow(body->get_posY() - node_octree->element_octree.centerOfMassY, 2)
+        + pow(body->get_posZ() - node_octree->element_octree.centerOfMassZ, 2));
+
     if (d == 0) return; //para evitar una division entre 0
 
     if (node_octree->element_octree.size/d < theta) { //significa que el nodo está lo suficientemente lejos
         //y se puede tratar como un solo cuerpo
         Vec3 new_force = force_exerted_from_to(
-            node_octree->element_octree.mass, node_octree->element_octree.centerOfMass,
-            body->get_mass(), body->get_position()
+            node_octree->element_octree.mass,
+            Vec3(node_octree->element_octree.centerOfMassX,
+                node_octree->element_octree.centerOfMassY,
+                node_octree->element_octree.centerOfMassZ),
+            body->get_mass(),
+            body->get_position()
             );
         body->set_force(body->get_force() + new_force);
     }
