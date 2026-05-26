@@ -54,6 +54,28 @@ void Simulation::run_simulation() {
     // earth.set_position(Vec3(389.1724*(sun.get_mass()/(1.0 + 333030 + 0.0123)) - moon.get_mass()/(earth.get_mass() + moon.get_mass()), 0, 0));
     // moon.set_position(Vec3(389.1724*(sun.get_mass()/(1.0 + 333030 + 0.0123)) + earth.get_mass()/(earth.get_mass() + moon.get_mass()), 0, 0));
     //bodies.push_back(sun);
+
+    //algoritmo por fuerza bruta para hallar al cuerpo que esté
+    //en el límite inferior de los tres ejes.
+    int xMin = 10000, yMin = 10000, zMin = 10000;
+    std::string nombre{};
+    for (CelestialBody *&body : bodies) {
+        if (    body->get_position().get_x() < xMin
+            and body->get_position().get_y() < yMin
+            and body->get_position().get_z() < zMin
+        ) {
+            xMin = body->get_position().get_x();
+            yMin = body->get_position().get_y();
+            zMin = body->get_position().get_z();
+            nombre = body->get_name();
+        }
+    }
+    std::cout << "objeto en el límite inferior: " <<
+        std::endl <<"nombre: " << nombre <<
+        std::endl << "X: " << xMin <<
+        std::endl << "Y: " << yMin <<
+        std::endl << "Z: " << zMin << std::endl;
+
     calcManager.update_forces(bodies);
     int i = 0;
     double k_energy=0;
