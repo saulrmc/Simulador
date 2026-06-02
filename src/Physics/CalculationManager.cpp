@@ -49,10 +49,8 @@ void CalculationManager::update_forces(std::vector<CelestialBody*> &bodies) {
     << total_time.count() << std::endl;
     std::chrono::duration<double, std::micro> total_time2(0);
     auto start2 = std::chrono::high_resolution_clock::now();
-    //#pragma omp parallel for schedule(dynamic, 10)
-    #pragma omp parallel for schedule(dynamic, 100)
-    //#pragma omp parallel for schedule(dynamic, 1000)
-    //#pragma omp parallel for schedule(dynamic, 10000)
+    //#pragma omp parallel for schedule(dynamic, 100)
+    // #pragma omp parallel for schedule(dynamic, 64)
     for (CelestialBody *&body : bodies) root->calc_forces_per_body(body);//fuerzas actualizadas
     auto end2 = std::chrono::high_resolution_clock::now();
     total_time2 = end2 - start2;
@@ -97,7 +95,12 @@ void CalculationManager::root_space(std::vector<CelestialBody *> &bodies) {
     //el index 0 y 1 para xMin y xMax
     //el index 2 y 3 para yMin & yMax
     //el index 4 y 5 para zMin y zMax
-    double frontierValues[6]{};
+    if (bodies.empty()) return;
+    double frontierValues[6] {
+        bodies[0]->get_position().get_x(), bodies[0]->get_position().get_x(),
+        bodies[0]->get_position().get_y(), bodies[0]->get_position().get_y(),
+        bodies[0]->get_position().get_z(), bodies[0]->get_position().get_z()
+    };
     for (CelestialBody *&body : bodies) {
         if (body->get_position().get_x() < frontierValues[0])
             frontierValues[0] = body->get_position().get_x();

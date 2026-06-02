@@ -1,6 +1,7 @@
 //
 // Created by Saúl on 8/01/2026.
 //
+#pragma once
 
 #include "ElementOctree.h"
 

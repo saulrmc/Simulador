@@ -1,6 +1,7 @@
 //
 // Created by Saúl on 8/01/2026.
 //
+#pragma once
 
 #include "Octree.h"
 
@@ -215,7 +216,7 @@ void Octree<T>::recursively_insert(NodeOctree<T> *&node_octree, T *body) {
                 uint8_t index = octant_for_position(
                     oldBody->get_posX(),
                     oldBody->get_posY(),
-                    oldBody->get_posY(),
+                    oldBody->get_posZ(),
                     node_octree->element_octree.get_center_x(),
                     node_octree->element_octree.get_center_y(),
                     node_octree->element_octree.get_center_z());
@@ -346,13 +347,19 @@ void Octree<T>::recursively_calc_forces(const NodeOctree<T> *node_octree, T *bod
 
     //const double d = (body->get_position() - node_octree->element_octree.centerOfMass).magnitude();
 
-    const double d = sqrt(pow(body->get_posX() - node_octree->element_octree.centerOfMassX, 2)
-        + pow(body->get_posY() - node_octree->element_octree.centerOfMassY, 2)
-        + pow(body->get_posZ() - node_octree->element_octree.centerOfMassZ, 2));
+    //una raiz cuadrada es menos eficiente que elevar al cuadrado
+    // const double d_2 = pow(body->get_posX() - node_octree->element_octree.centerOfMassX, 2)
+    //     + pow(body->get_posY() - node_octree->element_octree.centerOfMassY, 2)
+    //     + pow(body->get_posZ() - node_octree->element_octree.centerOfMassZ, 2);
+    const double d_x = body->get_posX() - node_octree->element_octree.centerOfMassX;
+    const double d_y = body->get_posY() - node_octree->element_octree.centerOfMassY;
+    const double d_z = body->get_posZ() - node_octree->element_octree.centerOfMassZ;
+    const double d_2 = d_x * d_x + d_y * d_y + d_z * d_z;
 
-    if (d == 0) return; //para evitar una division entre 0
+    if (d_2 == 0) return; //para evitar una division entre 0
 
-    if (node_octree->element_octree.size/d < theta) { //significa que el nodo está lo suficientemente lejos
+    if (node_octree->element_octree.size * node_octree->element_octree.size < d_2 * theta * theta) {
+        //significa que el nodo está lo suficientemente lejos
         //y se puede tratar como un solo cuerpo
         Vec3 new_force = force_exerted_from_to(
             node_octree->element_octree.mass,
