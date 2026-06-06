@@ -12,7 +12,6 @@ class Planet : public CelestialBody{ //por ahora no se hará distinción entre p
     public:
     Planet();
     virtual ~Planet();
-    double gravitational_biding_energy() override;
     private:
 
 
