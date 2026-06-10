@@ -32,7 +32,6 @@ add_executable(SimuladorGravitacional main.cpp
         src/Physics/CalculationManager.cpp
         src/Physics/CalculationManager.h
         src/Commons/CelestialBody.h
-        src/Commons/Vec3.cpp
         src/Commons/Vec3.h
         src/Physics/Physics.cpp
         src/Physics/Physics.h

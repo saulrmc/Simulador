@@ -44,7 +44,6 @@ class CelestialBody {
     //para el caso de las colisiones
     void minor_collision(const double);
     bool is_it_insignificant(const double);
-    virtual double gravitational_biding_energy() = 0;
 
     private:
     std::string name;
