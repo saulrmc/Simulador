@@ -6,7 +6,7 @@
 #include <cstdint>
 
 #include "NodeOctree.h"
-#include "../Physics.h"
+#include "../../Physics.h"
 #include <vector>
 template<typename T>
 class Octree {
@@ -52,6 +52,7 @@ public:
     void (*action)(T *&, T *&, std::vector<T*>& ),
     T *body, std::vector<T*>& bodies);
     void recursive_refresh_mass_centers(NodeOctree<T> *node);
+    void iterative_calc_forces(T *body) ;
     //por las pruebas que realicé es mejor dejar en 0 el valor de THETA cuando hay pocos cuerpos
     //porque de lo contrario añade error pero tampoco puede quedarse en 0 porque sino no tiene sentido aplicar un
     //octree si es que los cálculos van a ser por fuerza bruta

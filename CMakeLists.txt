@@ -9,43 +9,40 @@ add_subdirectory(libs/GLFW)
 add_library(glad libs/glad/glad.c
         src/GUI/Interface.cpp
         src/GUI/Interface.h
-        src/Physics/Octree/ElementOctree.tpp
-        src/Physics/Octree/ElementOctree.h
-        src/Physics/Octree/Octree.tpp
-        src/Physics/Octree/Octree.h
-        src/Physics/Octree/NodeOctree.tpp
-        src/Physics/Octree/NodeOctree.h
+        src/Physics/spatial_structures/Octree/ElementOctree.tpp
+        src/Physics/spatial_structures/Octree/ElementOctree.h
+        src/Physics/spatial_structures/Octree/Octree.tpp
+        src/Physics/spatial_structures/Octree/Octree.h
+        src/Physics/spatial_structures/Octree/NodeOctree.tpp
+        src/Physics/spatial_structures/Octree/NodeOctree.h
         src/Simulation.cpp
         src/Simulation.h
         src/Creation/Creation.cpp
         src/Creation/Creation.h
-        src/Physics/LinearOctree/LinearOctree.cpp
-        src/Physics/LinearOctree/LinearOctree.h
-        src/Physics/LinearOctree/LinearElement.cpp
-        src/Physics/LinearOctree/LinearElement.h
-        src/Physics/LinearOctree/LinearNode.cpp
-        src/Physics/LinearOctree/LinearNode.h)
+        src/Physics/spatial_structures/LinearOctree/LinearOctree.cpp
+        src/Physics/spatial_structures/LinearOctree/LinearOctree.h
+        src/Physics/spatial_structures/LinearOctree/LinearElement.cpp
+        src/Physics/spatial_structures/LinearOctree/LinearElement.h
+        src/Physics/spatial_structures/LinearOctree/LinearNode.cpp
+        src/Physics/spatial_structures/LinearOctree/LinearNode.h
+        src/Physics/spatial_structures/SpatialStructure.cpp
+        src/Physics/spatial_structures/SpatialStructure.h)
 target_include_directories(glad PUBLIC libs)
 
 add_executable(SimuladorGravitacional main.cpp
         src/Physics/PhysicsUtils.h
         src/Physics/CalculationManager.cpp
         src/Physics/CalculationManager.h
-        src/Commons/CelestialBody.h
+        src/Commons/CelestialBodies.h
         src/Commons/Vec3.h
         src/Physics/Physics.cpp
         src/Physics/Physics.h
-        src/Commons/Planet.cpp
-        src/Commons/Planet.h
-        src/Commons/Star.cpp
-        src/Commons/Star.h
         src/Physics/Collisions.h
         src/Physics/Collisions.cpp
-        src/Commons/BrownDwarf.cpp
-        src/Commons/BrownDwarf.h
         src/Physics/LeapfrogKDK.h
         src/Physics/LeapfrogKDK.cpp
 )
 find_package(OpenGL REQUIRED)
 find_package(OpenMP REQUIRED)
 target_link_libraries(SimuladorGravitacional glfw glad OpenGL::GL OpenMP::OpenMP_CXX)
+target_include_directories(SimuladorGravitacional PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src/Commons)

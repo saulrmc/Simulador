@@ -24,6 +24,13 @@ public:
     double get_node_centerY() const;
     double get_node_centerZ() const;
     double get_node_size() const;
+    // double get_frontier_x_min() const;
+    // double get_frontier_y_min() const;
+    // double get_frontier_z_min() const;
+    // double get_frontier_x_max() const;
+    // double get_frontier_y_max() const;
+    // double get_frontier_z_max() const;
+    // void calc_frontier_values();
 
 private:
     void create_children();
@@ -31,6 +38,11 @@ private:
     ElementOctree<T> element_octree;
     NodeOctree<T> *children[8]{};
     //std::vector<NodeOctree*> children;
+
+    //el index 0 y 1 para xMin y xMax
+    //el index 2 y 3 para yMin & yMax
+    //el index 4 y 5 para zMin y zMax
+    // double frontierValue[6]{};
 };
 #include "NodeOctree.tpp"
 #endif //SIMULADORGRAVITACIONAL_NODEOCTREE_H

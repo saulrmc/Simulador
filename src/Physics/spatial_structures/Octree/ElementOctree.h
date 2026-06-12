@@ -5,6 +5,7 @@
 #ifndef SIMULADORGRAVITACIONAL_ELEMENTOCTREE_H
 #define SIMULADORGRAVITACIONAL_ELEMENTOCTREE_H
 
+#include "Vec3.h"
 #include <vector>
 constexpr int CAPACITY=4;
 template<typename T>

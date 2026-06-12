@@ -38,6 +38,7 @@ void NodeOctree<T>::create_children() {
             (i & 2 ? +offset : -offset);
         children[i]->element_octree.centerZ = element_octree.centerZ +
             (i & 4 ? +offset : -offset);
+        //children[i]->calc_frontier_values();
     }
 }
 
@@ -111,4 +112,51 @@ template<typename T>
 double NodeOctree<T>::get_node_size() const {
     return this->element_octree.size;
 }
+//
+// template<typename T>
+// double NodeOctree<T>::get_frontier_x_min() const {
+//     return frontierValue[0];
+// }
+//
+// template<typename T>
+// double NodeOctree<T>::get_frontier_y_min() const {
+//     return frontierValue[2];
+// }
+//
+// template<typename T>
+// double NodeOctree<T>::get_frontier_z_min() const {
+//     return frontierValue[4];
+// }
+//
+// template<typename T>
+// double NodeOctree<T>::get_frontier_x_max() const {
+//     return frontierValue[1];
+// }
+//
+// template<typename T>
+// double NodeOctree<T>::get_frontier_y_max() const {
+//     return frontierValue[3];
+// }
+//
+// template<typename T>
+// double NodeOctree<T>::get_frontier_z_max() const {
+//     return frontierValue[5];
+// }
+//
+// template<typename T>
+// void NodeOctree<T>::calc_frontier_values() {
+//     double half_size = this->element_octree.size/2;
+//     //minX
+//     frontierValue[0] = this->element_octree.centerX - half_size;
+//     //minY
+//     frontierValue[2] = this->element_octree.centerY - half_size;
+//     //minZ
+//     frontierValue[4] = this->element_octree.centerZ - half_size;
+//     //maxX
+//     frontierValue[1] = this->element_octree.centerX + half_size;
+//     //maxY
+//     frontierValue[3] = this->element_octree.centerY + half_size;
+//     //maxZ
+//     frontierValue[5] = this->element_octree.centerZ + half_size;
+// }
 

@@ -6,6 +6,14 @@
 #include "Octree.h"
 
 //static constexpr double THETA = 0;
+// DEBUG
+// inline long long visited_nodes = 0;
+// inline long long leaf_nodes = 0;
+// inline long long condition_calls = 0;
+// inline long long condition_passed = 0;
+// inline long long body_checks = 0;
+// inline long long total_nodes = 0;
+
 template<typename T>
 double Octree<T>::get_size() const {
     return size;
@@ -47,6 +55,11 @@ template<typename T>
 double Octree<T>::get_theta() const {
     return theta;
 }
+//
+// template<typename T>
+// void Octree<T>::calc_frontier_values() {
+//     root->calc_frontier_values();
+// }
 
 template<typename T>
 Octree<T>::Octree() {
@@ -80,6 +93,7 @@ void Octree<T>::create_space() {
     root->element_octree.centerX = this->centerX;
     root->element_octree.centerY = this->centerY;
     root->element_octree.centerZ = this->centerZ;
+    //root->calc_frontier_values();
 }
 
 template<typename T>
@@ -113,11 +127,11 @@ void Octree<T>::query_region(bool (*condition)(NodeOctree<T> *const &,  T *const
 template<typename T>
 void Octree<T>::refresh_theta_value() {
     if (num_bodies < 100) this->theta = 0;
-    else if (num_bodies >= 100 and num_bodies < 1000) this-> theta = 0.3;//habria que testar cuantos cuerpos calculados por fuerza bruta
+    else if (num_bodies < 1000) this-> theta = 0.3;//habria que testar cuantos cuerpos calculados por fuerza bruta
     //puede soportar la computadora de manera fluida
-    else if (num_bodies >= 1000 and num_bodies < 10000) this-> theta = 0.5;
-    else if (num_bodies >= 10000 and num_bodies < 100000) this-> theta = 0.6;
-    else if (num_bodies >= 100000 and num_bodies < 1000000) this-> theta = 0.7;
+    else if (num_bodies < 10000) this-> theta = 0.5;
+    else if (num_bodies < 100000) this-> theta = 0.6;
+    else if (num_bodies < 1000000) this-> theta = 0.7;
     else theta = 0.8;
 }
 
@@ -142,18 +156,28 @@ void Octree<T>::recursive_query_region(NodeOctree<T> *node,
     bool (*condition)(NodeOctree<T> *const &, T*const&),
     void (*action)(T *&, T *&, std::vector<T*>& ),
     T *body, std::vector<T*>& bodies) {
-
+    //visited_nodes++;
     if (!node or !condition or !action or !body) return;
+    //condition_calls++;
     if (condition(node, body) == false) return;
+    //condition_passed++;
     if (node->has_children()) {
-        //int index = octant_for_position(body->get_position(), node->element_octree.get_position());
+        // int index = octant_for_position(
+        //     body->get_posX(),
+        //     body->get_posY(),
+        //     body->get_posZ(),
+        //     node->element_octree.get_center_x(),
+        //     node->element_octree.get_center_y(),
+        //     node->element_octree.get_center_z());
         for (int index = 0; index < 8; index++)
             recursive_query_region(node->children[index], condition, action, body, bodies);
     }
     else {
+        //leaf_nodes++;
+        //body_checks += node->element_octree.bodies.size();
         for (int i = 0; i < node->element_octree.bodies.size(); i++) {
             if (node->element_octree.bodies[i] and node->element_octree.bodies[i] != body and
-            body->get_id() < node->element_octree.bodies[i]->get_id())
+            body->get_index() < node->element_octree.bodies[i]->get_index())
                 action(node->element_octree.bodies[i], body, bodies);
         }
     }
@@ -211,6 +235,7 @@ void Octree<T>::recursively_insert(NodeOctree<T> *&node_octree, T *body) {
     if (!node_octree->has_children()) {//si el nodo es externo...
         if (node_octree->element_octree.bodies.size() == CAPACITY) {//si está lleno
             node_octree->create_children();
+            //total_nodes+=CAPACITY;
             for (int i = 0; i < CAPACITY; i++) {
                 T* oldBody = node_octree->element_octree.bodies[i];
                 uint8_t index = octant_for_position(
@@ -386,36 +411,11 @@ void Octree<T>::recursively_calc_forces(const NodeOctree<T> *node_octree, T *bod
     else for (int i=0; i < 8;i++) recursively_calc_forces(node_octree->children[i], body);
 }
 
-// void Octree<T>::iterative_calc_forces(T *body) { //esta funcion va a servir
-//     //para acumular todas las fuerzas de todos los nodos sobre este cuerpo
-//
-//     //distancia del cuerpo al centro de masa del nodo
-//     if (!node_octree || node_octree->element_octree.mass == 0) return;
-//
-//     const double d = (body->get_position() - node_octree->element_octree.centerOfMass).magnitude();
-//     if (d == 0) return; //para evitar una division entre 0
-//
-//     if (node_octree->element_octree.size/d < theta) { //significa que el nodo está lo suficientemente lejos
-//         //y se puede tratar como un solo cuerpo
-//         Vec3 new_force = force_exerted_from_to(
-//             node_octree->element_octree.mass, node_octree->element_octree.centerOfMass,
-//             body->get_mass(), body->get_position()
-//             );
-//         body->set_force(body->get_force() + new_force);
-//     }
-//     else if (!node_octree->has_children()) {
-//         for (int i = 0; i < node_octree->element_octree.bodies.size(); i++) {
-//             if (node_octree->element_octree.bodies[i] != body) {
-//                 Vec3 new_force = force_exerted_from_to(
-//                 node_octree->element_octree.bodies[i]->get_mass(),node_octree->element_octree.bodies[i]->get_position(), //1
-//                 body->get_mass(),body->get_position() //2
-//                 );
-//                 body->set_force(body->get_force() + new_force);
-//             }
-//         }
-//     }
-//     else for (int i=0; i < 8;i++) recursively_calc_forces(node_octree->children[i], body);
-// }
+template<typename T>
+void Octree<T>::iterative_calc_forces(T *body) {
+    NodeOctree<T> node = root;
+
+}
 
 template<typename T>
 uint8_t Octree<T>::octant_for_position(double posX, double posY, double posZ,

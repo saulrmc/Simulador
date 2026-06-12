@@ -4,7 +4,7 @@
 
 #ifndef SIMULADORGRAVITACIONAL_PHYSICS_H
 #define SIMULADORGRAVITACIONAL_PHYSICS_H
-#include "../Commons/CelestialBody.h"
+#include "Vec3.h"
 #include "PhysicsUtils.h"
 
 Vec3 force_exerted_from_to(const double m1, const Vec3& position1,
