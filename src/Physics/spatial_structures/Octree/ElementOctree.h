@@ -8,54 +8,79 @@
 #include "Vec3.h"
 #include <vector>
 constexpr int CAPACITY=4;
-template<typename T>
-class Octree;
-
-template<typename T>
-class NodeOctree;
-
-template<typename T>
 class ElementOctree {
 public:
     ElementOctree();
     virtual ~ElementOctree();
 
-    double get_center_x() const;
-    void set_center_x(const double center_x);
-    double get_center_y() const;
-    void set_center_y(const double center_y);
-    double get_center_z() const;
-    void set_center_z(const double center_z);
-    double get_center_of_mass_x() const;
-    void set_center_of_mass_x(const double center_of_mass_x);
-    double get_center_of_mass_y() const;
-    void set_center_of_mass_y(const double center_of_mass_y);
-    double get_center_of_mass_z() const;
-    void set_center_of_mass_z(const double center_of_mass_z);
+    Vec3 get_center() const;
+    void set_center(const Vec3 &center);
+    Vec3 get_center_of_mass() const;
+    void set_center_of_mass(const Vec3 &centerOfMass);
     double get_mass() const;
-    void set_mass(const double mass);
-    void set_position(double X, double Y, double Z);
-    void set_center_of_mass(double X, double Y, double Z);
+    void set_mass(double mass);
     double get_size() const;
     void set_size(const double size);
-    friend class Octree<T>;
-    friend class NodeOctree<T>;
+
+    friend class Octree;
+    friend class NodeOctree;
+
     private:
      //centro de masa del cubo
-    double centerOfMassX;
-    double centerOfMassY;
-    double centerOfMassZ;
+    Vec3 centerOfMass;
     double mass; //masa total que está contenida en el espacio cúbico
 
     // Centro del cubo
-    double centerX;
-    double centerY;
-    double centerZ;
+    Vec3 center;
     double size;     // Tamaño de un lado del cubo
 
-    //T* body;  // Cuerpo contenido en este nodo si es un nodo externo (sin hijos)
-    std::vector<T*> bodies{};
+    // Índices de cuerpos contenidos en este nodo si es un nodo externo (sin hijos)
+    std::vector<int> indexBodies{};
 };
 
-#include "ElementOctree.tpp"
+inline ElementOctree::ElementOctree() {
+    this->centerOfMass=Vec3(0,0,0);
+    mass = 0;
+    center=Vec3(0,0,0);
+    size = 0;
+    //body=nullptr;
+}
+
+inline ElementOctree::~ElementOctree() {
+    //esta clase no "propietaria" de los cuerpos
+    indexBodies.clear();
+}
+
+inline Vec3 ElementOctree::get_center() const {
+    return this->center;
+}
+
+inline void ElementOctree::set_center(const Vec3 &center) {
+    this->center = center;
+}
+
+inline Vec3 ElementOctree::get_center_of_mass() const {
+    return this->centerOfMass;
+}
+
+inline void ElementOctree::set_center_of_mass(const Vec3& centerOfMass) {
+    this->centerOfMass = centerOfMass;
+}
+
+inline double ElementOctree::get_mass() const {
+    return this->mass;
+}
+
+
+inline void ElementOctree::set_mass(const double mass) {
+    this->mass = mass;
+}
+
+inline double ElementOctree::get_size() const {
+    return size;
+}
+
+inline void ElementOctree::set_size(const double size) {
+    this->size = size;
+}
 #endif //SIMULADORGRAVITACIONAL_ELEMENTOCTREE_H

@@ -14,81 +14,81 @@
 // inline long long body_checks = 0;
 // inline long long total_nodes = 0;
 
-template<typename T>
-double Octree<T>::get_size() const {
+
+double Octree::get_size() const {
     return size;
 }
 
-template<typename T>
-void Octree<T>::set_size(const double size) {
+
+void Octree::set_size(const double size) {
     this->size = size;
 }
 
-template<typename T>
-double Octree<T>::get_centerX() const {
+
+double Octree::get_centerX() const {
     return centerX;
 }
 
-template<typename T>
-double Octree<T>::get_centerY() const {
+
+double Octree::get_centerY() const {
     return centerY;
 }
 
-template<typename T>
-double Octree<T>::get_centerZ() const {
+
+double Octree::get_centerZ() const {
     return centerZ;
 }
 
-template<typename T>
-void Octree<T>::set_center(double centerX, double centerY, double centerZ) {
+
+void Octree::set_center(double centerX, double centerY, double centerZ) {
     this->centerX = centerX;
     this->centerY = centerY;
     this->centerZ = centerZ;
 }
 
-template<typename T>
-int Octree<T>::get_num_bodies() const {
+
+int Octree::get_num_bodies() const {
     return num_bodies;
 }
 
-template<typename T>
-double Octree<T>::get_theta() const {
+
+double Octree::get_theta() const {
     return theta;
 }
 //
-// template<typename T>
-// void Octree<T>::calc_frontier_values() {
+// 
+// void Octree::calc_frontier_values() {
 //     root->calc_frontier_values();
 // }
 
-template<typename T>
-Octree<T>::Octree() {
+
+Octree::Octree() {
     root = nullptr;
     num_bodies = 0;
     theta = 0;
     size = 0;
 }
 
-template<typename T>
-Octree<T>::~Octree() {
+
+Octree::~Octree() {
     delete root;
 }
 
-template<typename T>
-void Octree<T>::insert(T *body) {
-    recursively_insert(root, body);
+
+void Octree::insertImpl(Vec3 &position, double mass) {
+    iterative_insert(position, mass);
     //recursively_insert_2(body);
 }
 
-template<typename T>
-void Octree<T>::erase(T *celestial_body) {
+
+void Octree::erase(T *celestial_body) {
     recursively_erase(root, celestial_body);
 }
 
-template<typename T>
-void Octree<T>::create_space() {
+
+void Octree::create_space() {
     if (root != nullptr) delete root;
-    root = new NodeOctree<T>();
+    root = new NodeOctree();
     root->element_octree.size = this->size;
     root->element_octree.centerX = this->centerX;
     root->element_octree.centerY = this->centerY;
@@ -96,36 +96,36 @@ void Octree<T>::create_space() {
     //root->calc_frontier_values();
 }
 
-template<typename T>
-void Octree<T>::calc_forces_per_body(T *body) {
+
+void Octree::calc_forces_per_body(T *body) {
     body->set_force(Vec3(0, 0, 0)); //cada fuerza calculada no debe calcularse con la de un tiempo t anterior
     //es decir, no debe ser una acumulación temporal de la fuerza por cuerpo.
     recursively_calc_forces(root, body);
 }
 
-template<typename T>
-NodeOctree<T> * Octree<T>::locate_node_father(T *body) {
-    NodeOctree<T>* father = nullptr; //para no entregar el puntero original
+
+NodeOctree * Octree::locate_node_father(T *body) {
+    NodeOctree* father = nullptr; //para no entregar el puntero original
     father = recursively_locate_node_father(root, body);
     return father;
 }
 
-template<typename T>
-NodeOctree<T> * Octree<T>::locate_body(T *body) {
-    NodeOctree<T>* node = nullptr;
+
+NodeOctree * Octree::locate_body(T *body) {
+    NodeOctree* node = nullptr;
     node = recursively_locate_body(root, body);
     return node;
 }
 
-template<typename T>
-void Octree<T>::query_region(bool (*condition)(NodeOctree<T> *const &,  T *const&),
+
+void Octree::query_region(bool (*condition)(NodeOctree *const &,  T *const&),
     void (*action)(T *&, T *&, std::vector<T*>& ),
     T *body, std::vector<T*>& bodies) {
     recursive_query_region(root, condition, action, body, bodies);
 }
 
-template<typename T>
-void Octree<T>::refresh_theta_value() {
+
+void Octree::refresh_theta_value() {
     if (num_bodies < 100) this->theta = 0;
     else if (num_bodies < 1000) this-> theta = 0.3;//habria que testar cuantos cuerpos calculados por fuerza bruta
     //puede soportar la computadora de manera fluida
@@ -135,13 +135,13 @@ void Octree<T>::refresh_theta_value() {
     else theta = 0.8;
 }
 
-template<typename T>
-void Octree<T>::refresh_mass_centers() {
+
+void Octree::refresh_mass_centers() {
     recursive_refresh_mass_centers(root);
 }
 
-template<typename T>
-void Octree<T>::recursive_refresh_mass_centers(NodeOctree<T> *node) {
+
+void Octree::recursive_refresh_mass_centers(NodeOctree *node) {
     if (!node) return;
     if (node->has_children()) {
         for (auto & i : node->children) {
@@ -151,9 +151,9 @@ void Octree<T>::recursive_refresh_mass_centers(NodeOctree<T> *node) {
     }
 }
 
-template<typename T>
-void Octree<T>::recursive_query_region(NodeOctree<T> *node,
-    bool (*condition)(NodeOctree<T> *const &, T*const&),
+
+void Octree::recursive_query_region(NodeOctree *node,
+    bool (*condition)(NodeOctree *const &, T*const&),
     void (*action)(T *&, T *&, std::vector<T*>& ),
     T *body, std::vector<T*>& bodies) {
     //visited_nodes++;
@@ -183,8 +183,8 @@ void Octree<T>::recursive_query_region(NodeOctree<T> *node,
     }
 }
 
-template<typename T>
-NodeOctree<T> * Octree<T>::recursively_locate_body(NodeOctree<T> *node, T *body) {
+
+NodeOctree * Octree::recursively_locate_body(NodeOctree *node, T *body) {
     if (!node) return nullptr;
     Vec3 pos = body->get_position();
     Vec3 center = node->element_octree.get_position();
@@ -200,8 +200,8 @@ NodeOctree<T> * Octree<T>::recursively_locate_body(NodeOctree<T> *node, T *body)
     return nullptr;
 }
 
-template<typename T>
-NodeOctree<T> * Octree<T>::recursively_locate_node_father(NodeOctree<T> *node, T *body) {
+
+NodeOctree * Octree::recursively_locate_node_father(NodeOctree *node, T *body) {
     if (!node || !node->has_children()) return nullptr;
     Vec3 pos = body->get_position();
     Vec3 center = node->element_octree.get_position();
@@ -220,8 +220,8 @@ NodeOctree<T> * Octree<T>::recursively_locate_node_father(NodeOctree<T> *node, T
     return recursively_locate_body(node->children[index], body);
 }
 
-template<typename T>
-NodeOctree<T> * Octree<T>::select_child(NodeOctree<T> *node, T *body) {
+
+NodeOctree * Octree::select_child(NodeOctree *node, T *body) {
     Vec3 pos = body->get_position();
     Vec3 center = node->element_octree.get_position();
 
@@ -230,8 +230,29 @@ NodeOctree<T> * Octree<T>::select_child(NodeOctree<T> *node, T *body) {
     return node->children[index];
 }
 
-template<typename T>
-void Octree<T>::recursively_insert(NodeOctree<T> *&node_octree, T *body) {
+
+void Octree::iterative_insert(Vec3& position, double bodyMass) {
+    NodeOctree *node_octree = root;
+    std::vector<NodeOctree *> stack{};
+    stack.push_back(node_octree);
+    while (!stack.empty()) {
+        if (!node_octree->has_children()) { //si es un nodo hoja
+            if (node_octree->element_octree.bodies.size() == CAPACITY) {//si está lleno
+                node_octree->create_children();
+            }
+            else { //agregar
+                double new_mass = node_octree->element_octree.mass + bodyMass;
+                node_octree->
+            }
+        }
+    }
+
+
+
+
+
+
+
     if (!node_octree->has_children()) {//si el nodo es externo...
         if (node_octree->element_octree.bodies.size() == CAPACITY) {//si está lleno
             node_octree->create_children();
@@ -246,7 +267,7 @@ void Octree<T>::recursively_insert(NodeOctree<T> *&node_octree, T *body) {
                     node_octree->element_octree.get_center_y(),
                     node_octree->element_octree.get_center_z());
                 num_bodies--;
-                //NodeOctree<T> *destinyOld = select_child(node_octree, oldBody);
+                //NodeOctree *destinyOld = select_child(node_octree, oldBody);
                 recursively_insert(node_octree->children[index], oldBody);
             }
             node_octree->element_octree.bodies.clear();
@@ -257,48 +278,48 @@ void Octree<T>::recursively_insert(NodeOctree<T> *&node_octree, T *body) {
             //se debe inicializar los valores del centro de masa y masa
             //total del nodo para que no estén en 0 cuando se le quiera
             //ingresar otro cuerpo en el mismo nodo
-            double new_mass = node_octree->element_octree.mass + body->get_mass();
+            double new_mass = node_octree->element_octree.mass + bodies->get_mass();
 
             node_octree->element_octree.centerOfMassX =
                 (node_octree->element_octree.centerOfMassX * node_octree->element_octree.mass
-                    + body->get_posX() * body->get_mass())/ new_mass;
+                    + bodies->get_posX() * bodies->get_mass())/ new_mass;
             node_octree->element_octree.centerOfMassY =
                 (node_octree->element_octree.centerOfMassY * node_octree->element_octree.mass
-                    + body->get_posY() * body->get_mass())/ new_mass;
+                    + bodies->get_posY() * bodies->get_mass())/ new_mass;
             node_octree->element_octree.centerOfMassZ =
                 (node_octree->element_octree.centerOfMassZ * node_octree->element_octree.mass
-                    + body->get_posZ() * body->get_mass())/ new_mass;
+                    + bodies->get_posZ() * bodies->get_mass())/ new_mass;
 
             node_octree->element_octree.mass = new_mass;
-            node_octree->element_octree.bodies.push_back(body);
+            node_octree->element_octree.bodies.push_back(bodies);
 
             ++this->num_bodies;
             //this->num_id++;
             return;
         }
     }
-    //NodeOctree<T> *destiny_new = select_child(node_octree, body);
+    //NodeOctree *destiny_new = select_child(node_octree, body);
     uint8_t index = octant_for_position(
-        body->get_posX(),
-        body->get_posY(),
-        body->get_posZ(),
+        bodies->get_posX(),
+        bodies->get_posY(),
+        bodies->get_posZ(),
         node_octree->element_octree.get_center_x(),
         node_octree->element_octree.get_center_y(),
         node_octree->element_octree.get_center_z());
 
-    recursively_insert(node_octree->children[index], body);
+    recursively_insert(node_octree->children[index], bodies);
     node_octree->calc_avg_values();
     node_octree->element_octree.bodies.clear();
 }
 
-template<typename T>
-void Octree<T>::recursively_insert_2(T *&body) {
+
+void Octree::recursively_insert_2(T *&body) {
     //Esta es una función mayormente iterativa que, por simplicidad, se
     //llama recursivamente algunas veces. No es tan eficiente como
     //una recursión pura, pero se evita repetir el bucle de inserción
     //dentro de sí mismo.
-    std::vector<NodeOctree<T>*> ancestors;
-    NodeOctree<T> *node = root;
+    std::vector<NodeOctree*> ancestors;
+    NodeOctree *node = root;
     while (true) {
         if (!node->has_children()) {
             if (node->element_octree.bodies.size() == CAPACITY) {
@@ -326,15 +347,15 @@ void Octree<T>::recursively_insert_2(T *&body) {
         node = node->children[octant];
     }
     while (!ancestors.empty()) {
-        NodeOctree<T> *ancestor = ancestors.back();
+        NodeOctree *ancestor = ancestors.back();
         ancestor->calc_avg_values();
         ancestors.pop_back();
     }
     ancestors.clear();
 }
 
-template<typename T>
-bool Octree<T>::recursively_erase(NodeOctree<T> *&node_octree, T *body) {
+
+bool Octree::recursively_erase(NodeOctree *&node_octree, T *body) {
     if (!node_octree) return false;
     //nodo externo
     if (!node_octree->has_children()) {
@@ -355,7 +376,7 @@ bool Octree<T>::recursively_erase(NodeOctree<T> *&node_octree, T *body) {
         }
         return false;
     }
-    NodeOctree<T> *destiny = select_child(node_octree, body);
+    NodeOctree *destiny = select_child(node_octree, body);
     if (!destiny) return false; //para evitar los nullptr
     bool erased = recursively_erase(destiny, body);
     if (erased) node_octree->calc_avg_values(); //lógico... solo se debería recalcular los
@@ -363,8 +384,8 @@ bool Octree<T>::recursively_erase(NodeOctree<T> *&node_octree, T *body) {
     return erased;
 }
 
-template<typename T>
-void Octree<T>::recursively_calc_forces(const NodeOctree<T> *node_octree, T *body) { //esta funcion va a servir
+
+void Octree::recursively_calc_forces(const NodeOctree *node_octree, T *body) { //esta funcion va a servir
     //para acumular todas las fuerzas de todos los nodos sobre este cuerpo
 
     //distancia del cuerpo al centro de masa del nodo
@@ -411,19 +432,19 @@ void Octree<T>::recursively_calc_forces(const NodeOctree<T> *node_octree, T *bod
     else for (int i=0; i < 8;i++) recursively_calc_forces(node_octree->children[i], body);
 }
 
-template<typename T>
-void Octree<T>::iterative_calc_forces(T *body) {
-    NodeOctree<T> node = root;
+
+void Octree::iterative_calc_forces(T *body) {
+    NodeOctree node = root;
 
 }
 
-template<typename T>
-uint8_t Octree<T>::octant_for_position(double posX, double posY, double posZ,
+
+uint8_t Octree::octant_for_position(double posX, double posY, double posZ,
         double centerX, double centerY, double centerZ){
     uint8_t index = 0;
     //se le va agregando bits 1's mientras va cumpliendo las condiciones.
     //Depende directamente de cómo están ordenados los nodos hijos en la función
-    //NodeOctree<T>::create_children()
+    //NodeOctree::create_children()
     if (posX >= centerX) index |= 1;
     if (posY >= centerY) index |= 2;
     if (posZ >= centerZ) index |= 4;
