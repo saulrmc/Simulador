@@ -5,7 +5,6 @@
 #include "Simulation.h"
 
 #include <chrono>
-#include <iomanip>
 #include <iostream>
 Simulation::Simulation() {
     calcManager = CalculationManager();
@@ -24,12 +23,18 @@ void Simulation::run_simulation() {
     // create_body(bodies, "Earth", earthPos, earthVel, 1, 0.0165);
     // create_body(bodies, "Moon", moonPos, moonVel, 0.0123, 0.00452);
     int nbodies;
-    std::cout << "cantidad de cuerpos en la simulacion: " << std::endl;
+    std::cout << "cantidad de cuerpos en la simulacion:" << std::endl;
     std::cin >> nbodies;
     create_many_bodies(bodies, nbodies);
 
 
-    // earth.set_velocity(Vec3(0,-v_circular*moon.get_mass()/(earth.get_mass() + moon.get_mass()), 0));
+    // create_body(bodies, "M1", Vec3(-0.034/2 + 0.0123, 0, 0), Vec3(0, 0, 0), 1, 0.0165);
+    // create_body(bodies, "M2", Vec3(0, 0.0165*2, 0), Vec3(0, 0, 0), 0.0123, 0.00452);
+
+    // create_body(bodies, "M1", Vec3(-0.034/2, 0, 0), Vec3(0, 0, 0), 1, 0.0165);
+    // create_body(bodies, "M2", Vec3(0, 0.02, 0), Vec3(-3.5, 0, 0), 0.0123 + 0.3, 0.00452);
+
+    // earth.set_velocity(Vec30,-v(_circular*moon.get_mass()/(earth.get_mass() + moon.get_mass()), 0));
     // moon.set_velocity(Vec3(0,v_circular*earth.get_mass()/(earth.get_mass() + moon.get_mass()), 0));
     // earth.set_position(Vec3(- moon.get_mass()/(earth.get_mass() + moon.get_mass()), 0, 0));
     // moon.set_position(Vec3(earth.get_mass()/(earth.get_mass() + moon.get_mass()), 0, 0));
@@ -57,17 +62,17 @@ void Simulation::run_simulation() {
 
     //algoritmo por fuerza bruta para hallar al cuerpo que esté
     //en el límite inferior de los tres ejes.
-    int xMin = 10000, yMin = 10000, zMin = 10000;
+    double xMin = 10000, yMin = 10000, zMin = 10000;
     std::string nombre{};
-    for (CelestialBody *&body : bodies) {
-        if (    body->get_position().get_x() < xMin
-            and body->get_position().get_y() < yMin
-            and body->get_position().get_z() < zMin
+    for (int i = 0; i < nbodies; i++) {
+        if (    bodies.get_posX(i) < xMin
+            and bodies.get_posY(i) < yMin
+            and bodies.get_posZ(i) < zMin
         ) {
-            xMin = body->get_position().get_x();
-            yMin = body->get_position().get_y();
-            zMin = body->get_position().get_z();
-            nombre = body->get_name();
+            xMin = bodies.get_posX(i);
+            yMin = bodies.get_posY(i);
+            zMin = bodies.get_posZ(i);
+            nombre = bodies.get_name(i);
         }
     }
     std::cout << "objeto en el límite inferior: " <<
@@ -81,69 +86,78 @@ void Simulation::run_simulation() {
     double k_energy=0;
     Vec3 momentum;
 
-    for (CelestialBody *&body : bodies) momentum = momentum + body->get_velocity() * body->get_mass();
+    for (int i = 0; i < nbodies; i++) momentum = momentum + bodies.get_velocity(i) * bodies.get_mass(i);
     std::cout << "Initial momentum: " << "(" << momentum.get_x() << ", " << momentum.get_y() << ", "
     << momentum.get_z() << ")"<<std::endl;
     momentum = Vec3(0, 0, 0);
+    std::cout << "tamanio sizeof(CelestialBody): " << sizeof(CelestialBodies)<<std::endl;
     std::chrono::duration<double, std::micro> step_time(0);
-    std::chrono::duration<double> total_time(0);
-    auto startTotal = std::chrono::high_resolution_clock::now();
-     while (i<=27000) {
+    std::chrono::duration<double> total_time0(0);
+    auto startTotal0 = std::chrono::high_resolution_clock::now();
+    //while (i<=1) {
         auto start = std::chrono::high_resolution_clock::now();
         calcManager.step(bodies);
-        if (i%1000==0) {
-            // std::cout << "==============================" << std::endl;
-            // for (CelestialBody *&body : bodies) {
-            //     std::cout << "Name: " << body->get_name() << std::endl;
-            //     std::cout << "Position: (" << body->get_position().get_x() << ", " <<
-            //         body->get_position().get_y() << ", " << body->get_position().get_z() <<
-            //             ")" << std::endl;
-            //     std::cout << "Velocity: (" << body->get_velocity().get_x() << ", " <<
-            //         body->get_velocity().get_y() << ", " << body->get_velocity().get_z() <<
-            //             ")" << std::endl;
-            // }
-            //     //verificar la energía del sistema:
-            // double g_energy=0;
-            // for (size_t i_2 = 0; i_2 < bodies.size(); i_2++) {
-            //     for (size_t j = i_2 + 1; j < bodies.size(); j++) {
-            //         Vec3 r = bodies[j]->get_position() - bodies[i_2]->get_position();
-            //         double dist = r.magnitude();
-            //         // Evitar división por cero
-            //         if (dist > 1e-10) {
-            //             g_energy += -units::G * bodies[i_2]->get_mass() * bodies[j]->get_mass() / dist;
-            //         }
-            //     }
-            // }
-            //
-            // for (CelestialBody *&body : bodies) {
-            //     k_energy += 0.5*body->get_mass()*body->get_velocity().magnitude()*body->get_velocity().magnitude();
-            // }
-            // std::cout << "===>Total energy = " << k_energy + g_energy<< std::endl;
-            // k_energy = 0;
-            // std::cout << "==============================" << std::endl;
-            // for (CelestialBody *&body : bodies) momentum = momentum + body->get_velocity() * body->get_mass();
-            // std::cout << "Momentum: " << "(" << momentum.get_x() << ", " << momentum.get_y() << ", "
-            // << momentum.get_z() << ")" << std::endl;
-            // momentum = Vec3(0, 0, 0);
-            //i=0;
-        }
+        // if (i%1000==0) {
+        //       std::cout << "==============================" << std::endl;
+        //       for (CelestialBody *&body : bodies) {
+        //           std::cout << "Name: " << body->get_name() << std::endl;
+        //           std::cout << "Position: (" << body->get_position().get_x() << ", " <<
+        //               body->get_position().get_y() << ", " << body->get_position().get_z() <<
+        //                   ")" << std::endl;
+        //           std::cout << "Velocity: (" << body->get_velocity().get_x() << ", " <<
+        //               body->get_velocity().get_y() << ", " << body->get_velocity().get_z() <<
+        //                   ")" << std::endl;
+        //           std::cout << "Mass:  " << body->get_mass() << std::endl;
+        //           std::cout << "Radius: " << body->get_radius() << std::endl;
+        //       }
+        //           //verificar la energía del sistema:
+        //       double g_energy=0;
+        //       for (size_t i_2 = 0; i_2 < bodies.size(); i_2++) {
+        //           for (size_t j = i_2 + 1; j < bodies.size(); j++) {
+        //               Vec3 r = bodies[j]->get_position() - bodies[i_2]->get_position();
+        //               double dist = r.magnitude();
+        //               // Evitar división por cero
+        //               if (dist > 1e-10) {
+        //                   g_energy += -units::G * bodies[i_2]->get_mass() * bodies[j]->get_mass() / dist;
+        //               }
+        //           }
+        //       }
+        //
+        //       for (CelestialBody *&body : bodies) {
+        //           k_energy += 0.5*body->get_mass()*body->get_velocity().magnitude()*body->get_velocity().magnitude();
+        //       }
+        //       std::cout << "===>Mechanical energy (K + U) = " << k_energy + g_energy<< std::endl;
+        //       k_energy = 0;
+        //       std::cout << "==============================" << std::endl;
+        //       for (CelestialBody *&body : bodies) momentum = momentum + body->get_velocity() * body->get_mass();
+        //       std::cout << "Momentum: " << "(" << momentum.get_x() << ", " << momentum.get_y() << ", "
+        //       << momentum.get_z() << ")" << std::endl;
+        //       momentum = Vec3(0, 0, 0);
+        //     i=0;
+        // }
         i++;
         auto end = std::chrono::high_resolution_clock::now();
         step_time += end - start;
-    }
-    auto endTotal = std::chrono::high_resolution_clock::now();
-    total_time = endTotal - startTotal;
-    for (CelestialBody *&body : bodies) momentum = momentum + body->get_velocity() * body->get_mass();
+    //}
+    auto endTotal0 = std::chrono::high_resolution_clock::now();
+    total_time0 = endTotal0 - startTotal0;
+    for (int i = 0; i < nbodies; i++) momentum = momentum + bodies.get_velocity(i) * bodies.get_mass(i);
     std::cout << "Final momentum: " << "(" << momentum.get_x() << ", " << momentum.get_y() << ", "
     << momentum.get_z() << ")"<< std::endl;
+    // std::cout << "visits = " <<visited_nodes << std::endl;
+    // std::cout << "leafs   = " << leaf_nodes << '\n';
+    // std::cout << "calls  = " << condition_calls << '\n';
+    // std::cout << "passed = " << condition_passed << '\n';
+    // std::cout << "body_checks = " << body_checks << '\n';
+    // std::cout << "total nodes = " << total_nodes<< std::endl;
     std::cout << "AVERAGE TIME (microseconds): " << step_time.count()/i << std::endl;
-    std::cout << "TOTAL TIME (seconds): " << total_time.count() << std::endl;
+    std::cout << "TOTAL TIME (seconds): " << total_time0.count() << std::endl;
 }
 
-void create_many_bodies(std::vector<CelestialBody*>& bodies, int N) {
+void create_many_bodies(CelestialBodies & bodies, int N) {
     double centerMass = 50.0;
     double radiusMin = 5.0;
-    double radiusMax = 50.0;
+    double radiusMax = 1024.0;
 
 
     create_body(bodies, "Center", Vec3(0,0,0), Vec3(0,0,0), centerMass, 0.5);
@@ -156,12 +170,19 @@ void create_many_bodies(std::vector<CelestialBody*>& bodies, int N) {
 
 
         double angle = ((double)rand() / RAND_MAX) * 2.0 * M_PI;
-
+        //por alguna razón tarda más en ejecutarse si calcula esto:
+        // double angle2 = ((double)rand() / RAND_MAX) * 2.0 * M_PI;
+        // y genera una posición así:
+        // Vec3 pos(
+        //     r * cos(angle) * sin(angle2),
+        //     r * sin(angle) * sin(angle2),
+        //     r * cos(angle2)
+        // );
 
         Vec3 pos(
-            r * cos(angle),
-            r * sin(angle),
-            0
+            r * cos(angle) ,
+            r * sin(angle) ,
+            r * cos(angle)
         );
 
 

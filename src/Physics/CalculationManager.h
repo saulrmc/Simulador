@@ -6,7 +6,7 @@
 #define SIMULADORGRAVITACIONAL_GESTORCALCULOS_H
 #include <vector>
 #include "PhysicsUtils.h"
-#include "Octree/Octree.h"
+#include "spatial_structures/Octree/Octree.h"
 #include "Collisions.h"
 #include "LeapfrogKDK.h"
 
@@ -15,17 +15,17 @@ class CalculationManager {
     CalculationManager();
     virtual ~CalculationManager();
     void create_Octree();
-    void reinsert_bodies(std::vector<CelestialBody *> &);
-    void update_forces(std::vector<CelestialBody*> &);
-    void step(std::vector<CelestialBody *> &);
+    void reinsert_bodies(CelestialBodies &bodies);
+    void update_forces(CelestialBodies &bodies);
+    void step(CelestialBodies &bodies);
 
-    void preserve_root_and_update_forces(std::vector<CelestialBody *> & bodies);
+    void preserve_root_and_update_forces(CelestialBodies &bodies);
 
-    void leapfrog_integration_kdk(std::vector<CelestialBody *> &);
-    void root_space(std::vector<CelestialBody *> &bodies);
+    void leapfrog_integration_kdk(CelestialBodies &bodies);
+    void root_space(CelestialBodies &bodies);
 
     private:
-    Octree<CelestialBody> *root;
+    Octree *root;
     unsigned int numStep;
 };
 

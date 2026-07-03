@@ -15,9 +15,8 @@ class Simulation {
     void run_simulation();
     private:
     CalculationManager calcManager{};
-    std::vector<CelestialBody *> bodies{};
-
+    CelestialBodies  bodies;
 };
-void create_many_bodies(std::vector<CelestialBody*>& bodies, int N) ;
+void create_many_bodies(CelestialBodies & bodies, int N);
 
 #endif //SIMULADORGRAVITACIONAL_SIMULATION_H

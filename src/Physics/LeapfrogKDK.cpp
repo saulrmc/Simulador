@@ -4,13 +4,13 @@
 #include "LeapfrogKDK.h"
 #include <iostream>
 #include <chrono>
-void leapfrog_integration_kick(std::vector<CelestialBody*> &bodies) {
+void leapfrog_integration_kick(CelestialBodies &bodies) {
     std::chrono::duration<double, std::micro> total_time(0);
     auto start = std::chrono::high_resolution_clock::now();
-    for (CelestialBody *&body : bodies) {
+    for (int i = 0; i < bodies.size(); i++) {
         Vec3 next_velocity = next_velocity_for_delta_time(units::HALF_DELTA_TIME,
-            body->get_mass(), body->get_force(), body->get_velocity());
-        body->set_velocity(next_velocity);
+            bodies.get_mass(i), bodies.get_force(i), bodies.get_velocity(i));
+        bodies.set_velocity(next_velocity, i);
     }
     auto end = std::chrono::high_resolution_clock::now();
     total_time = end - start;
@@ -18,12 +18,12 @@ void leapfrog_integration_kick(std::vector<CelestialBody*> &bodies) {
     << total_time.count() << std::endl;
 }
 
-void leapfrog_integration_drift(std::vector<CelestialBody *> &bodies) {
+void leapfrog_integration_drift(CelestialBodies &bodies) {
     std::chrono::duration<double, std::micro> total_time(0);
     auto start = std::chrono::high_resolution_clock::now();
-    for (CelestialBody *&body : bodies) {
-        Vec3 next_position = next_position_for_delta_time(units::DELTA_TIME, body->get_velocity(), body->get_position());
-        body->set_position(next_position);
+    for (int i = 0; i < bodies.size(); i++) {
+        Vec3 next_position = next_position_for_delta_time(units::DELTA_TIME, bodies.get_velocity(i), bodies.get_position(i));
+        bodies.set_position(next_position, i);
     }
     auto end = std::chrono::high_resolution_clock::now();
     total_time = end - start;

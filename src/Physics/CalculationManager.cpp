@@ -17,22 +17,20 @@ CalculationManager::~CalculationManager() {
 }
 
 void CalculationManager::create_Octree() {
-    if (!root) root = new Octree<CelestialBody>();
+    if (!root) root = new Octree();
     root->create_space();
 }
 
-void CalculationManager::reinsert_bodies(std::vector<CelestialBody*> &bodies) {
+void CalculationManager::reinsert_bodies(CelestialBodies &bodies) {
     if (!root) {
         root_space(bodies);
         root->create_space();
     }
-    for (CelestialBody *&body : bodies) {
-        root->insert(body);
-    }
+    root->insert(bodies);
 }
 
 
-void CalculationManager::update_forces(std::vector<CelestialBody*> &bodies) {
+void CalculationManager::update_forces(CelestialBodies &bodies) {
     if (root) {
         delete root;
         root = nullptr;
@@ -51,25 +49,25 @@ void CalculationManager::update_forces(std::vector<CelestialBody*> &bodies) {
     auto start2 = std::chrono::high_resolution_clock::now();
     //#pragma omp parallel for schedule(dynamic, 100)
     // #pragma omp parallel for schedule(dynamic, 64)
-    for (CelestialBody *&body : bodies) root->calc_forces_per_body(body);//fuerzas actualizadas
+    root->calc_forces(bodies);//fuerzas actualizadas
     auto end2 = std::chrono::high_resolution_clock::now();
     total_time2 = end2 - start2;
     std::cout << "Tiempo de calculo de fuerzas de cuerpos en microsegundos : "
     << total_time2.count() << std::endl;
 }
 
-void CalculationManager::step(std::vector<CelestialBody *> &bodies) {
+void CalculationManager::step(CelestialBodies &bodies) {
     leapfrog_integration_kdk(bodies);
     numStep++;
 }
 
-void CalculationManager::preserve_root_and_update_forces(std::vector<CelestialBody *> &bodies) {
+void CalculationManager::preserve_root_and_update_forces(CelestialBodies &bodies) {
     root->refresh_theta_value();
     root->refresh_mass_centers();
-    for (CelestialBody *&body : bodies) root->calc_forces_per_body(body);//fuerzas actualizadas
+    root->calc_forces(bodies);//fuerzas actualizadas
 }
 
-void CalculationManager::leapfrog_integration_kdk(std::vector<CelestialBody *> &bodies) {
+void CalculationManager::leapfrog_integration_kdk(CelestialBodies &bodies) {
     //este codigo debe implementar una inicializacion de las fuerzas antes de ser llamado
     //porque asume que todos los cuerpos ya tienen las fuerzas inicializadas/actualizadas
     //este código debería ir antes del while principal del programa:
@@ -83,39 +81,39 @@ void CalculationManager::leapfrog_integration_kdk(std::vector<CelestialBody *> &
     //version 1:
     //collisions_for_bodies(root, bodies, 0, bodies.size() - 1);
     //versión 2:
-    collisions_for_bodies(root, bodies);
+    collisions(root, bodies);
     if (numStep % 5 == 0) update_forces(bodies);
     else preserve_root_and_update_forces(bodies);
     //update_forces(bodies);
     leapfrog_integration_kick(bodies);
 }
 
-void CalculationManager::root_space(std::vector<CelestialBody *> &bodies) {
-    if (!root) root = new Octree<CelestialBody>();
+void CalculationManager::root_space(CelestialBodies  &bodies) {
+    if (!root) root = new Octree();
     //el index 0 y 1 para xMin y xMax
     //el index 2 y 3 para yMin & yMax
     //el index 4 y 5 para zMin y zMax
-    if (bodies.empty()) return;
+    if (bodies.size() == 0) return;
     double frontierValues[6] {
-        bodies[0]->get_position().get_x(), bodies[0]->get_position().get_x(),
-        bodies[0]->get_position().get_y(), bodies[0]->get_position().get_y(),
-        bodies[0]->get_position().get_z(), bodies[0]->get_position().get_z()
+        bodies.get_posX(0), bodies.get_posX(0),
+        bodies.get_posY(0), bodies.get_posY(0),
+        bodies.get_posZ(0), bodies.get_posZ(0)
     };
-    for (CelestialBody *&body : bodies) {
-        if (body->get_position().get_x() < frontierValues[0])
-            frontierValues[0] = body->get_position().get_x();
-        else if (body->get_position().get_x() > frontierValues[1])
-            frontierValues[1] = body->get_position().get_x();
+    for (int i = 0; i < bodies.size(); i++) {
+        if (bodies.get_posX(i) < frontierValues[0])
+            frontierValues[0] = bodies.get_posX(i);
+        else if (bodies.get_posX(i) > frontierValues[1])
+            frontierValues[1] = bodies.get_posX(i);
 
-        if (body->get_position().get_y() < frontierValues[2])
-            frontierValues[2] = body->get_position().get_y();
-        else if (body->get_position().get_y() > frontierValues[3])
-            frontierValues[3] = body->get_position().get_y();
+        if (bodies.get_posY(i) < frontierValues[2])
+            frontierValues[2] = bodies.get_posY(i);
+        else if (bodies.get_posY(i) > frontierValues[3])
+            frontierValues[3] = bodies.get_posY(i);
 
-        if (body->get_position().get_z() < frontierValues[4])
-            frontierValues[4] = body->get_position().get_z();
-        else if (body->get_position().get_z() > frontierValues[5])
-            frontierValues[5] = body->get_position().get_z();
+        if (bodies.get_posZ(i) < frontierValues[4])
+            frontierValues[4] = bodies.get_posZ(i);
+        else if (bodies.get_posZ(i) > frontierValues[5])
+            frontierValues[5] = bodies.get_posZ(i);
     }
     double exactSize = std::max(std::max(frontierValues[1] - frontierValues[0],
         frontierValues[3] - frontierValues[2]),
@@ -128,8 +126,10 @@ void CalculationManager::root_space(std::vector<CelestialBody *> &bodies) {
     std::cout << "tamanio espacial exacto " << exactSize << std::endl;
     std::cout << "tamanio espacial escalado "  << root->get_size()<<std::endl;
     root->set_center(
+        Vec3(
         (frontierValues[0] + frontierValues[1])/2,
         (frontierValues[2] + frontierValues[3])/2,
         (frontierValues[4] + frontierValues[5])/2
+        )
         );
 }

@@ -24,7 +24,6 @@ add_executable(SimuladorGravitacional main.cpp
         src/GUI/Interface.cpp
         src/GUI/Interface.h
         src/Physics/spatial_structures/Octree/ElementOctree.h
-        src/Physics/spatial_structures/Octree/Octree.cpp
         src/Physics/spatial_structures/Octree/Octree.h
         src/Physics/spatial_structures/Octree/NodeOctree.h
         src/Simulation.cpp
