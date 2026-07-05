@@ -5,38 +5,34 @@
 #ifndef SIMULADORGRAVITACIONAL_COLLISIONS_H
 #define SIMULADORGRAVITACIONAL_COLLISIONS_H
 #include <vector>
-#include "Octree/Octree.h"
+#include "spatial_structures/Octree/Octree.h"
 #include "../Creation/Creation.h"
-#include <thread>
 static constexpr double DENSITY = 9511.09; //una densidad de 1000 kg/m^3 en el sistema de unidades del simulador
 static constexpr double MI = 0.5; //Medida de cómo la energía y el momentum del proyectil se acopla al objetivo
 //el valor está entre 1/3 y 2/3. 1/3 es para momentum puro y 2/3 para energía pura. En el paper de donde
 //obtuve este número se representa como el símbolo "mi" griego pero un sombrero encima
 
 
-void collisions_for_range(Octree<CelestialBody> *const &octree,
-    std::vector<CelestialBody *> &bodies, int begin, int end);
-void collisions_for_bodies(Octree<CelestialBody> *const &octree,
-    std::vector<CelestialBody *> &bodies, int begin, int end);
-void collisions_for_bodies(Octree<CelestialBody> *const &octree, std::vector<CelestialBody *> &bodies);
-void collisions(Octree<CelestialBody> *const &octree, std::vector<CelestialBody *> &bodies);
+void collisions_for_bodies(Octree *const &octree,
+    CelestialBodies &bodies, int begin, int end);
+void collisions(Octree *const &octree, CelestialBodies &bodies);
 bool overlap_body(const Vec3 &center1, const Vec3 &center2, const double radius1, const double radius2) ;
-bool overlap_node(NodeOctree<CelestialBody>*const &node, CelestialBody*const& body) ;
+bool overlap_node(NodeOctree *const &node, CelestialBodies*const& body) ;
 // bool overlap(NodeOctree *const &node,  CelestialBody *const& nodeBody,  CelestialBody*const& body);
 Vec3 closest_point(const Vec3 &nodeCenter, double nodeSize, const Vec3 &bodyCenter) ;
-void resolve_collision(CelestialBody *&, CelestialBody *&,  std::vector<CelestialBody*>& bodies);
-void simplified_resolve_collision(CelestialBody *&body1, CelestialBody *&body2, std::vector<CelestialBody *> &bodies);
+void resolve_collision(CelestialBodies *&, CelestialBodies *&,  std::vector<CelestialBodies*>& bodies);
+void simplified_resolve_collision(CelestialBodies *&body1, CelestialBodies *&body2, std::vector<CelestialBodies *> &bodies);
 
 //regímenes:
 
-void merge_regime(CelestialBody *&largestBody, CelestialBody *&smallestBody,
-    std::vector<CelestialBody *> &bodies);
-void super_catastrophic_disruption_regime(CelestialBody *largestBody,
-    CelestialBody *smallestBody, double specificImpEnergySC,
+void merge_regime(CelestialBodies *&largestBody, CelestialBodies *&smallestBody,
+    std::vector<CelestialBodies *> &bodies);
+void super_catastrophic_disruption_regime(CelestialBodies *largestBody,
+    CelestialBodies *smallestBody, double specificImpEnergySC,
     double disruptionEnergy, double bParameter);
-void disruption_regime(CelestialBody *largestBody, CelestialBody *smallestBody,
+void disruption_regime(CelestialBodies *largestBody, CelestialBodies *smallestBody,
     double specificImpEnergyErosion, double disruptionEnergy, double bParameter);
-void hit_and_run_regime(CelestialBody *&largestBody, CelestialBody *&smallestBody,
+void hit_and_run_regime(CelestialBodies *&largestBody, CelestialBodies *&smallestBody,
     double massInteract, double impactVelocity, double bParameter, double avgDensity);
 
 
@@ -51,7 +47,8 @@ double catastrophic_disruption_criterion(const Vec3 &vel1, const Vec3 &vel2, dou
     double avgDensity) ;
 double collision_timescale(double radius1, double radius2, double distance, double relativeVelocity) ;
 double collision_angle(const Vec3 &vel1, const Vec3 &vel2, const Vec3& center1, const Vec3& center2);
-double mass_interact(CelestialBody *const &largestBody, CelestialBody *const &smallestBody);
+double mass_interact(double largestBodyMass, double largestBodyRadius, Vec3 &largestBodyPosition, Vec3 &largestBodyVelocity,
+    double smallestBodyMass, double smallestBodyRadius, Vec3 &smallestBodyPosition, Vec3 &smallestBodyVelocity);
 double disruption_curve(double combinedRadius, double avgDensity);
 double critical_impact_velocity_mod(double combinedRadius, double avgDensity);
 double disruption_criterion(double disruptionCurve, double relationMass);
@@ -67,13 +64,13 @@ Vec3 velCM(const Vec3 &vel1, double mass1, const Vec3 &vel2, double mass2);
 double radius_by_density_and_mass(double mass, double density) ;
 double density_by_mass_and_radius(double mass, double radius) ;
 void refresh_body(double currentMass, double newMass, double currentRadius,
-    const Vec3 &newVelocity, CelestialBody *&body) ;
-void update_bodies_after_fragmentation(CelestialBody *&largestBody, CelestialBody *&smallestBody,
+    const Vec3 &newVelocity, CelestialBodies *&body) ;
+void update_bodies_after_fragmentation(CelestialBodies *&largestBody, CelestialBodies *&smallestBody,
     double mLR, double mSLR, const Vec3 &newVelLR, const Vec3 &initialMomentum);
-void fix_positions_after_fragmentation(CelestialBody *&largestBody, CelestialBody *&smallestBody);
+void fix_positions_after_fragmentation(CelestialBodies *&largestBody, CelestialBodies *&smallestBody);
 double mass_largest_remnant_supcat(double specificImpEnergySC, double disruptionEnergy,
     double totalMass);
-void compute_remnant_properties_and_velocities(CelestialBody *&largestBody, CelestialBody *&smallestBody,
+void compute_remnant_properties_and_velocities(CelestialBodies *&largestBody, CelestialBodies *&smallestBody,
     double bParameter, double mLR, int N1, int N2);
 #endif //SIMULADORGRAVITACIONAL_COLLISIONS_H
 
