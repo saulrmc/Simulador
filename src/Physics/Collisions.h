@@ -25,14 +25,16 @@ void simplified_resolve_collision(CelestialBodies *&body1, CelestialBodies *&bod
 
 //regímenes:
 
-void merge_regime(CelestialBodies *&largestBody, CelestialBodies *&smallestBody,
-    std::vector<CelestialBodies *> &bodies);
+void merge_regime(CelestialBodies &bodies,
+    int largestBodyIndex, double largestBodyMass, double largestBodyRadius, Vec3 &largestBodyVel,
+    int smallestBodyIndex, double smallestBodyMass, Vec3 &smallestBodyVel);
 void super_catastrophic_disruption_regime(CelestialBodies *largestBody,
     CelestialBodies *smallestBody, double specificImpEnergySC,
     double disruptionEnergy, double bParameter);
 void disruption_regime(CelestialBodies *largestBody, CelestialBodies *smallestBody,
     double specificImpEnergyErosion, double disruptionEnergy, double bParameter);
-void hit_and_run_regime(CelestialBodies *&largestBody, CelestialBodies *&smallestBody,
+void hit_and_run_regime( double largestBodyMass, double largestBodyRadius, Vec3 &largestBodyVel,
+    double smallestBodyMass, double smallestBodyRadius, Vec3 &smallestBodyVel,
     double massInteract, double impactVelocity, double bParameter, double avgDensity);
 
 
@@ -70,7 +72,9 @@ void update_bodies_after_fragmentation(CelestialBodies *&largestBody, CelestialB
 void fix_positions_after_fragmentation(CelestialBodies *&largestBody, CelestialBodies *&smallestBody);
 double mass_largest_remnant_supcat(double specificImpEnergySC, double disruptionEnergy,
     double totalMass);
-void compute_remnant_properties_and_velocities(CelestialBodies *&largestBody, CelestialBodies *&smallestBody,
+void compute_remnant_properties_and_velocities(
+    double largestBodyMass, double largestBodyRadius, Vec3 &largestBodyVel,
+    double smallestBodyMass, double smallestBodyRadius, Vec3 &smallestBodyVel,
     double bParameter, double mLR, int N1, int N2);
 #endif //SIMULADORGRAVITACIONAL_COLLISIONS_H
 
