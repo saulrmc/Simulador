@@ -20,7 +20,9 @@ bool overlap_body(const Vec3 &center1, const Vec3 &center2, const double radius1
 bool overlap_node(NodeOctree *const &node, CelestialBodies*const& body) ;
 // bool overlap(NodeOctree *const &node,  CelestialBody *const& nodeBody,  CelestialBody*const& body);
 Vec3 closest_point(const Vec3 &nodeCenter, double nodeSize, const Vec3 &bodyCenter) ;
-void resolve_collision(CelestialBodies *&, CelestialBodies *&,  std::vector<CelestialBodies*>& bodies);
+void resolve_collision(CelestialBodies &bodies,
+    int body1Index, double body1Mass, double body1Radius, Vec3 &body1Position, Vec3& body1Velocity,
+    int body2Index, double body2Mass, double body2Radius, Vec3 &body2Position, Vec3& body2Velocity);
 void simplified_resolve_collision(CelestialBodies *&body1, CelestialBodies *&body2, std::vector<CelestialBodies *> &bodies);
 
 //regímenes:

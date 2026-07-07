@@ -161,84 +161,97 @@ void simplified_resolve_collision(CelestialBodies &bodies,
         bool grazingImpact = true;
         if (bParameter < bCrit) grazingImpact = false;
         if (grazingImpact)
-        hit_and_run_regime(largestBody, smallestBody, massInteract, relativeVelocity,
-            bParameter, avgDensity);
-        else merge_regime(largestBody, smallestBody, bodies);
+            hit_and_run_regime( body1Mass,  body1Radius, body1Velocity,
+                body2Mass, body2Radius, body2Velocity,
+                massInteract, relativeVelocity, bParameter, avgDensity);
+        else merge_regime(bodies, body1Index,  body1Mass, body1Radius, body1Velocity,
+            body2Index, body2Mass, body2Velocity);
     }
 
 }
 
 //Algoritmo adaptado de: A.1. A General Formulation for Collision Outcomes de Leinhardt & Stewart (2012)
-void resolve_collision(CelestialBodies *&body1, CelestialBodies *&body2, std::vector<CelestialBodies *> &bodies) {
-    if (body1->get_mass() <= 0 || body2->get_mass() <= 0) return;
-    if (body1->get_radius() <= 0 || body2->get_radius() <= 0) return;
-    bool overlap = overlap_body(body1->get_position(), body2->get_position(),
-        body1->get_radius(), body2->get_radius());
+void resolve_collision(CelestialBodies &bodies,
+    int body1Index, double body1Mass, double body1Radius, Vec3 &body1Position, Vec3& body1Velocity,
+    int body2Index, double body2Mass, double body2Radius, Vec3 &body2Position, Vec3& body2Velocity) {
+    if (body1Mass <= 0 || body2Mass <= 0) return;
+    if (body1Radius <= 0 || body2Radius <= 0) return;
+    bool overlap = overlap_body(body1Position, body2Position,
+        body1Radius, body2Radius);
     if (!overlap) return;
-    Vec3 normal = (body2->get_position() - body1->get_position()).normalize();
-    Vec3 relVel = body2->get_velocity() - body1->get_velocity();
+    Vec3 normal = (body2Position - body1Position).normalize();
+    Vec3 relVel = body2Velocity - body1Velocity;
     if (relVel.dot(normal) >= 0) {
         return; //significa que se están separando
     }
 
-    CelestialBodies *largestBody = (body1->get_mass() >= body2->get_mass()) ? body1 : body2;
-    CelestialBodies *smallestBody = (body1->get_mass() >= body2->get_mass()) ? body2 : body1;
-    if (largestBody->get_radius() + smallestBody->get_radius()
-        - (largestBody->get_position() - smallestBody->get_position()).magnitude() >= 0)
+    int largestBody = (body1Mass >= body2Mass) ? body1Index : body2Index; //body1 va a ser el mas grande
+    int smallestBody = (body1Mass >= body2Mass) ? body2Index : body1Index;
+    body1Mass = bodies.get_mass(largestBody);
+    body1Radius = bodies.get_radius(largestBody);
+    body1Position = bodies.get_position(largestBody);
+    body1Velocity = bodies.get_velocity(largestBody);
+
+    body2Mass = bodies.get_mass(smallestBody);
+    body2Radius = bodies.get_radius(smallestBody);
+    body2Position = bodies.get_position(smallestBody);
+    body2Velocity = bodies.get_velocity(smallestBody);
+
+    if (body1Radius + body2Radius
+        - (body1Position - body2Position).magnitude() >= 0)
         std::cout << "colision detectada" <<std::endl;
-    double totalMass = smallestBody->get_mass() + largestBody->get_mass();
-    const double relativeVelocity = (largestBody->get_velocity()
-        -smallestBody->get_velocity()).magnitude();
-    double massInteract = mass_interact(largestBody, smallestBody);
+    double totalMass = body2Mass + body1Mass;
+    const double relativeVelocity = (body1Velocity - body2Velocity).magnitude();
+    double massInteract = mass_interact(
+        body1Mass, body1Radius, body1Position, body1Velocity,
+        body2Mass, body2Radius, body2Position, body2Velocity);
     std::cout << "masa a interactuar: " << massInteract << std::endl;
-    double density1 = density_by_mass_and_radius(largestBody->get_mass(),
-    largestBody->get_radius());
-    double density2 = density_by_mass_and_radius(smallestBody->get_mass(),
-        smallestBody->get_radius());
+    double density1 = density_by_mass_and_radius(body1Mass, body1Radius);
+    double density2 = density_by_mass_and_radius(body2Mass, body2Radius);
     double avgDensity = (density1 + density2)/2;
     const double mutualEscapeVelMod = mutual_escape_velocity_mod(
-        largestBody->get_mass(), massInteract, avgDensity);
+        body1Mass, massInteract, avgDensity);
 
     if (relativeVelocity < mutualEscapeVelMod) {
-        merge_regime(largestBody, smallestBody, bodies);
+        merge_regime(bodies,
+        body1Index, body1Mass, body1Radius, body1Velocity,
+        body2Index, body2Mass, body1Velocity);
         return;
     }
 
     //calcular b_crit, si b < b_crit el impacto es no rozante (no es posible un hit-run)
-    double collisionAngle = collision_angle(largestBody->get_velocity(),
-        smallestBody->get_velocity(), largestBody->get_position(),
-        smallestBody->get_position() );
+    double collisionAngle = collision_angle(body1Velocity,
+        body2Velocity, body1Position, body2Position);
     double bParameter = sin(collisionAngle);
-    double bCrit = largestBody->get_radius()/(largestBody->get_radius() + smallestBody->get_radius());
+    double bCrit = body1Radius/(body1Radius + body2Radius);
     bool grazingImpact = true;
 
     if (bParameter < bCrit) grazingImpact = false;
 
     //calcular el criterio de disrupción catastrófica y la velocidad crítica de impacto
-    const double combinedRadius = pow(largestBody->get_radius() *
-        largestBody->get_radius() * largestBody->get_radius() +
-        smallestBody->get_radius() * smallestBody->get_radius() * smallestBody->get_radius(), 1.0/3);
+    const double combinedRadius =
+        pow(body1Radius *body1Radius * body1Radius + body2Radius * body2Radius * body2Radius, 1.0/3);
     double criticalImpVelMod = critical_impact_velocity_mod(combinedRadius, avgDensity);
     double disruptionCurve = disruption_curve(combinedRadius, avgDensity);
-    double reducedMass = smallestBody->get_mass() * largestBody->get_mass() / totalMass;
-    double reducedMassMod = massInteract * largestBody->get_mass()/
-                            (massInteract + largestBody->get_mass());
+    double reducedMass = body2Mass * body1Mass / totalMass;
+    double reducedMassMod = massInteract * body1Mass/
+                            (massInteract + body1Mass);
     double disruptionCriterion = disruption_criterion(disruptionCurve,
-        smallestBody->get_mass()/largestBody->get_mass());
+        body2Mass/body1Mass);
     double criticalImpVel = critical_impact_velocity(criticalImpVelMod,
-        smallestBody->get_mass()/largestBody->get_mass());
+        body2Mass/body1Mass);
     double disruptionEnergy = disruption_energy_by_angle(disruptionCriterion,
         reducedMass, reducedMassMod);
     double criticalImpVelByAngle = impact_velocity(disruptionEnergy,
         totalMass, reducedMass);
         double specificImpEnergyErosion = specific_impact_energy(
-        largestBody->get_mass(), disruptionEnergy,
-        largestBody->get_mass(), smallestBody->get_mass());
+        body1Mass, disruptionEnergy,
+        body1Mass, body2Mass);
 
     double vErosion = impact_velocity(reducedMass, specificImpEnergyErosion,
         totalMass);
     double specificImpEnergySC = specific_impact_energy(0.1 * totalMass,
-    disruptionEnergy, largestBody->get_mass(), smallestBody->get_mass());
+    disruptionEnergy, body1Mass, body2Mass);
     double vSupercat = impact_velocity(reducedMass, specificImpEnergySC, totalMass);
     double actualImpactEnergy = specific_impact_energy(reducedMass,
         relativeVelocity, totalMass);
