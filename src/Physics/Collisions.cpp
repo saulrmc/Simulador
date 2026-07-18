@@ -161,8 +161,9 @@ void simplified_resolve_collision(CelestialBodies &bodies,
         bool grazingImpact = true;
         if (bParameter < bCrit) grazingImpact = false;
         if (grazingImpact)
-            hit_and_run_regime( body1Mass,  body1Radius, body1Velocity,
-                body2Mass, body2Radius, body2Velocity,
+            hit_and_run_regime(bodies,
+     largestBody,  body1Mass, body1Radius, body1Velocity, body1Position,
+     smallestBody,  body2Mass, body2Radius, body2Velocity, body2Position,
                 massInteract, relativeVelocity, bParameter, avgDensity);
         else merge_regime(bodies, body1Index,  body1Mass, body1Radius, body1Velocity,
             body2Index, body2Mass, body2Velocity);
@@ -256,15 +257,23 @@ void resolve_collision(CelestialBodies &bodies,
     double actualImpactEnergy = specific_impact_energy(reducedMass,
         relativeVelocity, totalMass);
 
-    if (relativeVelocity > vSupercat) super_catastrophic_disruption_regime(largestBody,
-        smallestBody, actualImpactEnergy, disruptionEnergy, bParameter);
-    else if (relativeVelocity > vErosion) disruption_regime(largestBody, smallestBody,
+    if (relativeVelocity > vSupercat) super_catastrophic_disruption_regime(bodies,
+    largestBody, body1Mass, body1Radius, body1Velocity, body1Position,
+    smallestBody, body2Mass, body2Radius, body2Velocity, body2Position,
+    actualImpactEnergy, disruptionEnergy, bParameter);
+    else if (relativeVelocity > vErosion) disruption_regime(bodies,
+    largestBody, body1Mass, body1Radius, body1Velocity, body1Position,
+    smallestBody, body2Mass, body2Radius, body2Velocity, body2Position,
         actualImpactEnergy, disruptionEnergy, bParameter);
     else {
-        if (!grazingImpact) disruption_regime(largestBody, smallestBody,
+        if (!grazingImpact) disruption_regime(bodies,
+    largestBody, body1Mass, body1Radius, body1Velocity, body1Position,
+    smallestBody, body2Mass, body2Radius, body2Velocity, body2Position,
             actualImpactEnergy, disruptionEnergy, bParameter);
-        else hit_and_run_regime(largestBody, smallestBody, massInteract, relativeVelocity,
-            bParameter, avgDensity);
+        else hit_and_run_regime( bodies,
+     largestBody,  body1Mass, body1Radius, body1Velocity, body1Position,
+     smallestBody,  body2Mass, body2Radius, body2Velocity, body2Position,
+                massInteract, relativeVelocity, bParameter, avgDensity);
     }
 }
 
@@ -292,17 +301,22 @@ void merge_regime(CelestialBodies &bodies,
 }
 
 //Régimen super catastrófico obtenido de: Leinhardt & Stewart (2012)
-void super_catastrophic_disruption_regime(CelestialBodies *largestBody,
-    CelestialBodies *smallestBody, double specificImpEnergySC,
-    double disruptionEnergy, double bParameter) {
+void super_catastrophic_disruption_regime(CelestialBodies &bodies,
+    int largestBodyIndex, double largestBodyMass, double largestBodyRadius, Vec3 &largestBodyVel, Vec3 &largestBodyPos,
+    int smallestBodyIndex, double smallestBodyMass, double smallestBodyRadius, Vec3 &smallestBodyVel, Vec3 &smallestBodyPos,
+    double specificImpEnergySC, double disruptionEnergy, double bParameter) {
     double mLR = mass_largest_remnant_supcat(specificImpEnergySC, disruptionEnergy,
-        largestBody->get_mass() + smallestBody->get_mass());
-    compute_remnant_properties_and_velocities(largestBody, smallestBody, bParameter,
-        mLR, 1, 2);
+        largestBodyMass+smallestBodyMass);
+    compute_remnant_properties_and_velocities(bodies,
+    largestBodyIndex, largestBodyVel, largestBodyPos,  largestBodyMass,  largestBodyRadius,
+    smallestBodyIndex, smallestBodyVel, smallestBodyPos, smallestBodyMass, smallestBodyRadius,
+    bParameter, mLR, 1, 2);
 }
 
 //Régimen de distrupción obtenido de: Leinhardt & Stewart (2012)
-void disruption_regime(CelestialBodies *largestBody, CelestialBodies *smallestBody,
+void disruption_regime(CelestialBodies &bodies,
+    int largestBodyIndex,  double largestBodyMass, double largestBodyRadius, Vec3 &largestBodyVel, Vec3 &largestBodyPos,
+    int smallestBodyIndex, double smallestBodyMass, double smallestBodyRadius, Vec3 &smallestBodyVel, Vec3 &smallestBodyPos,
     double specificImpEnergyErosion, double disruptionEnergy, double bParameter) {
     //El régimen de disrupción incluye:
     //- El régimen de acreción parcial en el cual la masa del mayor remanente (mLR)
@@ -312,14 +326,17 @@ void disruption_regime(CelestialBodies *largestBody, CelestialBodies *smallestBo
     //- El régimen de erosión en el cual la masa del remanente más grande es
     //menor que la masa del cuerpo más grande
     double mLR = mass_largest_remnant(specificImpEnergyErosion,
-        disruptionEnergy, largestBody->get_mass() + smallestBody->get_mass());
-    compute_remnant_properties_and_velocities(largestBody, smallestBody, bParameter,
-        mLR, 1, 2);
+        disruptionEnergy, largestBodyMass + smallestBodyMass);
+    compute_remnant_properties_and_velocities(bodies,
+        largestBodyIndex,  largestBodyVel,  largestBodyPos, largestBodyMass, largestBodyRadius,
+        smallestBodyIndex, smallestBodyVel, smallestBodyPos, smallestBodyMass, smallestBodyRadius,
+        bParameter, mLR, 1, 2);
 }
 
 //Régimen hit-and-run obtenido de: Leinhardt & Stewart (2012)
-void hit_and_run_regime( double largestBodyMass, double largestBodyRadius, Vec3 &largestBodyVel,
-    double smallestBodyMass, double smallestBodyRadius, Vec3 &smallestBodyVel,
+void hit_and_run_regime(CelestialBodies &bodies,
+    int largestBodyIndex,  double largestBodyMass, double largestBodyRadius, Vec3 &largestBodyVel, Vec3 &largestBodyPos,
+    int smallestBodyIndex, double smallestBodyMass, double smallestBodyRadius, Vec3 &smallestBodyVel, Vec3 &smallestBodyPos,
     double massInteract, double impactVelocity, double bParameter, double avgDensity) {
     //a pesar de que los nombres son similares a las variables que se calcularon antes en realidad
     //este régimen tiene sus propias variables
@@ -338,12 +355,14 @@ void hit_and_run_regime( double largestBodyMass, double largestBodyRadius, Vec3 
         disruptionCriterion, smallestBodyMass + massInteract);
     if (relationMass < 1.1 and relationMass > 0.9) {
         //usar N1 = 2 y N2 = 4
-        compute_remnant_properties_and_velocities(
-            largestBodyMass, largestBodyRadius, largestBodyVel,
-            smallestBodyMass, smallestBodyRadius, smallestBodyVel,
+        compute_remnant_properties_and_velocities(bodies,
+        largestBodyIndex,  largestBodyVel,  largestBodyPos, largestBodyMass, largestBodyRadius,
+        smallestBodyIndex, smallestBodyVel, smallestBodyPos, smallestBodyMass, smallestBodyRadius,
             bParameter, massLargestRemnant, 2, 4);
     }
-    else compute_remnant_properties_and_velocities(largestBody, smallestBody,
+    else compute_remnant_properties_and_velocities(bodies,
+        largestBodyIndex,  largestBodyVel,  largestBodyPos, largestBodyMass, largestBodyRadius,
+        smallestBodyIndex, smallestBodyVel, smallestBodyPos, smallestBodyMass, smallestBodyRadius,
             bParameter, massLargestRemnant, 1, 2);
 
 }
@@ -509,48 +528,54 @@ double density_by_mass_and_radius(double mass, double radius) {
     return 3 * mass / (4 * std::numbers::pi * pow(radius, 3));
 }
 
-void refresh_body(double currentMass, double newMass, double currentRadius,
-    const Vec3 &newVelocity, CelestialBodies *&body) {
+void refresh_body(int indexBody, double currentMass, double newMass, double currentRadius,
+    const Vec3 &newVelocity, CelestialBodies &bodies) {
     double density = density_by_mass_and_radius(currentMass, currentRadius);
-    body->set_mass(newMass);
+    bodies.set_mass(newMass, indexBody);
     double newRadius = radius_by_density_and_mass(newMass, density);
-    body->set_radius(newRadius);
-    body->set_velocity(newVelocity);
+    bodies.set_radius(newRadius, indexBody);
+    bodies.set_velocity(newVelocity, indexBody);
 }
 
-void update_bodies_after_fragmentation(CelestialBodies *&largestBody, CelestialBodies *&smallestBody,
+void update_bodies_after_fragmentation(CelestialBodies &bodies,
+    int largestBodyIndex, Vec3 & largestBodyVel, Vec3 & largestBodyPos, double largestBodyMass, double largestBodyRadius,
+    int smallestBodyIndex, Vec3 &smallestBodyVel, Vec3 &smallestBodyPos, double smallestBodyMass, double smallestBodyRadius,
     double mLR, double mSLR, const Vec3 &newVelLR, const Vec3 &initialMomentum) {
     //el cuerpo más grande se actualiza:
-    refresh_body(largestBody->get_mass(),
-        mLR, largestBody->get_radius(), newVelLR, largestBody);
+    refresh_body(largestBodyIndex, largestBodyMass,
+        mLR, largestBodyRadius, newVelLR, bodies);
     //el cuerpo más pequeño se actualiza
-    refresh_body(smallestBody->get_mass(), mSLR,
-        smallestBody->get_radius(), newVelLR, smallestBody);
+    refresh_body(smallestBodyIndex, smallestBodyMass, mSLR,
+        smallestBodyRadius, newVelLR, bodies);
     //se debe corregir la velocidad del segundo fragmento más grande (SLR):
-    Vec3 newVelSLR = (initialMomentum - largestBody->get_velocity()*largestBody->get_mass())/
-        smallestBody->get_mass();
-    smallestBody->set_velocity(newVelSLR);
+    Vec3 newVelSLR = (initialMomentum - largestBodyVel*largestBodyMass)/
+        smallestBodyMass;
+    smallestBodyVel=newVelSLR;
 
-    fix_positions_after_fragmentation(largestBody, smallestBody);
+    fix_positions_after_fragmentation(largestBodyMass, largestBodyRadius, largestBodyPos,
+     smallestBodyMass, smallestBodyRadius, smallestBodyPos);
 }
 
 //para separar los cuerpos después de la colision
-void fix_positions_after_fragmentation(CelestialBodies *&largestBody, CelestialBodies *&smallestBody) {
-    double penetration = largestBody->get_radius() + smallestBody->get_radius() -
-        (largestBody->get_position()-smallestBody->get_position()).magnitude();
+void fix_positions_after_fragmentation(
+    double largestBodyMass, double largestBodyRadius, Vec3 & largestBodyPos,
+    double smallestBodyMass, double smallestBodyRadius, Vec3 & smallestBodyPos
+    ) {
+    double penetration = largestBodyRadius + smallestBodyRadius -
+        (largestBodyPos-smallestBodyPos).magnitude();
     if (penetration > 0) {
         Vec3 normal;
-        Vec3 delta = smallestBody->get_position() - largestBody->get_position();
+        Vec3 delta = smallestBodyPos - largestBodyPos;
         double dist = delta.magnitude();
         if (dist < 1e-8) normal = Vec3(1,0,0);
         else normal = delta/dist;
-        double totalMass = largestBody->get_mass() + smallestBody->get_mass();
+        double totalMass = largestBodyMass + smallestBodyMass;
 
-        double w1 = smallestBody->get_mass() / totalMass;
-        double w2 = largestBody->get_mass() / totalMass;
+        double w1 = smallestBodyMass / totalMass;
+        double w2 = largestBodyMass / totalMass;
 
-        largestBody->set_position(largestBody->get_position() - normal * penetration * w1);
-        smallestBody->set_position(smallestBody->get_position() + normal * penetration * w2);
+        largestBodyPos = (largestBodyPos - normal * penetration * w1);
+        smallestBodyPos = (smallestBodyPos + normal * penetration * w2);
     }
 }
 
@@ -562,9 +587,9 @@ double mass_largest_remnant_supcat(double specificImpEnergySC, double disruption
     return firstTerm * totalMass * pow(specificImpEnergySC/disruptionEnergy, n);
 }
 
-void compute_remnant_properties_and_velocities(
-    double largestBodyMass, double largestBodyRadius, Vec3 &largestBodyVel,
-    double smallestBodyMass, double smallestBodyRadius, Vec3 &smallestBodyVel,
+void compute_remnant_properties_and_velocities(CelestialBodies &bodies,
+    int largestBodyIndex, Vec3 & largestBodyVel, Vec3 & largestBodyPos, double largestBodyMass, double largestBodyRadius,
+    int smallestBodyIndex, Vec3 &smallestBodyVel, Vec3 &smallestBodyPos, double smallestBodyMass, double smallestBodyRadius,
     double bParameter, double mLR, int N1, int N2) {
     Vec3 initialMomentum = momentum(largestBodyVel, largestBodyMass,
             smallestBodyVel, smallestBodyMass);
@@ -574,18 +599,24 @@ void compute_remnant_properties_and_velocities(
             smallestBodyVel * smallestBodyMass) /
                 (largestBodyMass + smallestBodyMass);
     if (bParameter == 0)//frontal
-        update_bodies_after_fragmentation(largestBody, smallestBody,
+        update_bodies_after_fragmentation(bodies,
+     largestBodyIndex, largestBodyVel,  largestBodyPos, largestBodyMass, largestBodyRadius,
+     smallestBodyIndex, smallestBodyVel, smallestBodyPos, smallestBodyMass, smallestBodyRadius,
             mLR, mSLR, velCM, initialMomentum);
     else if (bParameter > 0.7)
-        update_bodies_after_fragmentation(largestBody, smallestBody,
-            mLR, mSLR, largestBody->get_velocity(), initialMomentum);
+        update_bodies_after_fragmentation(bodies,
+     largestBodyIndex, largestBodyVel,  largestBodyPos, largestBodyMass, largestBodyRadius,
+     smallestBodyIndex, smallestBodyVel, smallestBodyPos, smallestBodyMass, smallestBodyRadius,
+            mLR, mSLR, largestBodyVel, initialMomentum);
     else {
         Vec3 newVelLR;
         if (bParameter < 0.175) newVelLR = velCM * 0.8+ largestBodyVel * 0.2;
         else if (bParameter < 0.35) newVelLR = velCM * 0.6+ largestBodyVel * 0.4;
         else if (bParameter < 0.525) newVelLR = velCM * 0.4+ largestBodyVel * 0.6;
         else newVelLR = velCM * 0.2 + largestBodyVel * 0.8;
-        update_bodies_after_fragmentation(largestBody, smallestBody,
+        update_bodies_after_fragmentation(bodies,
+     largestBodyIndex, largestBodyVel,  largestBodyPos, largestBodyMass, largestBodyRadius,
+     smallestBodyIndex, smallestBodyVel, smallestBodyPos, smallestBodyMass, smallestBodyRadius,
             mLR, mSLR, newVelLR, initialMomentum);
     }
 }
