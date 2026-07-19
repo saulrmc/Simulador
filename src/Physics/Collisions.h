@@ -7,58 +7,40 @@
 #include <vector>
 #include "spatial_structures/Octree/Octree.h"
 #include "../Creation/Creation.h"
-static constexpr double DENSITY = 9511.09; //una densidad de 1000 kg/m^3 en el sistema de unidades del simulador
-static constexpr double MI = 0.5; //Medida de cómo la energía y el momentum del proyectil se acopla al objetivo
-//el valor está entre 1/3 y 2/3. 1/3 es para momentum puro y 2/3 para energía pura. En el paper de donde
-//obtuve este número se representa como el símbolo "mi" griego pero un sombrero encima
+static constexpr double DENSITY = 9511.09;
+static constexpr double MI = 0.5;
 
 
 void collisions_for_bodies(Octree *const &octree,
     CelestialBodies &bodies, int begin, int end);
 void collisions(Octree *const &octree, CelestialBodies &bodies);
-bool overlap_body(const Vec3 &center1, const Vec3 &center2, const double radius1, const double radius2) ;
+bool overlap_body(const Vec3 &center1, const Vec3 &center2, const double radius1, const double radius2);
 bool overlap_node(NodeOctree *const &node, Vec3 &bodyPosition, double bodyRadius);
-// bool overlap(NodeOctree *const &node,  CelestialBody *const& nodeBody,  CelestialBody*const& body);
-Vec3 closest_point(const Vec3 &nodeCenter, double nodeSize, const Vec3 &bodyCenter) ;
-void resolve_collision(CelestialBodies &bodies,
-    int body1Index, double body1Mass, double body1Radius, Vec3 &body1Position, Vec3& body1Velocity,
-    int body2Index, double body2Mass, double body2Radius, Vec3 &body2Position, Vec3& body2Velocity);
-void simplified_resolve_collision(CelestialBodies &bodies,
-    int body1Index, double body1Mass, double body1Radius, Vec3 &body1Position, Vec3& body1Velocity,
-    int body2Index, double body2Mass, double body2Radius, Vec3 &body2Position, Vec3& body2Velocity) ;
+Vec3 closest_point(const Vec3 &nodeCenter, double nodeSize, const Vec3 &bodyCenter);
+void resolve_collision(CelestialBodies &bodies, int body1Index, int body2Index);
+void simplified_resolve_collision(CelestialBodies &bodies, int body1Index, int body2Index);
 
 //regímenes:
 
 void merge_regime(CelestialBodies &bodies,
-    int largestBodyIndex, double largestBodyMass, double largestBodyRadius, Vec3 &largestBodyVel,
-    int smallestBodyIndex, double smallestBodyMass, Vec3 &smallestBodyVel);
+    int largestBodyIndex, int smallestBodyIndex);
 void super_catastrophic_disruption_regime(CelestialBodies &bodies,
-    int largestBodyIndex, double largestBodyMass, double largestBodyRadius, Vec3 &largestBodyVel, Vec3 &largestBodyPos,
-    int smallestBodyIndex, double smallestBodyMass, double smallestBodyRadius, Vec3 &smallestBodyVel, Vec3 &smallestBodyPos,
-    double specificImpEnergySC, double disruptionEnergy, double bParameter);
+    int largestBodyIndex, int smallestBodyIndex, double disruptionEnergy);
 void disruption_regime(CelestialBodies &bodies,
-    int largestBodyIndex,  double largestBodyMass, double largestBodyRadius, Vec3 &largestBodyVel, Vec3 &largestBodyPos,
-    int smallestBodyIndex, double smallestBodyMass, double smallestBodyRadius, Vec3 &smallestBodyVel, Vec3 &smallestBodyPos,
-    double specificImpEnergyErosion, double disruptionEnergy, double bParameter);
+    int largestBodyIndex, int smallestBodyIndex, double disruptionEnergy);
 void hit_and_run_regime(CelestialBodies &bodies,
-    int largestBodyIndex,  double largestBodyMass, double largestBodyRadius, Vec3 &largestBodyVel, Vec3 &largestBodyPos,
-    int smallestBodyIndex, double smallestBodyMass, double smallestBodyRadius, Vec3 &smallestBodyVel, Vec3 &smallestBodyPos,
-    double massInteract, double impactVelocity, double bParameter, double avgDensity) ;
+    int largestBodyIndex, int smallestBodyIndex, double massInteract);
 
 
 //Cálculos para distinguir regímenes:
 
-// double specific_impact_energy(const double mass1, const double mass2, const Vec3 &relativeVelocity);
-// double effective_specific_impact_energy(const double mass1, const double mass2, const Vec3 &vel1, const Vec3 &vel2,
-//     const Vec3& center1, const Vec3& center2);
-double mutual_escape_velocity(double mass1, double mass2, const Vec3 &pos1, const Vec3 &pos2) ;
-double mutual_escape_velocity_mod(double largestMass, double massInteract,  double avgDensity) ;
+double mutual_escape_velocity(double mass1, double mass2, const Vec3 &pos1, const Vec3 &pos2);
+double mutual_escape_velocity_mod(double largestMass, double massInteract, double avgDensity);
 double catastrophic_disruption_criterion(const Vec3 &vel1, const Vec3 &vel2, double combinedRadius,
-    double avgDensity) ;
-double collision_timescale(double radius1, double radius2, double distance, double relativeVelocity) ;
+    double avgDensity);
+double collision_timescale(double radius1, double radius2, double distance, double relativeVelocity);
 double collision_angle(const Vec3 &vel1, const Vec3 &vel2, const Vec3& center1, const Vec3& center2);
-double mass_interact(double largestBodyMass, double largestBodyRadius, Vec3 &largestBodyPosition, Vec3 &largestBodyVelocity,
-    double smallestBodyMass, double smallestBodyRadius, Vec3 &smallestBodyPosition, Vec3 &smallestBodyVelocity);
+double mass_interact(CelestialBodies &bodies, int largestBodyIndex, int smallestBodyIndex);
 double disruption_curve(double combinedRadius, double avgDensity);
 double critical_impact_velocity_mod(double combinedRadius, double avgDensity);
 double disruption_criterion(double disruptionCurve, double relationMass);
@@ -66,26 +48,19 @@ double critical_impact_velocity(double criticalImpVelMod, double relationMass);
 double disruption_energy_by_angle(double disruptionCriterion, double reducedMass, double reducedMassMod);
 double specific_impact_energy(double massLR, double disruptionEnergy, double largestMass, double smallestMass);
 double specific_impact_energy(double reducedMass, double impactVelocity, double totalMass);
-double impact_velocity(double reducedMass, double specificImpEnergy, double totalMass) ;
-double mass_largest_remnant(double specificImpEnergyErosion, double disruptionEnergy, double totalMass) ;
+double impact_velocity(double reducedMass, double specificImpEnergy, double totalMass);
+double mass_largest_remnant(double specificImpEnergyErosion, double disruptionEnergy, double totalMass);
 double mass_second_largest_remnant(double mLR, double totalMass, int N1, int N2);
-Vec3 momentum(const Vec3 &vel1, double mass1, const Vec3 &vel2, double mass2) ;
+Vec3 momentum(const Vec3 &vel1, double mass1, const Vec3 &vel2, double mass2);
 Vec3 velCM(const Vec3 &vel1, double mass1, const Vec3 &vel2, double mass2);
-double radius_by_density_and_mass(double mass, double density) ;
-double density_by_mass_and_radius(double mass, double radius) ;
-void refresh_body(int indexBody, double currentMass, double newMass, double currentRadius,
-    const Vec3 &newVelocity, CelestialBodies &bodies) ;
-void update_bodies_after_fragmentation(CelestialBodies &bodies,
-    int largestBodyIndex, Vec3 & largestBodyVel, Vec3 & largestBodyPos, double largestBodyMass, double largestBodyRadius,
-    int smallestBodyIndex, Vec3 &smallestBodyVel, Vec3 &smallestBodyPos, double smallestBodyMass, double smallestBodyRadius,
-    double mLR, double mSLR, const Vec3 &newVelLR, const Vec3 &initialMomentum) ;
-void fix_positions_after_fragmentation(double largestBodyMass, double largestBodyRadius, Vec3 & largestBodyPos,
-    double smallestBodyMass, double smallestBodyRadius, Vec3 & smallestBodyPos);
+double radius_by_density_and_mass(double mass, double density);
+double density_by_mass_and_radius(double mass, double radius);
+void refresh_body(CelestialBodies &bodies, int indexBody, double newMass,
+    const Vec3 &newVelocity);
+void fix_positions_after_fragmentation(CelestialBodies &bodies,
+    int largestBodyIndex, int smallestBodyIndex);
 double mass_largest_remnant_supcat(double specificImpEnergySC, double disruptionEnergy,
     double totalMass);
 void compute_remnant_properties_and_velocities(CelestialBodies &bodies,
-    int largestBodyIndex, Vec3 & largestBodyVel, Vec3 & largestBodyPos, double largestBodyMass, double largestBodyRadius,
-    int smallestBodyIndex, Vec3 &smallestBodyVel, Vec3 &smallestBodyPos, double smallestBodyMass, double smallestBodyRadius,
-    double bParameter, double mLR, int N1, int N2) ;
+    int largestBodyIndex, int smallestBodyIndex, double mLR, int N1, int N2);
 #endif //SIMULADORGRAVITACIONAL_COLLISIONS_H
-

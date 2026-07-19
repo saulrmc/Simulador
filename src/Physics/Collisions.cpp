@@ -6,21 +6,8 @@
 
 #include <iostream>
 
-// void collisions_for_range(Octree*const &octree,
-//     std::vector<CelestialBodies *> &bodies, int begin, int end) {
-//     for (int i=begin; i<end; i++) {
-//         octree->query_region(overlap_node,
-//                              resolve_collision, bodies[i], bodies);
-//     }
-// }
 void collisions(Octree *const &octree, CelestialBodies &bodies) {
-    // std::chrono::duration<double, std::micro> total_time(0);
-    // auto start = std::chrono::high_resolution_clock::now();
     octree->query_region(overlap_node, resolve_collision, bodies, bodies);
-    // auto end = std::chrono::high_resolution_clock::now();
-    // total_time = end - start;
-    // std::cout << std::endl << "Tiempo de colisiones en microsegundos : "
-    // << total_time.count() << std::endl;
 }
 
 bool overlap_body(const Vec3 &center1, const Vec3 &center2, const double radius1, const double radius2) {
@@ -29,7 +16,6 @@ bool overlap_body(const Vec3 &center1, const Vec3 &center2, const double radius1
 }
 
 bool overlap_node(NodeOctree *const &node, Vec3 &bodyPosition, double bodyRadius) {
-    //para determinar si el cuerpo atraviesa parcialmente el espacio en otro nodo...
     Vec3 closestPoint = closest_point(node->get_node_center(), node->get_node_size(),
         bodyPosition);
     double distance = closestPoint.distance(bodyPosition);
@@ -37,17 +23,6 @@ bool overlap_node(NodeOctree *const &node, Vec3 &bodyPosition, double bodyRadius
     return false;
 }
 
-// bool overlap(NodeOctree *const &node,  CelestialBody *const& nodeBody,  CelestialBody*const& body) {
-//     if (!overlap_node(node->get_node_center(), node->get_node_size(),
-//                       body->get_position(), body->get_radius()))
-//         return false;
-//     if (nodeBody and body)
-//         return overlap_body(nodeBody->get_position(), body->get_position(),
-//                             nodeBody->get_radius(), body->get_radius());
-//     return false;
-// }
-
-//el punto más cercano de un nodo a un cuerpo
 Vec3 closest_point(const Vec3 &nodeCenter, double nodeSize, const Vec3 &bodyCenter) {
     Vec3 closestPoint;
     if (nodeCenter.get_x() - nodeSize/2 < bodyCenter.get_x() and
@@ -73,32 +48,6 @@ Vec3 closest_point(const Vec3 &nodeCenter, double nodeSize, const Vec3 &bodyCent
 
     return closestPoint;
 }
-//
-// Vec3 closest_point(NodeOctree<CelestialBody> *const &node, double nodeSize, const Vec3 &bodyCenter) {
-//     Vec3 closestPoint;
-//     if (node->get_frontier_x_min() < bodyCenter.get_x() and
-//         node->get_frontier_x_max() > bodyCenter.get_x())
-//         closestPoint.set_x(bodyCenter.get_x());
-//     else if (node->get_node_centerX() < bodyCenter.get_x())
-//         closestPoint.set_x(node->get_frontier_x_max());
-//     else closestPoint.set_x(node->get_frontier_x_min());
-//
-//     if (node->get_frontier_y_min() < bodyCenter.get_y() and
-//         node->get_frontier_y_max() > bodyCenter.get_y())
-//         closestPoint.set_y(bodyCenter.get_y());
-//     else if (node->get_node_centerY() < bodyCenter.get_y())
-//         closestPoint.set_y(node->get_frontier_y_max());
-//     else closestPoint.set_y(node->get_frontier_y_min());
-//
-//     if (node->get_frontier_z_min() < bodyCenter.get_z() and
-//         node->get_frontier_z_max() > bodyCenter.get_z())
-//         closestPoint.set_z(bodyCenter.get_z());
-//     else if (node->get_node_centerZ() < bodyCenter.get_z())
-//         closestPoint.set_z(node->get_frontier_z_max());
-//     else closestPoint.set_z(node->get_frontier_z_min());
-//
-//     return closestPoint;
-// }
 
 /*  Modelo de colisiones obtenido de:
  *  Leinhardt, Z. M., & Stewart, S. T. (2012).
@@ -107,106 +56,83 @@ Vec3 closest_point(const Vec3 &nodeCenter, double nodeSize, const Vec3 &bodyCent
  */
 
 //Algoritmo adaptado de: A.1. A General Formulation for Collision Outcomes de Leinhardt & Stewart (2012)
-void simplified_resolve_collision(CelestialBodies &bodies,
-    int body1Index, double body1Mass, double body1Radius, Vec3 &body1Position, Vec3& body1Velocity,
-    int body2Index, double body2Mass, double body2Radius, Vec3 &body2Position, Vec3& body2Velocity) {
-    if (body1Mass <= 0 || body2Mass <= 0) return;
-    if (body1Radius <= 0 || body2Radius <= 0) return;
-    bool overlap = overlap_body(body1Position, body2Position,
-        body1Radius, body2Radius);
+void simplified_resolve_collision(CelestialBodies &bodies, int body1Index, int body2Index) {
+    if (bodies.get_mass(body1Index) <= 0 || bodies.get_mass(body2Index) <= 0) return;
+    if (bodies.get_radius(body1Index) <= 0 || bodies.get_radius(body2Index) <= 0) return;
+    bool overlap = overlap_body(
+        bodies.get_position(body1Index), bodies.get_position(body2Index),
+        bodies.get_radius(body1Index), bodies.get_radius(body2Index));
     if (!overlap) return;
-    Vec3 normal = (body2Position - body1Position).normalize();
-    Vec3 relVel = body2Velocity - body1Velocity;
+    Vec3 normal = (bodies.get_position(body2Index) - bodies.get_position(body1Index)).normalize();
+    Vec3 relVel = bodies.get_velocity(body2Index) - bodies.get_velocity(body1Index);
     if (relVel.dot(normal) >= 0) {
-        return; //significa que se están separando
+        return;
     }
 
-    int largestBody = (body1Mass >= body2Mass) ? body1Index : body2Index; //body1 va a ser el mas grande
-    int smallestBody = (body1Mass >= body2Mass) ? body2Index : body1Index;
-    body1Mass = bodies.get_mass(largestBody);
-    body1Radius = bodies.get_radius(largestBody);
-    body1Position = bodies.get_position(largestBody);
-    body1Velocity = bodies.get_velocity(largestBody);
+    int largestBody = (bodies.get_mass(body1Index) >= bodies.get_mass(body2Index)) ? body1Index : body2Index;
+    int smallestBody = (bodies.get_mass(body1Index) >= bodies.get_mass(body2Index)) ? body2Index : body1Index;
 
-    body2Mass = bodies.get_mass(smallestBody);
-    body2Radius = bodies.get_radius(smallestBody);
-    body2Position = bodies.get_position(smallestBody);
-    body2Velocity = bodies.get_velocity(smallestBody);
+    if (bodies.get_radius(largestBody) + bodies.get_radius(smallestBody)
+        - (bodies.get_position(largestBody) - bodies.get_position(smallestBody)).magnitude() >= 0) {
 
-    if (body1Radius + body2Radius
-        - (body1Position - body2Position).magnitude() >= 0)
-        //std::cout << "colision detectada" <<std::endl;
-    double totalMass = body2Mass + body1Mass;
-    const double relativeVelocity = (body1Velocity - body2Velocity).magnitude();
-    double massInteract = mass_interact(
-        body1Mass, body1Radius, body1Position, body1Velocity,
-        body2Mass, body2Radius, body2Position, body2Velocity);
-    //std::cout << "masa a interactuar: " << massInteract << std::endl;
-    double density1 = density_by_mass_and_radius(body1Mass, body1Radius);
-    double density2 = density_by_mass_and_radius(body2Mass, body2Radius);
-    double avgDensity = (density1 + density2)/2;
-    const double mutualEscapeVelMod = mutual_escape_velocity_mod(
-        body1Mass, massInteract, avgDensity);
+        const double relativeVelocity =
+            (bodies.get_velocity(largestBody) - bodies.get_velocity(smallestBody)).magnitude();
+        double massInteract = mass_interact(bodies, largestBody, smallestBody);
+        double density1 = density_by_mass_and_radius(bodies.get_mass(largestBody), bodies.get_radius(largestBody));
+        double density2 = density_by_mass_and_radius(bodies.get_mass(smallestBody), bodies.get_radius(smallestBody));
+        double avgDensity = (density1 + density2)/2;
+        const double mutualEscapeVelMod = mutual_escape_velocity_mod(
+            bodies.get_mass(largestBody), massInteract, avgDensity);
 
-
-    //básicamente un merge o hit-and-run
-    if (relativeVelocity < mutualEscapeVelMod) merge_regime(bodies,
-        body1Index, body1Mass, body1Radius, body1Velocity,
-        body2Index, body2Mass, body1Velocity);
-    else {
-        double collisionAngle = collision_angle(body1Velocity,
-        body2Velocity, body1Position, body2Position);
-        double bParameter = sin(collisionAngle);
-        double bCrit = body1Radius/(body1Radius + body2Radius);
-        bool grazingImpact = true;
-        if (bParameter < bCrit) grazingImpact = false;
-        if (grazingImpact)
-            hit_and_run_regime(bodies,
-     largestBody,  body1Mass, body1Radius, body1Velocity, body1Position,
-     smallestBody,  body2Mass, body2Radius, body2Velocity, body2Position,
-                massInteract, relativeVelocity, bParameter, avgDensity);
-        else merge_regime(bodies, body1Index,  body1Mass, body1Radius, body1Velocity,
-            body2Index, body2Mass, body2Velocity);
+        if (relativeVelocity < mutualEscapeVelMod) merge_regime(bodies, largestBody, smallestBody);
+        else {
+            double collisionAngle = collision_angle(
+                bodies.get_velocity(largestBody), bodies.get_velocity(smallestBody),
+                bodies.get_position(largestBody), bodies.get_position(smallestBody));
+            double bParameter = sin(collisionAngle);
+            double bCrit = bodies.get_radius(largestBody)/
+                (bodies.get_radius(largestBody) + bodies.get_radius(smallestBody));
+            bool grazingImpact = (bParameter >= bCrit);
+            if (grazingImpact)
+                hit_and_run_regime(bodies, largestBody, smallestBody, massInteract);
+            else merge_regime(bodies, largestBody, smallestBody);
+        }
     }
-
 }
 
 //Algoritmo adaptado de: A.1. A General Formulation for Collision Outcomes de Leinhardt & Stewart (2012)
-void resolve_collision(CelestialBodies &bodies,
-    int body1Index, double body1Mass, double body1Radius, Vec3 &body1Position, Vec3& body1Velocity,
-    int body2Index, double body2Mass, double body2Radius, Vec3 &body2Position, Vec3& body2Velocity) {
-    if (body1Mass <= 0 || body2Mass <= 0) return;
-    if (body1Radius <= 0 || body2Radius <= 0) return;
-    bool overlap = overlap_body(body1Position, body2Position,
-        body1Radius, body2Radius);
+void resolve_collision(CelestialBodies &bodies, int body1Index, int body2Index) {
+    if (bodies.get_mass(body1Index) <= 0 || bodies.get_mass(body2Index) <= 0) return;
+    if (bodies.get_radius(body1Index) <= 0 || bodies.get_radius(body2Index) <= 0) return;
+    bool overlap = overlap_body(
+        bodies.get_position(body1Index), bodies.get_position(body2Index),
+        bodies.get_radius(body1Index), bodies.get_radius(body2Index));
     if (!overlap) return;
-    Vec3 normal = (body2Position - body1Position).normalize();
-    Vec3 relVel = body2Velocity - body1Velocity;
+    Vec3 normal = (bodies.get_position(body2Index) - bodies.get_position(body1Index)).normalize();
+    Vec3 relVel = bodies.get_velocity(body2Index) - bodies.get_velocity(body1Index);
     if (relVel.dot(normal) >= 0) {
-        return; //significa que se están separando
+        return;
     }
 
-    int largestBody = (body1Mass >= body2Mass) ? body1Index : body2Index; //body1 va a ser el mas grande
-    int smallestBody = (body1Mass >= body2Mass) ? body2Index : body1Index;
-    body1Mass = bodies.get_mass(largestBody);
-    body1Radius = bodies.get_radius(largestBody);
-    body1Position = bodies.get_position(largestBody);
-    body1Velocity = bodies.get_velocity(largestBody);
+    int largestBody = (bodies.get_mass(body1Index) >= bodies.get_mass(body2Index)) ? body1Index : body2Index;
+    int smallestBody = (bodies.get_mass(body1Index) >= bodies.get_mass(body2Index)) ? body2Index : body1Index;
 
-    body2Mass = bodies.get_mass(smallestBody);
-    body2Radius = bodies.get_radius(smallestBody);
-    body2Position = bodies.get_position(smallestBody);
-    body2Velocity = bodies.get_velocity(smallestBody);
+    double body1Mass = bodies.get_mass(largestBody);
+    double body1Radius = bodies.get_radius(largestBody);
+    Vec3 body1Position = bodies.get_position(largestBody);
+    Vec3 body1Velocity = bodies.get_velocity(largestBody);
+
+    double body2Mass = bodies.get_mass(smallestBody);
+    double body2Radius = bodies.get_radius(smallestBody);
+    Vec3 body2Position = bodies.get_position(smallestBody);
+    Vec3 body2Velocity = bodies.get_velocity(smallestBody);
 
     if (body1Radius + body2Radius
         - (body1Position - body2Position).magnitude() >= 0)
         std::cout << "colision detectada" <<std::endl;
     double totalMass = body2Mass + body1Mass;
     const double relativeVelocity = (body1Velocity - body2Velocity).magnitude();
-    double massInteract = mass_interact(
-        body1Mass, body1Radius, body1Position, body1Velocity,
-        body2Mass, body2Radius, body2Position, body2Velocity);
-    std::cout << "masa a interactuar: " << massInteract << std::endl;
+    double massInteract = mass_interact(bodies, largestBody, smallestBody);
     double density1 = density_by_mass_and_radius(body1Mass, body1Radius);
     double density2 = density_by_mass_and_radius(body2Mass, body2Radius);
     double avgDensity = (density1 + density2)/2;
@@ -214,22 +140,16 @@ void resolve_collision(CelestialBodies &bodies,
         body1Mass, massInteract, avgDensity);
 
     if (relativeVelocity < mutualEscapeVelMod) {
-        merge_regime(bodies,
-        body1Index, body1Mass, body1Radius, body1Velocity,
-        body2Index, body2Mass, body1Velocity);
+        merge_regime(bodies, largestBody, smallestBody);
         return;
     }
 
-    //calcular b_crit, si b < b_crit el impacto es no rozante (no es posible un hit-run)
     double collisionAngle = collision_angle(body1Velocity,
         body2Velocity, body1Position, body2Position);
     double bParameter = sin(collisionAngle);
     double bCrit = body1Radius/(body1Radius + body2Radius);
-    bool grazingImpact = true;
+    bool grazingImpact = (bParameter >= bCrit);
 
-    if (bParameter < bCrit) grazingImpact = false;
-
-    //calcular el criterio de disrupción catastrófica y la velocidad crítica de impacto
     const double combinedRadius =
         pow(body1Radius *body1Radius * body1Radius + body2Radius * body2Radius * body2Radius, 1.0/3);
     double criticalImpVelMod = critical_impact_velocity_mod(combinedRadius, avgDensity);
@@ -243,57 +163,41 @@ void resolve_collision(CelestialBodies &bodies,
         body2Mass/body1Mass);
     double disruptionEnergy = disruption_energy_by_angle(disruptionCriterion,
         reducedMass, reducedMassMod);
-    double criticalImpVelByAngle = impact_velocity(disruptionEnergy,
-        totalMass, reducedMass);
-        double specificImpEnergyErosion = specific_impact_energy(
-        body1Mass, disruptionEnergy,
-        body1Mass, body2Mass);
-
-    double vErosion = impact_velocity(reducedMass, specificImpEnergyErosion,
+    double vErosion = impact_velocity(reducedMass,
+        specific_impact_energy(body1Mass, disruptionEnergy, body1Mass, body2Mass),
         totalMass);
     double specificImpEnergySC = specific_impact_energy(0.1 * totalMass,
-    disruptionEnergy, body1Mass, body2Mass);
+        disruptionEnergy, body1Mass, body2Mass);
     double vSupercat = impact_velocity(reducedMass, specificImpEnergySC, totalMass);
-    double actualImpactEnergy = specific_impact_energy(reducedMass,
-        relativeVelocity, totalMass);
 
     if (relativeVelocity > vSupercat) super_catastrophic_disruption_regime(bodies,
-    largestBody, body1Mass, body1Radius, body1Velocity, body1Position,
-    smallestBody, body2Mass, body2Radius, body2Velocity, body2Position,
-    actualImpactEnergy, disruptionEnergy, bParameter);
+        largestBody, smallestBody, disruptionEnergy);
     else if (relativeVelocity > vErosion) disruption_regime(bodies,
-    largestBody, body1Mass, body1Radius, body1Velocity, body1Position,
-    smallestBody, body2Mass, body2Radius, body2Velocity, body2Position,
-        actualImpactEnergy, disruptionEnergy, bParameter);
+        largestBody, smallestBody, disruptionEnergy);
     else {
         if (!grazingImpact) disruption_regime(bodies,
-    largestBody, body1Mass, body1Radius, body1Velocity, body1Position,
-    smallestBody, body2Mass, body2Radius, body2Velocity, body2Position,
-            actualImpactEnergy, disruptionEnergy, bParameter);
-        else hit_and_run_regime( bodies,
-     largestBody,  body1Mass, body1Radius, body1Velocity, body1Position,
-     smallestBody,  body2Mass, body2Radius, body2Velocity, body2Position,
-                massInteract, relativeVelocity, bParameter, avgDensity);
+            largestBody, smallestBody, disruptionEnergy);
+        else hit_and_run_regime(bodies,
+            largestBody, smallestBody, massInteract);
     }
 }
 
 //Régimen de fusión obtenido de: Leinhardt & Stewart (2012)
 void merge_regime(CelestialBodies &bodies,
-    int largestBodyIndex, double largestBodyMass, double largestBodyRadius, Vec3 &largestBodyVel,
-    int smallestBodyIndex, double smallestBodyMass, Vec3 &smallestBodyVel) {
-    //se debe conservar el momento lineal
-    Vec3 initialMomentum = momentum(largestBodyVel, largestBodyMass,
-        smallestBodyVel, smallestBodyMass);
-    double density = density_by_mass_and_radius(largestBodyMass, largestBodyRadius);
-    bodies.set_mass(largestBodyMass + smallestBodyMass, largestBodyIndex);//absorbe al otro cuerpo
-    bodies.set_velocity(initialMomentum/largestBodyMass, largestBodyIndex);//conservación el momentum
-    double newRadius = radius_by_density_and_mass(largestBodyMass, density);//se ajusta el nuevo radio
+    int largestBodyIndex, int smallestBodyIndex) {
+    double massL = bodies.get_mass(largestBodyIndex);
+    double massS = bodies.get_mass(smallestBodyIndex);
+    double radiusL = bodies.get_radius(largestBodyIndex);
+    Vec3 velL = bodies.get_velocity(largestBodyIndex);
+    Vec3 velS = bodies.get_velocity(smallestBodyIndex);
+
+    Vec3 initialMomentum = momentum(velL, massL, velS, massS);
+    double density = density_by_mass_and_radius(massL, radiusL);
+    bodies.set_mass(massL + massS, largestBodyIndex);
+    bodies.set_velocity(initialMomentum/(massL + massS), largestBodyIndex);
+    double newRadius = radius_by_density_and_mass(massL + massS, density);
     bodies.set_radius(newRadius, largestBodyIndex);
     delete_body(bodies, smallestBodyIndex);
-    //como la función anterior solo borra el cuerpo del vector entonces ahora el puntero
-    //smallesBody apunta a un cuerpo que no está en el vector pero aun EXISTE.
-    //Para evitar llamar a una función del octree y limpiar este cuerpo lo más rápido
-    //es setear sus valores en 0 y que en la siguiente reinserción de cuerpos en el arbol
     bodies.set_mass(0, smallestBodyIndex);
     bodies.set_velocity(Vec3(0, 0, 0), smallestBodyIndex);
     bodies.set_radius(0, smallestBodyIndex);
@@ -302,90 +206,72 @@ void merge_regime(CelestialBodies &bodies,
 
 //Régimen super catastrófico obtenido de: Leinhardt & Stewart (2012)
 void super_catastrophic_disruption_regime(CelestialBodies &bodies,
-    int largestBodyIndex, double largestBodyMass, double largestBodyRadius, Vec3 &largestBodyVel, Vec3 &largestBodyPos,
-    int smallestBodyIndex, double smallestBodyMass, double smallestBodyRadius, Vec3 &smallestBodyVel, Vec3 &smallestBodyPos,
-    double specificImpEnergySC, double disruptionEnergy, double bParameter) {
-    double mLR = mass_largest_remnant_supcat(specificImpEnergySC, disruptionEnergy,
-        largestBodyMass+smallestBodyMass);
+    int largestBodyIndex, int smallestBodyIndex, double disruptionEnergy) {
+    double massL = bodies.get_mass(largestBodyIndex);
+    double massS = bodies.get_mass(smallestBodyIndex);
+    double totalMass = massL + massS;
+    double reducedMass = massL * massS / totalMass;
+    double relativeVelocity =
+        (bodies.get_velocity(largestBodyIndex) - bodies.get_velocity(smallestBodyIndex)).magnitude();
+    double actualImpactEnergy = specific_impact_energy(reducedMass, relativeVelocity, totalMass);
+    double mLR = mass_largest_remnant_supcat(actualImpactEnergy, disruptionEnergy, totalMass);
     compute_remnant_properties_and_velocities(bodies,
-    largestBodyIndex, largestBodyVel, largestBodyPos,  largestBodyMass,  largestBodyRadius,
-    smallestBodyIndex, smallestBodyVel, smallestBodyPos, smallestBodyMass, smallestBodyRadius,
-    bParameter, mLR, 1, 2);
+        largestBodyIndex, smallestBodyIndex, mLR, 1, 2);
 }
 
-//Régimen de distrupción obtenido de: Leinhardt & Stewart (2012)
+//Régimen de disrupción obtenido de: Leinhardt & Stewart (2012)
 void disruption_regime(CelestialBodies &bodies,
-    int largestBodyIndex,  double largestBodyMass, double largestBodyRadius, Vec3 &largestBodyVel, Vec3 &largestBodyPos,
-    int smallestBodyIndex, double smallestBodyMass, double smallestBodyRadius, Vec3 &smallestBodyVel, Vec3 &smallestBodyPos,
-    double specificImpEnergyErosion, double disruptionEnergy, double bParameter) {
-    //El régimen de disrupción incluye:
-    //- El régimen de acreción parcial en el cual la masa del mayor remanente (mLR)
-    //es mayor a la masa del cuerpo más grande
-    //- El régimen de disrupción catastrófica en el cual la masa del remanente más grande es
-    //la mitad de la masa del cuerpo más grande
-    //- El régimen de erosión en el cual la masa del remanente más grande es
-    //menor que la masa del cuerpo más grande
+    int largestBodyIndex, int smallestBodyIndex, double disruptionEnergy) {
+    double massL = bodies.get_mass(largestBodyIndex);
+    double massS = bodies.get_mass(smallestBodyIndex);
+    double totalMass = massL + massS;
+    double specificImpEnergyErosion = specific_impact_energy(
+        massL, disruptionEnergy, massL, massS);
     double mLR = mass_largest_remnant(specificImpEnergyErosion,
-        disruptionEnergy, largestBodyMass + smallestBodyMass);
+        disruptionEnergy, totalMass);
     compute_remnant_properties_and_velocities(bodies,
-        largestBodyIndex,  largestBodyVel,  largestBodyPos, largestBodyMass, largestBodyRadius,
-        smallestBodyIndex, smallestBodyVel, smallestBodyPos, smallestBodyMass, smallestBodyRadius,
-        bParameter, mLR, 1, 2);
+        largestBodyIndex, smallestBodyIndex, mLR, 1, 2);
 }
 
 //Régimen hit-and-run obtenido de: Leinhardt & Stewart (2012)
 void hit_and_run_regime(CelestialBodies &bodies,
-    int largestBodyIndex,  double largestBodyMass, double largestBodyRadius, Vec3 &largestBodyVel, Vec3 &largestBodyPos,
-    int smallestBodyIndex, double smallestBodyMass, double smallestBodyRadius, Vec3 &smallestBodyVel, Vec3 &smallestBodyPos,
-    double massInteract, double impactVelocity, double bParameter, double avgDensity) {
-    //a pesar de que los nombres son similares a las variables que se calcularon antes en realidad
-    //este régimen tiene sus propias variables
-    double density = density_by_mass_and_radius(smallestBodyMass, smallestBodyRadius);
-    double combRadius = radius_by_density_and_mass(smallestBodyMass + massInteract, density);
+    int largestBodyIndex, int smallestBodyIndex, double massInteract) {
+    double massL = bodies.get_mass(largestBodyIndex);
+    double massS = bodies.get_mass(smallestBodyIndex);
+    double radiusL = bodies.get_radius(largestBodyIndex);
+    double radiusS = bodies.get_radius(smallestBodyIndex);
+    Vec3 velL = bodies.get_velocity(largestBodyIndex);
+    Vec3 velS = bodies.get_velocity(smallestBodyIndex);
+
+    const double impactVelocity = (velL - velS).magnitude();
+    double density = density_by_mass_and_radius(massS, radiusS);
+    double combRadius = radius_by_density_and_mass(massS + massInteract, density);
+    double densityL = density_by_mass_and_radius(massL, radiusL);
+    double densityS = density_by_mass_and_radius(massS, radiusS);
+    double avgDensity = (densityL + densityS)/2;
+    // double bParameter = sin(collision_angle(velL, velS,
+    //     bodies.get_position(largestBodyIndex), bodies.get_position(smallestBodyIndex)));
     double disruptionCurve = disruption_curve(combRadius, avgDensity);
     double critImpVelMod = critical_impact_velocity_mod(combRadius, avgDensity);
-    double reducedMass = smallestBodyMass*massInteract/
-        (smallestBodyMass + massInteract);
-    double relationMass = massInteract / smallestBodyMass;
+    double reducedMass = massS * massInteract/
+        (massS + massInteract);
+    double relationMass = massInteract / massS;
     double disruptionCriterion = disruption_criterion(disruptionCurve, relationMass);
     double critImpVel = critical_impact_velocity(critImpVelMod, relationMass);
     double specificImpEnergy = specific_impact_energy(reducedMass, impactVelocity,
-        smallestBodyMass + massInteract);
+        massS + massInteract);
     double massLargestRemnant = mass_largest_remnant(specificImpEnergy,
-        disruptionCriterion, smallestBodyMass + massInteract);
+        disruptionCriterion, massS + massInteract);
     if (relationMass < 1.1 and relationMass > 0.9) {
-        //usar N1 = 2 y N2 = 4
         compute_remnant_properties_and_velocities(bodies,
-        largestBodyIndex,  largestBodyVel,  largestBodyPos, largestBodyMass, largestBodyRadius,
-        smallestBodyIndex, smallestBodyVel, smallestBodyPos, smallestBodyMass, smallestBodyRadius,
-            bParameter, massLargestRemnant, 2, 4);
+            largestBodyIndex, smallestBodyIndex, massLargestRemnant, 2, 4);
     }
     else compute_remnant_properties_and_velocities(bodies,
-        largestBodyIndex,  largestBodyVel,  largestBodyPos, largestBodyMass, largestBodyRadius,
-        smallestBodyIndex, smallestBodyVel, smallestBodyPos, smallestBodyMass, smallestBodyRadius,
-            bParameter, massLargestRemnant, 1, 2);
-
+        largestBodyIndex, smallestBodyIndex, massLargestRemnant, 1, 2);
 }
 
 
 //Cálculos para distinguir regímenes:
-
-// double specific_impact_energy(const double mass1, const double mass2, const Vec3 &relativeVelocity) {
-//     //se obtiene dividiendo la energía total de los dos cuerpos cambiada al sistema del centro de masa por
-//     //la masa total de dicho sistema
-//     const double reducedMass = mass1*mass2/(mass1+mass2);
-//     return 1.0/2*reducedMass*relativeVelocity.dot(relativeVelocity)/(mass1 + mass2);
-// }
-
-// double effective_specific_impact_energy(const double mass1, const double mass2, const Vec3 &vel1, const Vec3 &vel2,
-//     const Vec3& center1, const Vec3& center2) {
-//     //aunque en realidad en cálculo debería ser con las partes de las masas que van a interactuar pero... :/
-//     const Vec3 relativeVelocity = vel1-vel2;
-//     const Vec3 distance = center1-center2;
-//     double energy = specific_impact_energy(mass1, mass2, relativeVelocity);
-//     double cos_angle = relativeVelocity.dot(distance)/(relativeVelocity.magnitude()*distance.magnitude());
-//     return energy*cos_angle*cos_angle;
-// }
 
 double mutual_escape_velocity(double mass1, double mass2, const Vec3 &pos1, const Vec3 &pos2) {
     double distance = (pos2 - pos1).magnitude();
@@ -401,12 +287,9 @@ double mutual_escape_velocity_mod(double largestMass, double massInteract, doubl
 
 double catastrophic_disruption_criterion(const Vec3 &vel1, const Vec3 &vel2, double combinedRadius,
     double avgDensity) {
-    // se asume que el régimen de fuerza es despreciable para satélites, planetas y demás cuerpos más masivos...
-
     const Vec3 relativeVelocity = vel1-vel2;
-    //POR AHORA se va a asumir que los cuerpos son de densidades iguales
-    const double q_g = 1; //coeficiente adimensional con valor cercano a 1
-    const double density = avgDensity; //densidad arbitraria entre los dos cuerpos
+    const double q_g = 1;
+    const double density = avgDensity;
     const double mi = MI;
 
     return q_g * pow(density * units::G, 3.0*mi/2) * pow(combinedRadius, 3*mi)
@@ -422,7 +305,6 @@ double collision_angle(const Vec3 &vel1, const Vec3 &vel2, const Vec3& center1, 
     const Vec3 relativeVelocity = vel1 - vel2;
     const Vec3 distance = center1-center2;
     double cos_angle = relativeVelocity.dot(distance)/(relativeVelocity.magnitude()*distance.magnitude());
-    //cos_angle = (cos_angle < 0) ? -cos_angle : cos_angle;
     cos_angle = (cos_angle <= -1)? -1: cos_angle;
     cos_angle = (cos_angle >= 1)? 1: cos_angle;
     double angle = acos(cos_angle);
@@ -430,30 +312,28 @@ double collision_angle(const Vec3 &vel1, const Vec3 &vel2, const Vec3& center1, 
 }
 
 //Adaptado de: Leinhardt & Stewart (2012). Ecuación (10)
-double mass_interact(double largestBodyMass, double largestBodyRadius, Vec3 &largestBodyPosition, Vec3 &largestBodyVelocity,
-    double smallestBodyMass, double smallestBodyRadius, Vec3 &smallestBodyPosition, Vec3 &smallestBodyVelocity) {
-    double collisionAngle = collision_angle(
-        largestBodyVelocity,
-        smallestBodyVelocity,
-        largestBodyPosition,
-        smallestBodyPosition
-        );
-    double l_parameter = largestBodyRadius == smallestBodyRadius?
-    (largestBodyPosition - smallestBodyPosition).magnitude()* (1 - sin(collisionAngle))
-    :
-    (largestBodyRadius - smallestBodyRadius)*(1 - sin(collisionAngle));
-    double density1 = density_by_mass_and_radius(largestBodyMass, largestBodyRadius);
-    double density2 = density_by_mass_and_radius(smallestBodyMass, smallestBodyRadius);
+double mass_interact(CelestialBodies &bodies, int largestBodyIndex, int smallestBodyIndex) {
+    double massL = bodies.get_mass(largestBodyIndex);
+    double radiusL = bodies.get_radius(largestBodyIndex);
+    Vec3 posL = bodies.get_position(largestBodyIndex);
+    Vec3 velL = bodies.get_velocity(largestBodyIndex);
+    double massS = bodies.get_mass(smallestBodyIndex);
+    double radiusS = bodies.get_radius(smallestBodyIndex);
+    Vec3 posS = bodies.get_position(smallestBodyIndex);
+    Vec3 velS = bodies.get_velocity(smallestBodyIndex);
+
+    double collisionAngle = collision_angle(velL, velS, posL, posS);
+    double l_parameter = (posL - posS).magnitude() * (1 - sin(collisionAngle));
+    double density1 = density_by_mass_and_radius(massL, radiusL);
+    double density2 = density_by_mass_and_radius(massS, radiusS);
     double avgDensity = (density1 + density2)/2;
     return avgDensity * std::numbers::pi * l_parameter*l_parameter *
-        (smallestBodyRadius - l_parameter/3.0);
+        (radiusS - l_parameter/3.0);
 }
 
 //Obtenido de: Leinhardt & Stewart (2012). Ecuación (28)
 double disruption_curve(double combinedRadius, double avgDensity) {
-    double c = 1.9; //Representa la diferencia entre la energía de
-        //enlace gravitacional y el criterio de disipación para masas iguales. El valor recomendado
-        //para cuerpos como planetas es de 1.9+-0.3
+    double c = 1.9;
     return c * (4.0/5) * std::numbers::pi * avgDensity * units::G * combinedRadius * combinedRadius;
 }
 
@@ -528,8 +408,10 @@ double density_by_mass_and_radius(double mass, double radius) {
     return 3 * mass / (4 * std::numbers::pi * pow(radius, 3));
 }
 
-void refresh_body(int indexBody, double currentMass, double newMass, double currentRadius,
-    const Vec3 &newVelocity, CelestialBodies &bodies) {
+void refresh_body(CelestialBodies &bodies, int indexBody, double newMass,
+    const Vec3 &newVelocity) {
+    double currentMass = bodies.get_mass(indexBody);
+    double currentRadius = bodies.get_radius(indexBody);
     double density = density_by_mass_and_radius(currentMass, currentRadius);
     bodies.set_mass(newMass, indexBody);
     double newRadius = radius_by_density_and_mass(newMass, density);
@@ -537,30 +419,16 @@ void refresh_body(int indexBody, double currentMass, double newMass, double curr
     bodies.set_velocity(newVelocity, indexBody);
 }
 
-void update_bodies_after_fragmentation(CelestialBodies &bodies,
-    int largestBodyIndex, Vec3 & largestBodyVel, Vec3 & largestBodyPos, double largestBodyMass, double largestBodyRadius,
-    int smallestBodyIndex, Vec3 &smallestBodyVel, Vec3 &smallestBodyPos, double smallestBodyMass, double smallestBodyRadius,
-    double mLR, double mSLR, const Vec3 &newVelLR, const Vec3 &initialMomentum) {
-    //el cuerpo más grande se actualiza:
-    refresh_body(largestBodyIndex, largestBodyMass,
-        mLR, largestBodyRadius, newVelLR, bodies);
-    //el cuerpo más pequeño se actualiza
-    refresh_body(smallestBodyIndex, smallestBodyMass, mSLR,
-        smallestBodyRadius, newVelLR, bodies);
-    //se debe corregir la velocidad del segundo fragmento más grande (SLR):
-    Vec3 newVelSLR = (initialMomentum - largestBodyVel*largestBodyMass)/
-        smallestBodyMass;
-    smallestBodyVel=newVelSLR;
-
-    fix_positions_after_fragmentation(largestBodyMass, largestBodyRadius, largestBodyPos,
-     smallestBodyMass, smallestBodyRadius, smallestBodyPos);
-}
-
 //para separar los cuerpos después de la colision
-void fix_positions_after_fragmentation(
-    double largestBodyMass, double largestBodyRadius, Vec3 & largestBodyPos,
-    double smallestBodyMass, double smallestBodyRadius, Vec3 & smallestBodyPos
-    ) {
+void fix_positions_after_fragmentation(CelestialBodies &bodies,
+    int largestBodyIndex, int smallestBodyIndex) {
+    double largestBodyMass = bodies.get_mass(largestBodyIndex);
+    double largestBodyRadius = bodies.get_radius(largestBodyIndex);
+    Vec3 largestBodyPos = bodies.get_position(largestBodyIndex);
+    double smallestBodyMass = bodies.get_mass(smallestBodyIndex);
+    double smallestBodyRadius = bodies.get_radius(smallestBodyIndex);
+    Vec3 smallestBodyPos = bodies.get_position(smallestBodyIndex);
+
     double penetration = largestBodyRadius + smallestBodyRadius -
         (largestBodyPos-smallestBodyPos).magnitude();
     if (penetration > 0) {
@@ -574,49 +442,49 @@ void fix_positions_after_fragmentation(
         double w1 = smallestBodyMass / totalMass;
         double w2 = largestBodyMass / totalMass;
 
-        largestBodyPos = (largestBodyPos - normal * penetration * w1);
-        smallestBodyPos = (smallestBodyPos + normal * penetration * w2);
+        bodies.set_position(largestBodyPos - normal * penetration * w1, largestBodyIndex);
+        bodies.set_position(smallestBodyPos + normal * penetration * w2, smallestBodyIndex);
     }
 }
 
 //OBtenido de: Leinhardt & Stewart (2012). Ecuación (44)
 double mass_largest_remnant_supcat(double specificImpEnergySC, double disruptionEnergy,
     double totalMass) {
-    const double n =-1.5; //valor aproximado que se sugiere
+    const double n =-1.5;
     const double firstTerm = 0.1/pow(1.8, n);
     return firstTerm * totalMass * pow(specificImpEnergySC/disruptionEnergy, n);
 }
 
 void compute_remnant_properties_and_velocities(CelestialBodies &bodies,
-    int largestBodyIndex, Vec3 & largestBodyVel, Vec3 & largestBodyPos, double largestBodyMass, double largestBodyRadius,
-    int smallestBodyIndex, Vec3 &smallestBodyVel, Vec3 &smallestBodyPos, double smallestBodyMass, double smallestBodyRadius,
-    double bParameter, double mLR, int N1, int N2) {
-    Vec3 initialMomentum = momentum(largestBodyVel, largestBodyMass,
-            smallestBodyVel, smallestBodyMass);
-    double mSLR = mass_second_largest_remnant(mLR,
-        largestBodyMass + smallestBodyMass, N1, N2);
-    Vec3 velCM = (largestBodyVel * largestBodyMass +
-            smallestBodyVel * smallestBodyMass) /
-                (largestBodyMass + smallestBodyMass);
-    if (bParameter == 0)//frontal
-        update_bodies_after_fragmentation(bodies,
-     largestBodyIndex, largestBodyVel,  largestBodyPos, largestBodyMass, largestBodyRadius,
-     smallestBodyIndex, smallestBodyVel, smallestBodyPos, smallestBodyMass, smallestBodyRadius,
-            mLR, mSLR, velCM, initialMomentum);
+    int largestBodyIndex, int smallestBodyIndex, double mLR, int N1, int N2) {
+    double massL = bodies.get_mass(largestBodyIndex);
+    double massS = bodies.get_mass(smallestBodyIndex);
+    Vec3 velL = bodies.get_velocity(largestBodyIndex);
+    Vec3 velS = bodies.get_velocity(smallestBodyIndex);
+
+    Vec3 initialMomentum = momentum(velL, massL, velS, massS);
+    double mSLR = mass_second_largest_remnant(mLR, massL + massS, N1, N2);
+    Vec3 vCM = (velL * massL + velS * massS) / (massL + massS);
+
+    double collisionAngle = collision_angle(velL, velS,
+        bodies.get_position(largestBodyIndex), bodies.get_position(smallestBodyIndex));
+    double bParameter = sin(collisionAngle);
+
+    Vec3 newVelLR;
+    if (bParameter == 0)
+        newVelLR = vCM;
     else if (bParameter > 0.7)
-        update_bodies_after_fragmentation(bodies,
-     largestBodyIndex, largestBodyVel,  largestBodyPos, largestBodyMass, largestBodyRadius,
-     smallestBodyIndex, smallestBodyVel, smallestBodyPos, smallestBodyMass, smallestBodyRadius,
-            mLR, mSLR, largestBodyVel, initialMomentum);
+        newVelLR = velL;
     else {
-        Vec3 newVelLR;
-        if (bParameter < 0.175) newVelLR = velCM * 0.8+ largestBodyVel * 0.2;
-        else if (bParameter < 0.35) newVelLR = velCM * 0.6+ largestBodyVel * 0.4;
-        else if (bParameter < 0.525) newVelLR = velCM * 0.4+ largestBodyVel * 0.6;
-        else newVelLR = velCM * 0.2 + largestBodyVel * 0.8;
-        update_bodies_after_fragmentation(bodies,
-     largestBodyIndex, largestBodyVel,  largestBodyPos, largestBodyMass, largestBodyRadius,
-     smallestBodyIndex, smallestBodyVel, smallestBodyPos, smallestBodyMass, smallestBodyRadius,
-            mLR, mSLR, newVelLR, initialMomentum);
+        if (bParameter < 0.175) newVelLR = vCM * 0.8+ velL * 0.2;
+        else if (bParameter < 0.35) newVelLR = vCM * 0.6+ velL * 0.4;
+        else if (bParameter < 0.525) newVelLR = vCM * 0.4+ velL * 0.6;
+        else newVelLR = vCM * 0.2 + velL * 0.8;
     }
+
+    refresh_body(bodies, largestBodyIndex, mLR, newVelLR);
+    refresh_body(bodies, smallestBodyIndex, mSLR, newVelLR);
+    Vec3 newVelSLR = (initialMomentum - newVelLR * mLR) / mSLR;
+    bodies.set_velocity(newVelSLR, smallestBodyIndex);
+    fix_positions_after_fragmentation(bodies, largestBodyIndex, smallestBodyIndex);
 }
