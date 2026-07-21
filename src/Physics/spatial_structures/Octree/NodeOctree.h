@@ -39,7 +39,6 @@ private:
 
 
 inline NodeOctree::NodeOctree() {
-    ElementOctree();
 }
 
 

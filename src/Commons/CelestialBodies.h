@@ -4,7 +4,9 @@
 #pragma once
 #ifndef SIMULADORGRAVITACIONAL_CELESTIALBODY_H
 #define SIMULADORGRAVITACIONAL_CELESTIALBODY_H
+#include <algorithm>
 #include <string>
+#include <vector>
 #include "Vec3.h"
 
 class CelestialBodies {
@@ -40,12 +42,19 @@ class CelestialBodies {
     void push_back_force(const Vec3 &force);
     void push_back_mass(const double mass);
     void push_back_radius(const double radius);
+    void push_back_deleted(const bool deleted);
     void pop_back_name();
     void pop_back_velocity();
     void pop_back_position();
     void pop_back_force();
     void pop_back_mass();
     void pop_back_radius();
+    void pop_back_deleted();
+
+    bool is_deleted(int index) const;
+    void mark_deleted(int index);
+    void clear_deleted();
+    int apply_deletions();
 
     std::string back_name() const;
     Vec3 back_position() const;
@@ -66,6 +75,7 @@ class CelestialBodies {
     std::vector<Vec3> forces{};
     std::vector<double> masses{};
     std::vector<double> radii{};
+    std::vector<bool> deleted{};
 };
 
 
@@ -203,6 +213,54 @@ inline void CelestialBodies::pop_back_radius() {
     this->radii.pop_back();
 }
 
+inline void CelestialBodies::push_back_deleted(const bool isDeleted) {
+    this->deleted.push_back(isDeleted);
+}
+
+inline void CelestialBodies::pop_back_deleted() {
+    this->deleted.pop_back();
+}
+
+inline bool CelestialBodies::is_deleted(int index) const {
+    return this->deleted[index];
+}
+
+inline void CelestialBodies::mark_deleted(int index) {
+    this->deleted[index] = true;
+}
+
+inline void CelestialBodies::clear_deleted() {
+    std::fill(this->deleted.begin(), this->deleted.end(), false);
+}
+
+inline int CelestialBodies::apply_deletions() {
+    std::vector<int> toDelete;
+    for (int i = 0; i < (int)this->deleted.size(); i++) {
+        if (this->deleted[i]) toDelete.push_back(i);
+    }
+    std::sort(toDelete.begin(), toDelete.end(), std::greater<int>());
+    for (int idx : toDelete) {
+        int last = (int)this->names.size() - 1;
+        if (idx != last) {
+            this->names[idx] = this->names[last];
+            this->positions[idx] = this->positions[last];
+            this->velocities[idx] = this->velocities[last];
+            this->forces[idx] = this->forces[last];
+            this->masses[idx] = this->masses[last];
+            this->radii[idx] = this->radii[last];
+            this->deleted[idx] = this->deleted[last];
+        }
+        this->names.pop_back();
+        this->positions.pop_back();
+        this->velocities.pop_back();
+        this->forces.pop_back();
+        this->masses.pop_back();
+        this->radii.pop_back();
+        this->deleted.pop_back();
+    }
+    return (int)toDelete.size();
+}
+
 inline std::string CelestialBodies::back_name() const {
     return this->names.back();
 }
@@ -234,6 +292,7 @@ inline unsigned long int CelestialBodies::size() const {
         and this->velocities.size() == this->forces.size()
         and this->forces.size() == this->masses.size()
         and this->masses.size() == this->radii.size()
+        and this->radii.size() == this->deleted.size()
         ) return this->names.size();
     return 0;
 }

@@ -12,8 +12,10 @@ void create_body(CelestialBodies &bodies, const std::string &name,
     bodies.push_back_name(name);
     bodies.push_back_position(position);
     bodies.push_back_velocity(velocity);
+    bodies.push_back_force(Vec3(0, 0, 0));
     bodies.push_back_mass(mass);
     bodies.push_back_radius(radius);
+    bodies.push_back_deleted(false);
 }
 
 void delete_body(CelestialBodies &bodies, const int index) {

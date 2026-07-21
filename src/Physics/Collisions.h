@@ -11,11 +11,9 @@ static constexpr double DENSITY = 9511.09;
 static constexpr double MI = 0.5;
 
 
-void collisions_for_bodies(Octree *const &octree,
-    CelestialBodies &bodies, int begin, int end);
 void collisions(Octree *const &octree, CelestialBodies &bodies);
 bool overlap_body(const Vec3 &center1, const Vec3 &center2, const double radius1, const double radius2);
-bool overlap_node(NodeOctree *const &node, Vec3 &bodyPosition, double bodyRadius);
+bool overlap_node(NodeOctree *const &node, CelestialBodies &bodies, int bodyIndex);
 Vec3 closest_point(const Vec3 &nodeCenter, double nodeSize, const Vec3 &bodyCenter);
 void resolve_collision(CelestialBodies &bodies, int body1Index, int body2Index);
 void simplified_resolve_collision(CelestialBodies &bodies, int body1Index, int body2Index);

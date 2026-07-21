@@ -4,10 +4,14 @@
 
 #include "Collisions.h"
 
+#include <algorithm>
 #include <iostream>
 
 void collisions(Octree *const &octree, CelestialBodies &bodies) {
-    octree->query_region(overlap_node, resolve_collision, bodies, bodies);
+    for (int i = 0; i < bodies.size(); i++) {
+        octree->query_region(overlap_node, resolve_collision, bodies, i);
+    }
+    bodies.apply_deletions();
 }
 
 bool overlap_body(const Vec3 &center1, const Vec3 &center2, const double radius1, const double radius2) {
@@ -15,7 +19,11 @@ bool overlap_body(const Vec3 &center1, const Vec3 &center2, const double radius1
     return radius1 + radius2 - distance >= 0;
 }
 
-bool overlap_node(NodeOctree *const &node, Vec3 &bodyPosition, double bodyRadius) {
+bool overlap_node(NodeOctree *const &node, CelestialBodies &bodies, int bodyIndex) {
+    if (bodyIndex < 0 || bodyIndex >= (int)bodies.size()) return false;
+    if (bodies.is_deleted(bodyIndex)) return false;
+    Vec3 bodyPosition = bodies.get_position(bodyIndex);
+    double bodyRadius = bodies.get_radius(bodyIndex);
     Vec3 closestPoint = closest_point(node->get_node_center(), node->get_node_size(),
         bodyPosition);
     double distance = closestPoint.distance(bodyPosition);
@@ -57,6 +65,9 @@ Vec3 closest_point(const Vec3 &nodeCenter, double nodeSize, const Vec3 &bodyCent
 
 //Algoritmo adaptado de: A.1. A General Formulation for Collision Outcomes de Leinhardt & Stewart (2012)
 void simplified_resolve_collision(CelestialBodies &bodies, int body1Index, int body2Index) {
+    if (body1Index < 0 || body1Index >= (int)bodies.size()) return;
+    if (body2Index < 0 || body2Index >= (int)bodies.size()) return;
+    if (bodies.is_deleted(body1Index) || bodies.is_deleted(body2Index)) return;
     if (bodies.get_mass(body1Index) <= 0 || bodies.get_mass(body2Index) <= 0) return;
     if (bodies.get_radius(body1Index) <= 0 || bodies.get_radius(body2Index) <= 0) return;
     bool overlap = overlap_body(
@@ -102,6 +113,9 @@ void simplified_resolve_collision(CelestialBodies &bodies, int body1Index, int b
 
 //Algoritmo adaptado de: A.1. A General Formulation for Collision Outcomes de Leinhardt & Stewart (2012)
 void resolve_collision(CelestialBodies &bodies, int body1Index, int body2Index) {
+    if (body1Index < 0 || body1Index >= (int)bodies.size()) return;
+    if (body2Index < 0 || body2Index >= (int)bodies.size()) return;
+    if (bodies.is_deleted(body1Index) || bodies.is_deleted(body2Index)) return;
     if (bodies.get_mass(body1Index) <= 0 || bodies.get_mass(body2Index) <= 0) return;
     if (bodies.get_radius(body1Index) <= 0 || bodies.get_radius(body2Index) <= 0) return;
     bool overlap = overlap_body(
@@ -197,11 +211,7 @@ void merge_regime(CelestialBodies &bodies,
     bodies.set_velocity(initialMomentum/(massL + massS), largestBodyIndex);
     double newRadius = radius_by_density_and_mass(massL + massS, density);
     bodies.set_radius(newRadius, largestBodyIndex);
-    delete_body(bodies, smallestBodyIndex);
-    bodies.set_mass(0, smallestBodyIndex);
-    bodies.set_velocity(Vec3(0, 0, 0), smallestBodyIndex);
-    bodies.set_radius(0, smallestBodyIndex);
-    bodies.set_force(Vec3(0, 0, 0), smallestBodyIndex);
+    bodies.mark_deleted(smallestBodyIndex);
 }
 
 //Régimen super catastrófico obtenido de: Leinhardt & Stewart (2012)
@@ -304,7 +314,9 @@ double collision_timescale(double radius1, double radius2, double distance, doub
 double collision_angle(const Vec3 &vel1, const Vec3 &vel2, const Vec3& center1, const Vec3& center2) {
     const Vec3 relativeVelocity = vel1 - vel2;
     const Vec3 distance = center1-center2;
-    double cos_angle = relativeVelocity.dot(distance)/(relativeVelocity.magnitude()*distance.magnitude());
+    double denom = relativeVelocity.magnitude()*distance.magnitude();
+    if (denom < 1e-15) return 0.0;
+    double cos_angle = relativeVelocity.dot(distance)/denom;
     cos_angle = (cos_angle <= -1)? -1: cos_angle;
     cos_angle = (cos_angle >= 1)? 1: cos_angle;
     double angle = acos(cos_angle);
@@ -459,12 +471,21 @@ void compute_remnant_properties_and_velocities(CelestialBodies &bodies,
     int largestBodyIndex, int smallestBodyIndex, double mLR, int N1, int N2) {
     double massL = bodies.get_mass(largestBodyIndex);
     double massS = bodies.get_mass(smallestBodyIndex);
+    double totalMass = massL + massS;
     Vec3 velL = bodies.get_velocity(largestBodyIndex);
     Vec3 velS = bodies.get_velocity(smallestBodyIndex);
 
+    mLR = std::clamp(mLR, 0.0, totalMass);
+    double mSLR = mass_second_largest_remnant(mLR, totalMass, N1, N2);
+    mSLR = std::clamp(mSLR, 0.0, totalMass - mLR);
+
+    if (totalMass - mLR < 1e-15 || mSLR < 1e-15) {
+        merge_regime(bodies, largestBodyIndex, smallestBodyIndex);
+        return;
+    }
+
     Vec3 initialMomentum = momentum(velL, massL, velS, massS);
-    double mSLR = mass_second_largest_remnant(mLR, massL + massS, N1, N2);
-    Vec3 vCM = (velL * massL + velS * massS) / (massL + massS);
+    Vec3 vCM = (velL * massL + velS * massS) / totalMass;
 
     double collisionAngle = collision_angle(velL, velS,
         bodies.get_position(largestBodyIndex), bodies.get_position(smallestBodyIndex));

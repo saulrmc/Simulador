@@ -6,6 +6,7 @@ set(CMAKE_CXX_STANDARD 20)
 
 file(GLOB_RECURSE SOURCES "src/*.cpp" "src/*.h" "main.cpp")
 add_subdirectory(libs/GLFW)
+set(GLFW_BUILD_WAYLAND OFF CACHE BOOL "" FORCE)
 add_library(glad libs/glad/glad.c)
 target_include_directories(glad PUBLIC libs)
 

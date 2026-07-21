@@ -67,7 +67,7 @@ inline Vec3 Vec3::operator/(double scalar) const {
 }
 
 inline Vec3 Vec3::operator/(const Vec3 &v) const {
-    return Vec3(x / v.x, y / v.y, z / v.y);
+    return Vec3(x / v.x, y / v.y, z / v.z);
 }
 
 inline double Vec3::dot(const Vec3 &v) const {

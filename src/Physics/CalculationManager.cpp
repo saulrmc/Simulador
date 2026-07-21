@@ -40,6 +40,7 @@ void CalculationManager::update_forces(CelestialBodies &bodies) {
     std::chrono::duration<double, std::micro> total_time(0);
     auto start = std::chrono::high_resolution_clock::now();
     reinsert_bodies(bodies);
+    root->refresh_mass_centers();
     root->refresh_theta_value();
     auto end = std::chrono::high_resolution_clock::now();
     total_time = end - start;
@@ -78,9 +79,6 @@ void CalculationManager::leapfrog_integration_kdk(CelestialBodies &bodies) {
     //porque solo representa un instante t de tiempo
 
     //acá se deberían resolver las colisiones pero ojo que las velocidades actualizadas van a ser de dt/2
-    //version 1:
-    //collisions_for_bodies(root, bodies, 0, bodies.size() - 1);
-    //versión 2:
     collisions(root, bodies);
     if (numStep % 5 == 0) update_forces(bodies);
     else preserve_root_and_update_forces(bodies);
