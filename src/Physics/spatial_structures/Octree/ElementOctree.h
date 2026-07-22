@@ -7,7 +7,6 @@
 
 #include "Vec3.h"
 #include <vector>
-constexpr int CAPACITY=4;
 class ElementOctree {
 public:
     ElementOctree();

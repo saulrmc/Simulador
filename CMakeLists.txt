@@ -3,6 +3,7 @@ project(SimuladorGravitacional)
 
 set(CMAKE_CXX_STANDARD 20)
 
+option(USE_LINEAR_OCTREE "Use LinearOctree instead of pointer-based Octree" OFF)
 
 file(GLOB_RECURSE SOURCES "src/*.cpp" "src/*.h" "main.cpp")
 add_subdirectory(libs/GLFW)
@@ -33,14 +34,16 @@ add_executable(SimuladorGravitacional main.cpp
         src/Creation/Creation.h
         src/Physics/spatial_structures/LinearOctree/LinearOctree.cpp
         src/Physics/spatial_structures/LinearOctree/LinearOctree.h
-        src/Physics/spatial_structures/LinearOctree/LinearElement.cpp
         src/Physics/spatial_structures/LinearOctree/LinearElement.h
-        src/Physics/spatial_structures/LinearOctree/LinearNode.cpp
         src/Physics/spatial_structures/LinearOctree/LinearNode.h
-        src/Physics/spatial_structures/SpatialStructure.cpp
         src/Physics/spatial_structures/SpatialStructure.h
+        src/Physics/spatial_structures/geometry.h
+        src/Physics/spatial_structures/geometry.cpp
 )
 find_package(OpenGL REQUIRED)
 find_package(OpenMP REQUIRED)
 target_link_libraries(SimuladorGravitacional glfw glad OpenGL::GL OpenMP::OpenMP_CXX)
 target_include_directories(SimuladorGravitacional PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src/Commons)
+if(USE_LINEAR_OCTREE)
+    target_compile_definitions(SimuladorGravitacional PRIVATE USE_LINEAR_OCTREE)
+endif()

@@ -2,23 +2,32 @@
 // Created by Saúl on 15/02/2026.
 //
 
+#pragma once
 #ifndef SIMULADORGRAVITACIONAL_COLLISIONS_H
 #define SIMULADORGRAVITACIONAL_COLLISIONS_H
 #include <vector>
-#include "spatial_structures/Octree/Octree.h"
+#include "CelestialBodies.h"
+#include "spatial_structures/geometry.h"
 #include "../Creation/Creation.h"
+
 static constexpr double DENSITY = 9511.09;
 static constexpr double MI = 0.5;
 
+void resolve_collision(CelestialBodies &bodies, int body1Index, int body2Index);
 
-void collisions(Octree *const &octree, CelestialBodies &bodies);
-bool overlap_body(const Vec3 &center1, const Vec3 &center2, const double radius1, const double radius2);
-bool overlap_node(NodeOctree *const &node, CelestialBodies &bodies, int bodyIndex);
-Vec3 closest_point(const Vec3 &nodeCenter, double nodeSize, const Vec3 &bodyCenter);
+template<typename Structure>
+int collisions(Structure* structure, CelestialBodies& bodies) {
+    for (int i = 0; i < bodies.size(); i++) {
+        structure->query_region(
+            [](CelestialBodies& b, int i1, int i2) {
+                resolve_collision(b, i1, i2);
+            }, bodies, i);
+    }
+    return bodies.apply_deletions();
+}
+
 void resolve_collision(CelestialBodies &bodies, int body1Index, int body2Index);
 void simplified_resolve_collision(CelestialBodies &bodies, int body1Index, int body2Index);
-
-//regímenes:
 
 void merge_regime(CelestialBodies &bodies,
     int largestBodyIndex, int smallestBodyIndex);
@@ -30,7 +39,7 @@ void hit_and_run_regime(CelestialBodies &bodies,
     int largestBodyIndex, int smallestBodyIndex, double massInteract);
 
 
-//Cálculos para distinguir regímenes:
+//Cálculos para distinguishir regímenes:
 
 double mutual_escape_velocity(double mass1, double mass2, const Vec3 &pos1, const Vec3 &pos2);
 double mutual_escape_velocity_mod(double largestMass, double massInteract, double avgDensity);

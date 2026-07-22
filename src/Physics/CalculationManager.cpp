@@ -8,7 +8,7 @@
 #include <iostream>
 
 CalculationManager::CalculationManager() {
-    root = nullptr;
+    root = new SpatialOctree();
     numStep=0;
 }
 
@@ -16,8 +16,8 @@ CalculationManager::~CalculationManager() {
     delete root;
 }
 
-void CalculationManager::create_Octree() {
-    if (!root) root = new Octree();
+void CalculationManager::create_structure() {
+    if (!root) root = new SpatialOctree();
     root->create_space();
 }
 
@@ -36,7 +36,7 @@ void CalculationManager::update_forces(CelestialBodies &bodies) {
         root = nullptr;
     }
     root_space(bodies);
-    create_Octree();
+    create_structure();
     std::chrono::duration<double, std::micro> total_time(0);
     auto start = std::chrono::high_resolution_clock::now();
     reinsert_bodies(bodies);
@@ -79,15 +79,15 @@ void CalculationManager::leapfrog_integration_kdk(CelestialBodies &bodies) {
     //porque solo representa un instante t de tiempo
 
     //acá se deberían resolver las colisiones pero ojo que las velocidades actualizadas van a ser de dt/2
-    collisions(root, bodies);
-    if (numStep % 5 == 0) update_forces(bodies);
+    int deleted = collisions(root, bodies);
+    if (numStep % 5 == 0 || deleted > 0) update_forces(bodies);
     else preserve_root_and_update_forces(bodies);
     //update_forces(bodies);
     leapfrog_integration_kick(bodies);
 }
 
 void CalculationManager::root_space(CelestialBodies  &bodies) {
-    if (!root) root = new Octree();
+    if (!root) root = new SpatialOctree();
     //el index 0 y 1 para xMin y xMax
     //el index 2 y 3 para yMin & yMax
     //el index 4 y 5 para zMin y zMax

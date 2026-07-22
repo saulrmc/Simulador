@@ -3,59 +3,10 @@
 //
 
 #include "Collisions.h"
+#include "PhysicsUtils.h"
 
 #include <algorithm>
 #include <iostream>
-
-void collisions(Octree *const &octree, CelestialBodies &bodies) {
-    for (int i = 0; i < bodies.size(); i++) {
-        octree->query_region(overlap_node, resolve_collision, bodies, i);
-    }
-    bodies.apply_deletions();
-}
-
-bool overlap_body(const Vec3 &center1, const Vec3 &center2, const double radius1, const double radius2) {
-    double distance = (center2 - center1).magnitude();
-    return radius1 + radius2 - distance >= 0;
-}
-
-bool overlap_node(NodeOctree *const &node, CelestialBodies &bodies, int bodyIndex) {
-    if (bodyIndex < 0 || bodyIndex >= (int)bodies.size()) return false;
-    if (bodies.is_deleted(bodyIndex)) return false;
-    Vec3 bodyPosition = bodies.get_position(bodyIndex);
-    double bodyRadius = bodies.get_radius(bodyIndex);
-    Vec3 closestPoint = closest_point(node->get_node_center(), node->get_node_size(),
-        bodyPosition);
-    double distance = closestPoint.distance(bodyPosition);
-    if (distance <= bodyRadius) return true;
-    return false;
-}
-
-Vec3 closest_point(const Vec3 &nodeCenter, double nodeSize, const Vec3 &bodyCenter) {
-    Vec3 closestPoint;
-    if (nodeCenter.get_x() - nodeSize/2 < bodyCenter.get_x() and
-        nodeCenter.get_x() + nodeSize/2 > bodyCenter.get_x())
-        closestPoint.set_x(bodyCenter.get_x());
-    else if (nodeCenter.get_x() < bodyCenter.get_x())
-        closestPoint.set_x(nodeCenter.get_x() + nodeSize/2);
-    else closestPoint.set_x(nodeCenter.get_x() - nodeSize/2);
-
-    if (nodeCenter.get_y() - nodeSize/2 < bodyCenter.get_y() and
-        nodeCenter.get_y() + nodeSize/2 > bodyCenter.get_y())
-        closestPoint.set_y(bodyCenter.get_y());
-    else if (nodeCenter.get_y() < bodyCenter.get_y())
-        closestPoint.set_y(nodeCenter.get_y() + nodeSize/2);
-    else closestPoint.set_y(nodeCenter.get_y() - nodeSize/2);
-
-    if (nodeCenter.get_z() - nodeSize/2 < bodyCenter.get_z() and
-            nodeCenter.get_z() + nodeSize/2 > bodyCenter.get_z())
-        closestPoint.set_z(bodyCenter.get_z());
-    else if (nodeCenter.get_z() < bodyCenter.get_z())
-        closestPoint.set_z(nodeCenter.get_z() + nodeSize/2);
-    else closestPoint.set_z(nodeCenter.get_z() - nodeSize/2);
-
-    return closestPoint;
-}
 
 /*  Modelo de colisiones obtenido de:
  *  Leinhardt, Z. M., & Stewart, S. T. (2012).

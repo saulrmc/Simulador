@@ -5,72 +5,66 @@
 #include <vector>
 
 #include "NodeOctree.h"
+#include "../SpatialStructure.h"
+#include "../geometry.h"
 #include "../../Physics.h"
 #include "CelestialBodies.h"
 
-class Octree {
+class Octree : public SpatialStructure<Octree> {
+    friend class SpatialStructure<Octree>;
 public:
-    double get_size() const;
-    void set_size(const double size);
-    Vec3 get_center() const;
-    void set_center(Vec3 center);
-
-    int get_num_bodies() const;
-    double get_theta() const;
-
     Octree();
-    virtual ~Octree();
-    void refresh_theta_value();
-    void refresh_mass_centers();
-
-    void insert(const CelestialBodies &bodies);
-    void create_space();
-    void calc_forces(CelestialBodies &bodies);
-    void query_region(
-        bool (*condition)(NodeOctree *const &, CelestialBodies &, int),
-        void (*action)(CelestialBodies &, int, int),
-        CelestialBodies &bodies, int bodyIndex);
+    ~Octree();
 
 private:
+    void create_space_impl();
+    void insert_impl(const CelestialBodies& bodies);
+    void calc_forces_impl(CelestialBodies& bodies);
+    void refresh_mass_centers_impl();
+    void refresh_theta_value_impl();
+    void set_size_impl(double s);
+    void set_center_impl(Vec3 c);
+    double get_size_impl() const;
+    Vec3 get_center_impl() const;
+    double get_theta_impl() const;
+
+    template<typename Callback>
+    void query_region_impl(Callback&& on_pair, CelestialBodies& bodies, int bodyIndex) {
+        recursive_query_region(root, std::forward<Callback>(on_pair), bodies, bodyIndex);
+    }
+
     NodeOctree* root;
-    void iterative_insert(const CelestialBodies &bodies, int indexBody);
-    void recursively_calc_forces(const NodeOctree *node, CelestialBodies &bodies, int bodyIndex);
-    uint8_t octant_for_position(Vec3 position, Vec3 &center);
-    void recursive_query_region(NodeOctree *node,
-        bool (*condition)(NodeOctree *const &, CelestialBodies &, int),
-        void (*action)(CelestialBodies &, int, int),
-        CelestialBodies &bodies, int bodyIndex);
-    void recursive_refresh_mass_centers(NodeOctree *node);
+    void iterative_insert(const CelestialBodies& bodies, int indexBody);
+    void recursively_calc_forces(const NodeOctree* node, CelestialBodies& bodies, int bodyIndex);
+    uint8_t octant_for_position(Vec3 position, Vec3& center);
+
+    template<typename Callback>
+    void recursive_query_region(NodeOctree* node, Callback&& on_pair,
+        CelestialBodies& bodies, int bodyIndex) {
+        if (!node) return;
+        if (!overlap_node(node->element_octree.center, node->element_octree.size,
+                bodies, bodyIndex))
+            return;
+        if (node->has_children()) {
+            for (int i = 0; i < 8; i++)
+                recursive_query_region(node->children[i], on_pair, bodies, bodyIndex);
+        }
+        else {
+            for (int i = 0; i < node->element_octree.indexBodies.size(); i++) {
+                int otherIndex = node->element_octree.indexBodies[i];
+                if (otherIndex != bodyIndex && bodyIndex < otherIndex)
+                    on_pair(bodies, bodyIndex, otherIndex);
+            }
+        }
+    }
+
+    void recursive_refresh_mass_centers(NodeOctree* node);
     int num_bodies;
     double theta = 0;
     double size;
     Vec3 center;
 };
 
-
-inline double Octree::get_size() const {
-    return size;
-}
-
-inline void Octree::set_size(const double size) {
-    this->size = size;
-}
-
-inline Vec3 Octree::get_center() const {
-    return this->center;
-}
-
-inline void Octree::set_center(Vec3 center) {
-    this->center = center;
-}
-
-inline int Octree::get_num_bodies() const {
-    return num_bodies;
-}
-
-inline double Octree::get_theta() const {
-    return theta;
-}
 
 inline Octree::Octree() {
     root = nullptr;
@@ -83,34 +77,31 @@ inline Octree::~Octree() {
     delete root;
 }
 
-inline void Octree::insert(const CelestialBodies &bodies) {
-    for (int i = 0; i < bodies.size(); i++) {
-        iterative_insert(bodies, i);
-    }
-}
-
-inline void Octree::create_space() {
+inline void Octree::create_space_impl() {
     if (root != nullptr) delete root;
     root = new NodeOctree();
     root->element_octree.size = this->size;
     root->element_octree.center = this->center;
 }
 
-inline void Octree::calc_forces(CelestialBodies &bodies) {
+inline void Octree::insert_impl(const CelestialBodies& bodies) {
+    for (int i = 0; i < bodies.size(); i++) {
+        iterative_insert(bodies, i);
+    }
+}
+
+inline void Octree::calc_forces_impl(CelestialBodies& bodies) {
     for (int i = 0; i < bodies.size(); i++) {
         bodies.set_force(Vec3(0, 0, 0), i);
         recursively_calc_forces(root, bodies, i);
     }
 }
 
-inline void Octree::query_region(
-    bool (*condition)(NodeOctree *const &, CelestialBodies &, int),
-    void (*action)(CelestialBodies &, int, int),
-    CelestialBodies &bodies, int bodyIndex) {
-    recursive_query_region(root, condition, action, bodies, bodyIndex);
+inline void Octree::refresh_mass_centers_impl() {
+    recursive_refresh_mass_centers(root);
 }
 
-inline void Octree::refresh_theta_value() {
+inline void Octree::refresh_theta_value_impl() {
     if (num_bodies < 100) this->theta = 0;
     else if (num_bodies < 1000) this->theta = 0.3;
     else if (num_bodies < 10000) this->theta = 0.5;
@@ -119,41 +110,38 @@ inline void Octree::refresh_theta_value() {
     else theta = 0.8;
 }
 
-inline void Octree::refresh_mass_centers() {
-    recursive_refresh_mass_centers(root);
+inline void Octree::set_size_impl(double s) {
+    this->size = s;
 }
 
-inline void Octree::recursive_refresh_mass_centers(NodeOctree *node) {
+inline void Octree::set_center_impl(Vec3 c) {
+    this->center = c;
+}
+
+inline double Octree::get_size_impl() const {
+    return this->size;
+}
+
+inline Vec3 Octree::get_center_impl() const {
+    return this->center;
+}
+
+inline double Octree::get_theta_impl() const {
+    return this->theta;
+}
+
+inline void Octree::recursive_refresh_mass_centers(NodeOctree* node) {
     if (!node) return;
     if (node->has_children()) {
-        for (auto & i : node->children) {
+        for (auto& i : node->children) {
             recursive_refresh_mass_centers(i);
         }
         node->calc_avg_values();
     }
 }
 
-inline void Octree::recursive_query_region(NodeOctree *node,
-    bool (*condition)(NodeOctree *const &, CelestialBodies &, int),
-    void (*action)(CelestialBodies &, int, int),
-    CelestialBodies &bodies, int bodyIndex) {
-    if (!node || !condition || !action) return;
-    if (!condition(node, bodies, bodyIndex)) return;
-    if (node->has_children()) {
-        for (int i = 0; i < 8; i++)
-            recursive_query_region(node->children[i], condition, action, bodies, bodyIndex);
-    }
-    else {
-        for (int i = 0; i < node->element_octree.indexBodies.size(); i++) {
-            int otherIndex = node->element_octree.indexBodies[i];
-            if (otherIndex != bodyIndex && bodyIndex < otherIndex)
-                action(bodies, bodyIndex, otherIndex);
-        }
-    }
-}
-
-inline void Octree::iterative_insert(const CelestialBodies &bodies, int indexBody) {
-    NodeOctree *node = root;
+inline void Octree::iterative_insert(const CelestialBodies& bodies, int indexBody) {
+    NodeOctree* node = root;
 
     while (true) {
         if (!node->has_children()) {
@@ -205,7 +193,7 @@ inline void Octree::iterative_insert(const CelestialBodies &bodies, int indexBod
     }
 }
 
-inline void Octree::recursively_calc_forces(const NodeOctree *node, CelestialBodies &bodies, int bodyIndex) {
+inline void Octree::recursively_calc_forces(const NodeOctree* node, CelestialBodies& bodies, int bodyIndex) {
     if (!node || node->element_octree.mass == 0) return;
 
     const double d_x = bodies.get_posX(bodyIndex) - node->element_octree.centerOfMass.get_x();
@@ -244,7 +232,7 @@ inline void Octree::recursively_calc_forces(const NodeOctree *node, CelestialBod
     }
 }
 
-inline uint8_t Octree::octant_for_position(Vec3 position, Vec3 &center) {
+inline uint8_t Octree::octant_for_position(Vec3 position, Vec3& center) {
     uint8_t index = 0;
     if (position.get_x() >= center.get_x()) index |= 1;
     if (position.get_y() >= center.get_y()) index |= 2;

@@ -7,7 +7,6 @@
 #include <chrono>
 #include <iostream>
 Simulation::Simulation() {
-    calcManager = CalculationManager();
 }
 
 Simulation::~Simulation() {
@@ -86,7 +85,7 @@ void Simulation::run_simulation() {
     double k_energy=0;
     Vec3 momentum;
 
-    for (int i = 0; i < nbodies; i++) momentum = momentum + bodies.get_velocity(i) * bodies.get_mass(i);
+    for (int j = 0; j < nbodies; j++) momentum = momentum + bodies.get_velocity(j) * bodies.get_mass(j);
     std::cout << "Initial momentum: " << "(" << momentum.get_x() << ", " << momentum.get_y() << ", "
     << momentum.get_z() << ")"<<std::endl;
     momentum = Vec3(0, 0, 0);
@@ -141,7 +140,7 @@ void Simulation::run_simulation() {
     //}
     auto endTotal0 = std::chrono::high_resolution_clock::now();
     total_time0 = endTotal0 - startTotal0;
-    for (int i = 0; i < nbodies; i++) momentum = momentum + bodies.get_velocity(i) * bodies.get_mass(i);
+    for (int j = 0; j < bodies.size(); j++) momentum = momentum + bodies.get_velocity(j) * bodies.get_mass(j);
     std::cout << "Final momentum: " << "(" << momentum.get_x() << ", " << momentum.get_y() << ", "
     << momentum.get_z() << ")"<< std::endl;
     // std::cout << "visits = " <<visited_nodes << std::endl;
