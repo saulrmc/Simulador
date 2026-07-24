@@ -14,7 +14,7 @@ template <typename Derived>
 class SpatialStructure {
 public:
     void create_space() { static_cast<Derived*>(this)->create_space_impl(); }
-    void insert(const CelestialBodies& bodies) { static_cast<Derived*>(this)->insert_impl(bodies); }
+    void insert(CelestialBodies& bodies) { static_cast<Derived*>(this)->insert_impl(bodies); }
     void calc_forces(CelestialBodies& bodies) { static_cast<Derived*>(this)->calc_forces_impl(bodies); }
     void refresh_mass_centers() { static_cast<Derived*>(this)->refresh_mass_centers_impl(); }
     void refresh_theta_value() { static_cast<Derived*>(this)->refresh_theta_value_impl(); }
