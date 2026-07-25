@@ -62,13 +62,16 @@ class CelestialBodies {
     Vec3 back_force() const;
     double back_mass() const;
     double back_radius() const;
+    bool back_is_deleted() const;
 
     unsigned long int size() const;
 
     void operator=(int index);
     bool operator==(int index) const;
 
-    private:
+    void swap(size_t idx, size_t target_idx) ;
+
+private:
     std::vector<std::string> names{};
     std::vector<Vec3> positions{};
     std::vector<Vec3> velocities{};
@@ -285,6 +288,10 @@ inline double CelestialBodies::back_radius() const {
     return this->radii.back();
 }
 
+inline bool CelestialBodies::back_is_deleted() const {
+    return this->deleted.back();
+}
+
 inline unsigned long int CelestialBodies::size() const {
     if (
         this->names.size() == this->positions.size()
@@ -295,6 +302,17 @@ inline unsigned long int CelestialBodies::size() const {
         and this->radii.size() == this->deleted.size()
         ) return this->names.size();
     return 0;
+}
+
+inline void CelestialBodies::swap(size_t idx, size_t target_idx) {
+    std::swap(this->names[idx], this->names[target_idx]);
+    std::swap(this->positions[idx], this->positions[target_idx]);
+    std::swap(this->velocities[idx], this->velocities[target_idx]);
+    std::swap(this->forces[idx], this->forces[target_idx]);
+    std::swap(this->masses[idx], this->masses[target_idx]);
+    std::swap(this->radii[idx], this->radii[target_idx]);
+    using std::swap;
+    swap(this->deleted[idx], this->deleted[target_idx]);
 }
 
 

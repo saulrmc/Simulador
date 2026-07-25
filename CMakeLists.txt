@@ -7,8 +7,11 @@ option(USE_LINEAR_OCTREE "Use LinearOctree instead of pointer-based Octree" OFF)
 
 file(GLOB_RECURSE SOURCES "src/*.cpp" "src/*.h" "main.cpp")
 add_subdirectory(libs/GLFW)
-set(GLFW_BUILD_WAYLAND OFF CACHE BOOL "" FORCE)
-add_library(glad libs/glad/glad.c)
+#set(GLFW_BUILD_WAYLAND OFF CACHE BOOL "" FORCE)
+add_library(glad libs/glad/glad.c
+        src/Physics/spatial_structures/Octree/Octree.cpp
+        src/Physics/spatial_structures/Octree/NodeOctree.cpp
+        src/Physics/spatial_structures/LinearOctree/LinearOctree.cpp)
 target_include_directories(glad PUBLIC libs)
 
 add_executable(SimuladorGravitacional main.cpp
@@ -32,10 +35,8 @@ add_executable(SimuladorGravitacional main.cpp
         src/Simulation.h
         src/Creation/Creation.cpp
         src/Creation/Creation.h
-        src/Physics/spatial_structures/LinearOctree/LinearOctree.cpp
         src/Physics/spatial_structures/LinearOctree/LinearOctree.h
         src/Physics/spatial_structures/LinearOctree/LinearElement.h
-        src/Physics/spatial_structures/LinearOctree/LinearNode.h
         src/Physics/spatial_structures/SpatialStructure.h
         src/Physics/spatial_structures/geometry.h
         src/Physics/spatial_structures/geometry.cpp

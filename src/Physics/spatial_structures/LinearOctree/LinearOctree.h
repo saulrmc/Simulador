@@ -5,7 +5,6 @@
 #include <vector>
 #include <algorithm>
 #include <cstdint>
-#include <cmath>
 
 #include "LinearElement.h"
 #include "../SpatialStructure.h"
@@ -26,60 +25,57 @@ public:
 
 private:
     void create_space_impl();
-    void insert_impl(const CelestialBodies& bodies);
+    void reorder_data(CelestialBodies & bodies);
+    void insert_impl(CelestialBodies& bodies);
     void calc_forces_impl(CelestialBodies& bodies);
     void refresh_mass_centers_impl();
     void refresh_theta_value_impl();
-    void set_size_impl(double s);
-    void set_center_impl(Vec3 c);
+    void set_size_impl(double size);
+    void set_center_impl(Vec3 center);
     double get_size_impl() const;
     Vec3 get_center_impl() const;
     double get_theta_impl() const;
+    void compute_mass_centers_bottom_up();
 
     template<typename Callback>
-    void query_region_impl(Callback&& on_pair, CelestialBodies& bodies, int bodyIndex) {
-        double leafSize = spatialSize / (1.0 * (1 << maxTreeLevel));
-        for (unsigned int i = 0; i < numLeafs; i++) {
-            unsigned int b = i * CAPACITY;
-            unsigned int e = std::min(b + CAPACITY, static_cast<unsigned int>(numBodies));
-            if (b >= elements.size()) break;
-            Vec3 leafCenter = center_from_morton(elements[b].get_morton_code(), maxTreeLevel);
-            if (!overlap_node(leafCenter, leafSize, bodies, bodyIndex)) continue;
-            for (unsigned int ei = b; ei < e; ei++) {
-                int otherIndex = elements[ei].get_bodyIndex();
-                if (otherIndex != bodyIndex && bodyIndex < otherIndex) {
-                    on_pair(bodies, bodyIndex, otherIndex);
-                }
-            }
-        }
-    }
-
-    void bh_traverse(unsigned int begin, unsigned int end, int depth,
-                     int nodePos, CelestialBodies& bodies, int bodyIdx);
+    void query_region_impl(Callback&& on_pair, CelestialBodies& bodies, int bodyIndex) ;
 
     Vec3 center_from_morton(unsigned long long mortonCode, int depth) const;
 
     std::vector<LinearElement> elements;
     std::vector<MassCenter> massCenters;
-    std::vector<unsigned int> levelOffset;
-
-    unsigned int numLeafs;
-    unsigned int totalNodes;
-    unsigned int maxTreeLevel;
-    int coordBits;
+    bool needToReorder;
     int numBodies;
     double theta;
     double spatialSize;
     Vec3 spatialCenter;
     Vec3 minPos;
-    double resolution;
+    uint8_t resolutionLevel; //max 21
 };
 
-inline LinearOctree::LinearOctree()
-    : numLeafs(0), totalNodes(0), maxTreeLevel(0), coordBits(0),
-      numBodies(0), theta(0), spatialSize(0),
-      spatialCenter(Vec3(0, 0, 0)), minPos(Vec3(0, 0, 0)), resolution(1.0) {}
+inline LinearOctree::LinearOctree() {
+    resolutionLevel = 10;
+    numBodies = 0;
+    theta = 0;
+    spatialSize = 0;
+    needToReorder = true;
+}
 
-inline LinearOctree::~LinearOctree() {}
+inline LinearOctree::~LinearOctree() = default;
+
+inline void LinearOctree::refresh_theta_value_impl() {
+    if (numBodies < 100) this->theta = 0;
+    else if (numBodies < 1000) this->theta = 0.3;
+    else if (numBodies < 10000) this->theta = 0.5;
+    else if (numBodies < 100000) this->theta = 0.6;
+    else if (numBodies < 1000000) this->theta = 0.7;
+    else theta = 0.8;
+}
+
+inline void LinearOctree::set_size_impl(double size) {this->spatialSize = size;}
+inline void LinearOctree::set_center_impl(Vec3 center) {this->spatialCenter = center;}
+inline double LinearOctree::get_size_impl() const {return this->spatialSize;}
+inline Vec3 LinearOctree::get_center_impl() const {return this->spatialCenter;}
+inline double LinearOctree::get_theta_impl() const {return this->theta;}
 
 #endif

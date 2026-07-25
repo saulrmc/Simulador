@@ -8,6 +8,17 @@
 #include <algorithm>
 #include <iostream>
 
+template<typename Structure>
+int collisions(Structure* structure, CelestialBodies& bodies) {
+    for (int i = 0; i < bodies.size(); i++) {
+        structure->query_region(
+            [](CelestialBodies& b, int i1, int i2) {
+                resolve_collision(b, i1, i2);
+            }, bodies, i);
+    }
+    return bodies.apply_deletions();
+}
+
 /*  Modelo de colisiones obtenido de:
  *  Leinhardt, Z. M., & Stewart, S. T. (2012).
  * "Collisions between gravity-dominated bodies. I. Outcome regimes and scaling laws".

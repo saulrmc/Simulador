@@ -16,17 +16,8 @@ static constexpr double MI = 0.5;
 void resolve_collision(CelestialBodies &bodies, int body1Index, int body2Index);
 
 template<typename Structure>
-int collisions(Structure* structure, CelestialBodies& bodies) {
-    for (int i = 0; i < bodies.size(); i++) {
-        structure->query_region(
-            [](CelestialBodies& b, int i1, int i2) {
-                resolve_collision(b, i1, i2);
-            }, bodies, i);
-    }
-    return bodies.apply_deletions();
-}
+int collisions(Structure* structure, CelestialBodies& bodies);
 
-void resolve_collision(CelestialBodies &bodies, int body1Index, int body2Index);
 void simplified_resolve_collision(CelestialBodies &bodies, int body1Index, int body2Index);
 
 void merge_regime(CelestialBodies &bodies,

@@ -1,6 +1,7 @@
 #pragma once
 #ifndef SIMULADORGRAVITACIONAL_LINEARELEMENT_H
 #define SIMULADORGRAVITACIONAL_LINEARELEMENT_H
+#include <bmi2intrin.h>
 #include "Vec3.h"
 #include <cstdint>
 
@@ -9,11 +10,12 @@ public:
     LinearElement();
     LinearElement(int bodyIndex);
 
-    int get_bodyIndex() const;
-
+    int get_body_index() const;
+    void set_body_index(const int body_index);
     unsigned long long int get_morton_code() const;
-
-    void calculate_morton_code(const Vec3& position, const Vec3& minPos, double resolution);
+    void calculate_morton_code(
+        const Vec3& position, const Vec3& minPos, int resolutionLevel, double size);
+    friend class LinearOctree;
 
 private:
     int bodyIndex;
@@ -24,47 +26,33 @@ inline LinearElement::LinearElement() : bodyIndex(-1), mortonCode(0) {}
 
 inline LinearElement::LinearElement(int bodyIndex) : bodyIndex(bodyIndex), mortonCode(0) {}
 
-inline int LinearElement::get_bodyIndex() const {
+inline int LinearElement::get_body_index() const {
     return bodyIndex;
+}
+
+inline void LinearElement::set_body_index(const int body_index) {
+    bodyIndex = body_index;
 }
 
 inline unsigned long long int LinearElement::get_morton_code() const {
     return mortonCode;
 }
 
-inline void LinearElement::calculate_morton_code(const Vec3& position, const Vec3& minPos, double resolution) {
-    int x = static_cast<int>((position.get_x() - minPos.get_x()) / resolution);
-    int y = static_cast<int>((position.get_y() - minPos.get_y()) / resolution);
-    int z = static_cast<int>((position.get_z() - minPos.get_z()) / resolution);
+inline void LinearElement::calculate_morton_code(
+    const Vec3& position, const Vec3& minPos, int resolutionLevel, double size) {
+    double normX = ((position.get_x() - minPos.get_x()) / size);
+    double normY = ((position.get_y() - minPos.get_y()) / size);
+    double normZ = ((position.get_z() - minPos.get_z()) / size);
 
-    if (x < 0 || y < 0 || z < 0) {
-        mortonCode = 0;
-        return;
-    }
+    uint32_t discrX = static_cast<uint32_t>(normX * (1 << resolutionLevel));
+    uint32_t discrY = static_cast<uint32_t>(normY * (1 << resolutionLevel));
+    uint32_t discrZ = static_cast<uint32_t>(normZ * (1 << resolutionLevel));
 
-    unsigned long long int ux = static_cast<unsigned long long int>(x) & 0x1FFFFF;
-    unsigned long long int uy = static_cast<unsigned long long int>(y) & 0x1FFFFF;
-    unsigned long long int uz = static_cast<unsigned long long int>(z) & 0x1FFFFF;
+    uint64_t mx = _pdep_u64(discrX, 0x1249249249249249ULL);
+    uint64_t my = _pdep_u64(discrY, 0x2492492492492492ULL);
+    uint64_t mz = _pdep_u64(discrZ, 0x4924924924924924ULL);
 
-    ux = (ux | (ux << 32)) & 0x001F00000000FFFF;
-    ux = (ux | (ux << 16)) & 0x001F0000FF0000FF;
-    ux = (ux | (ux << 8))  & 0x100F00F00F00F00F;
-    ux = (ux | (ux << 4))  & 0x10C30C30C30C30C3;
-    ux = (ux | (ux << 2))  & 0x1249249249249249;
-
-    uy = (uy | (uy << 32)) & 0x001F00000000FFFF;
-    uy = (uy | (uy << 16)) & 0x001F0000FF0000FF;
-    uy = (uy | (uy << 8))  & 0x100F00F00F00F00F;
-    uy = (uy | (uy << 4))  & 0x10C30C30C30C30C3;
-    uy = (uy | (uy << 2))  & 0x1249249249249249;
-
-    uz = (uz | (uz << 32)) & 0x001F00000000FFFF;
-    uz = (uz | (uz << 16)) & 0x001F0000FF0000FF;
-    uz = (uz | (uz << 8))  & 0x100F00F00F00F00F;
-    uz = (uz | (uz << 4))  & 0x10C30C30C30C30C3;
-    uz = (uz | (uz << 2))  & 0x1249249249249249;
-
-    mortonCode = ux | (uy << 1) | (uz << 2);
+    mortonCode = mx | my | mz;
 }
 
 #endif

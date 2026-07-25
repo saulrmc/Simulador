@@ -25,6 +25,7 @@ void delete_body(CelestialBodies &bodies, const int index) {
     bodies.set_force(bodies.back_force(), index);
     bodies.set_mass(bodies.back_mass(), index);
     bodies.set_radius(bodies.back_radius(), index);
+    bodies.mark_deleted(index);
 
     bodies.pop_back_name();
     bodies.pop_back_position();
@@ -32,6 +33,7 @@ void delete_body(CelestialBodies &bodies, const int index) {
     bodies.pop_back_force();
     bodies.pop_back_mass();
     bodies.pop_back_radius();
+    bodies.pop_back_deleted();
 }
 
 void update_body(CelestialBodies &bodies, const std::string &currentName,
