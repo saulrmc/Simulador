@@ -38,7 +38,17 @@ private:
     void compute_mass_centers_bottom_up();
 
     template<typename Callback>
-    void query_region_impl(Callback&& on_pair, CelestialBodies& bodies, int bodyIndex) ;
+    void query_region_impl(Callback&& on_pair, CelestialBodies& bodies, int bodyIndex) {
+        for (int i = 0; i < (int)elements.size(); i++) {
+            int otherIndex = elements[i].get_body_index();
+            if (otherIndex != bodyIndex && bodyIndex < otherIndex) {
+                if (overlap_body(bodies.get_position(bodyIndex), bodies.get_position(otherIndex),
+                    bodies.get_radius(bodyIndex), bodies.get_radius(otherIndex))) {
+                    on_pair(bodies, bodyIndex, otherIndex);
+                }
+            }
+        }
+    }
 
     Vec3 center_from_morton(unsigned long long mortonCode, int depth) const;
 

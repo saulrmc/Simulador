@@ -5,7 +5,11 @@
 #include "LinearOctree.h"
 
 void calc_forces_impl(CelestialBodies &bodies) {
-    calc_forces_impl_recursive(bodies, bodies.get_num_bodies());
+
+}
+
+void LinearOctree::create_space_impl() {
+
 }
 
 void LinearOctree::reorder_data(CelestialBodies &bodies) {
@@ -46,4 +50,16 @@ void LinearOctree::insert_impl(CelestialBodies &bodies) {
         needToReorder = false;
         reorder_data(bodies);
     }
+}
+
+void LinearOctree::calc_forces_impl(CelestialBodies &bodies) {
+
+}
+
+void LinearOctree::refresh_mass_centers_impl() {
+
+}
+
+void LinearOctree::compute_mass_centers_bottom_up() {
+
 }

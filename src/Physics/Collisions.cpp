@@ -8,6 +8,14 @@
 #include <algorithm>
 #include <iostream>
 
+#ifdef USE_LINEAR_OCTREE
+#include "spatial_structures/LinearOctree/LinearOctree.h"
+template int collisions<LinearOctree>(LinearOctree*, CelestialBodies&);
+#else
+#include "spatial_structures/Octree/Octree.h"
+template int collisions<Octree>(Octree*, CelestialBodies&);
+#endif
+
 template<typename Structure>
 int collisions(Structure* structure, CelestialBodies& bodies) {
     for (int i = 0; i < bodies.size(); i++) {

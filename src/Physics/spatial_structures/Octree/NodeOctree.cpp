@@ -4,13 +4,13 @@
 
 #include "NodeOctree.h"
 
-inline NodeOctree::~NodeOctree() {
+NodeOctree::~NodeOctree() {
     for (int i = 0; i < 8; i++) delete children[i];
     //children.clear();
 }
 
 
-inline void NodeOctree::create_children() {
+void NodeOctree::create_children() {
     for (int i = 0; i < 8; i++) {
         children[i] = new NodeOctree();
         children[i]->element_octree.size = element_octree.size / 2;
@@ -35,7 +35,7 @@ inline void NodeOctree::create_children() {
         //children[i]->calc_frontier_values();
     }
 }
-inline void NodeOctree::calc_avg_values() {
+void NodeOctree::calc_avg_values() {
     this->element_octree.mass = 0;
     for (int i = 0; i < 8; i++) {
         if (this->children[i]->element_octree.mass > 0) { //ya que los nodos internos también almacenan masa
