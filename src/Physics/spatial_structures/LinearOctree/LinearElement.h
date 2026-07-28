@@ -1,7 +1,7 @@
 #pragma once
 #ifndef SIMULADORGRAVITACIONAL_LINEARELEMENT_H
 #define SIMULADORGRAVITACIONAL_LINEARELEMENT_H
-#include <bmi2intrin.h>
+#include <x86gprintrin.h>
 #include "Vec3.h"
 #include <cstdint>
 
