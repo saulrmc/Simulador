@@ -20,9 +20,9 @@ private:
     void create_space_impl();
     void insert_impl(CelestialBodies& bodies);
     void calc_forces_impl(CelestialBodies& bodies);
-    void refresh_mass_centers_impl();
+    void refresh_mass_centers_impl(CelestialBodies& bodies);
     void refresh_theta_value_impl();
-    void set_size_impl(double s);
+    void set_size_impl(int s);
     void set_center_impl(Vec3 c);
     double get_size_impl() const;
     Vec3 get_center_impl() const;
@@ -71,6 +71,7 @@ inline Octree::Octree() {
     num_bodies = 0;
     theta = 0;
     size = 0;
+    name = "Octree";
 }
 
 inline Octree::~Octree() {
@@ -85,7 +86,7 @@ inline void Octree::create_space_impl() {
 }
 
 
-inline void Octree::refresh_mass_centers_impl() {
+inline void Octree::refresh_mass_centers_impl(CelestialBodies& bodies) {
     recursive_refresh_mass_centers(root);
 }
 
@@ -98,7 +99,7 @@ inline void Octree::refresh_theta_value_impl() {
     else theta = 0.8;
 }
 
-inline void Octree::set_size_impl(double s) {
+inline void Octree::set_size_impl(int s) {
     this->size = s;
 }
 
