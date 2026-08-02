@@ -3,8 +3,6 @@ project(SimuladorGravitacional)
 
 set(CMAKE_CXX_STANDARD 20)
 
-option(USE_LINEAR_OCTREE "Use LinearOctree instead of pointer-based Octree" OFF)
-
 file(GLOB_RECURSE SOURCES "src/*.cpp" "src/*.h" "main.cpp")
 add_subdirectory(libs/GLFW)
 #set(GLFW_BUILD_WAYLAND OFF CACHE BOOL "" FORCE)
@@ -39,15 +37,14 @@ add_executable(SimuladorGravitacional main.cpp
         src/Physics/spatial_structures/geometry.cpp
         src/Physics/spatial_structures/Octree/Octree.cpp
         src/Physics/spatial_structures/Octree/NodeOctree.cpp
+        src/Physics/spatial_structures/LinearOctree/LinearOctree.cpp
 )
+# LinearElement.h usa intrinsics BMI2 (_pdep_u64), así que solo ese archivo
+# necesita el flag; el resto del proyecto compila sin exigir BMI2.
+set_source_files_properties(src/Physics/spatial_structures/LinearOctree/LinearOctree.cpp
+    PROPERTIES COMPILE_OPTIONS "-mbmi2")
 find_package(OpenGL REQUIRED)
 find_package(OpenMP REQUIRED)
 target_link_libraries(SimuladorGravitacional glfw glad OpenGL::GL OpenMP::OpenMP_CXX)
 target_include_directories(SimuladorGravitacional PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src/Commons)
-if(USE_LINEAR_OCTREE)
-    target_sources(SimuladorGravitacional PRIVATE
-        src/Physics/spatial_structures/LinearOctree/LinearOctree.cpp
-    )
-    target_compile_definitions(SimuladorGravitacional PRIVATE USE_LINEAR_OCTREE)
-    target_compile_options(SimuladorGravitacional PRIVATE -mbmi2)
-endif()
+# La estructura espacial activa se elige en src/Physics/spatial_structures/config.h
