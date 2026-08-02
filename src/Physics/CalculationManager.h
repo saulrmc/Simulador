@@ -9,7 +9,9 @@
 #include "Collisions.h"
 #include "LeapfrogKDK.h"
 
-#ifdef USE_LINEAR_OCTREE
+#include "spatial_structures/config.h"
+
+#if USE_LINEAR_OCTREE
 #include "spatial_structures/LinearOctree/LinearOctree.h"
 using SpatialOctree = LinearOctree;
 #else

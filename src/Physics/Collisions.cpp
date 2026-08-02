@@ -4,11 +4,12 @@
 
 #include "Collisions.h"
 #include "PhysicsUtils.h"
+#include "spatial_structures/config.h"
 
 #include <algorithm>
 #include <iostream>
 
-#ifdef USE_LINEAR_OCTREE
+#if USE_LINEAR_OCTREE
 #include "spatial_structures/LinearOctree/LinearOctree.h"
 template int collisions<LinearOctree>(LinearOctree*, CelestialBodies&);
 #else

@@ -40,11 +40,12 @@ void CalculationManager::update_forces(CelestialBodies &bodies) {
     std::chrono::duration<double, std::micro> total_time(0);
     auto start = std::chrono::high_resolution_clock::now();
     reinsert_bodies(bodies);
-    root->refresh_mass_centers();
+    root->refresh_mass_centers(bodies);
     root->refresh_theta_value();
     auto end = std::chrono::high_resolution_clock::now();
     total_time = end - start;
-    std::cout << std::endl << "Tiempo de reinsercion de cuerpos en microsegundos : "
+    std::cout << std::endl << root->get_name() << std::endl
+    << " Tiempo de reinsercion de cuerpos en microsegundos : "
     << total_time.count() << std::endl;
     std::chrono::duration<double, std::micro> total_time2(0);
     auto start2 = std::chrono::high_resolution_clock::now();
@@ -64,7 +65,7 @@ void CalculationManager::step(CelestialBodies &bodies) {
 
 void CalculationManager::preserve_root_and_update_forces(CelestialBodies &bodies) {
     root->refresh_theta_value();
-    root->refresh_mass_centers();
+    root->refresh_mass_centers(bodies);
     root->calc_forces(bodies);//fuerzas actualizadas
 }
 
