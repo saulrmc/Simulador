@@ -112,9 +112,9 @@ void resolve_collision(CelestialBodies &bodies, int body1Index, int body2Index) 
     Vec3 body2Position = bodies.get_position(smallestBody);
     Vec3 body2Velocity = bodies.get_velocity(smallestBody);
 
-    if (body1Radius + body2Radius
-        - (body1Position - body2Position).magnitude() >= 0)
-        std::cout << "colision detectada" <<std::endl;
+    // if (body1Radius + body2Radius
+    //     - (body1Position - body2Position).magnitude() >= 0)
+    //     std::cout << "colision detectada" <<std::endl;
     double totalMass = body2Mass + body1Mass;
     const double relativeVelocity = (body1Velocity - body2Velocity).magnitude();
     double massInteract = mass_interact(bodies, largestBody, smallestBody);

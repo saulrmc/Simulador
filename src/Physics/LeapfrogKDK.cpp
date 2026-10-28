@@ -14,8 +14,8 @@ void leapfrog_integration_kick(CelestialBodies &bodies) {
     }
     auto end = std::chrono::high_resolution_clock::now();
     total_time = end - start;
-    std::cout << std::endl << "Tiempo de kick en microsegundos : "
-    << total_time.count() << std::endl;
+    // std::cout << std::endl << "Tiempo de kick en microsegundos : "
+    // << total_time.count() << std::endl;
 }
 
 void leapfrog_integration_drift(CelestialBodies &bodies) {
@@ -27,6 +27,6 @@ void leapfrog_integration_drift(CelestialBodies &bodies) {
     }
     auto end = std::chrono::high_resolution_clock::now();
     total_time = end - start;
-    std::cout << std::endl << "Tiempo de drift en microsegundos : "
-    << total_time.count() << std::endl;
+    // std::cout << std::endl << "Tiempo de drift en microsegundos : "
+    // << total_time.count() << std::endl;
 }

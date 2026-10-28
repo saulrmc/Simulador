@@ -32,7 +32,6 @@ class CalculationManager {
 
     void leapfrog_integration_kdk(CelestialBodies &bodies);
     void root_space(CelestialBodies &bodies);
-
     private:
     SpatialOctree *root;
     unsigned int numStep;

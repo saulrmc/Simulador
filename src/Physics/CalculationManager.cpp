@@ -40,13 +40,13 @@ void CalculationManager::update_forces(CelestialBodies &bodies) {
     std::chrono::duration<double, std::micro> total_time(0);
     auto start = std::chrono::high_resolution_clock::now();
     reinsert_bodies(bodies);
-    root->refresh_mass_centers(bodies);
-    root->refresh_theta_value();
     auto end = std::chrono::high_resolution_clock::now();
     total_time = end - start;
-    std::cout << std::endl << root->get_name() << std::endl
-    << " Tiempo de reinsercion de cuerpos en microsegundos : "
-    << total_time.count() << std::endl;
+    // std::cout << std::endl << root->get_name() << std::endl
+    //                          << " Tiempo de reinsercion de cuerpos en microsegundos : "
+    //                          << total_time.count() << std::endl;
+    root->refresh_mass_centers(bodies);
+    root->refresh_theta_value();
     std::chrono::duration<double, std::micro> total_time2(0);
     auto start2 = std::chrono::high_resolution_clock::now();
     //#pragma omp parallel for schedule(dynamic, 100)
@@ -54,8 +54,9 @@ void CalculationManager::update_forces(CelestialBodies &bodies) {
     root->calc_forces(bodies);//fuerzas actualizadas
     auto end2 = std::chrono::high_resolution_clock::now();
     total_time2 = end2 - start2;
-    std::cout << "Tiempo de calculo de fuerzas de cuerpos en microsegundos : "
-    << total_time2.count() << std::endl;
+
+    // std::cout << "Tiempo de calculo de fuerzas de cuerpos en microsegundos : "
+    // << total_time2.count() << std::endl;
 }
 
 void CalculationManager::step(CelestialBodies &bodies) {
@@ -122,8 +123,8 @@ void CalculationManager::root_space(CelestialBodies  &bodies) {
     int maxPow2 = minPow2 + 1;
 
     root->set_size(pow(2, maxPow2));
-    std::cout << "tamanio espacial exacto " << exactSize << std::endl;
-    std::cout << "tamanio espacial escalado "  << root->get_size()<<std::endl;
+    // std::cout << "tamanio espacial exacto " << exactSize << std::endl;
+    // std::cout << "tamanio espacial escalado "  << root->get_size()<<std::endl;
     root->set_center(
         Vec3(
         (frontierValues[0] + frontierValues[1])/2,
