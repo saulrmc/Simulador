@@ -76,7 +76,7 @@ inline void Octree::recursively_calc_forces(const NodeOctree* node, CelestialBod
 
     if (d_2 == 0) return;
 
-    if (node->element_octree.size * node->element_octree.size < d_2 * theta * theta) {
+    if (node->element_octree.size * node->element_octree.size < d_2 * theta2) {
         Vec3 new_force = force_exerted_from_to(
             node->element_octree.mass,
             node->element_octree.centerOfMass,

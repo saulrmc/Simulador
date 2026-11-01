@@ -60,7 +60,7 @@ private:
 
     void recursive_refresh_mass_centers(NodeOctree* node);
     int num_bodies;
-    double theta = 0;
+    double theta = 0, theta2 = 0;
     double size;
     Vec3 center;
 };
@@ -91,12 +91,15 @@ inline void Octree::refresh_mass_centers_impl(CelestialBodies& bodies) {
 }
 
 inline void Octree::refresh_theta_value_impl() {
+    // también sería bueno probarlo para ver si realmente
+    // esos valores están buenos para esos rangos
     if (num_bodies < 100) this->theta = 0;
     else if (num_bodies < 1000) this->theta = 0.3;
     else if (num_bodies < 10000) this->theta = 0.5;
     else if (num_bodies < 100000) this->theta = 0.6;
     else if (num_bodies < 1000000) this->theta = 0.7;
     else theta = 0.8;
+    theta2 = theta * theta;
 }
 
 inline void Octree::set_size_impl(int s) {

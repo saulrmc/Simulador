@@ -23,11 +23,17 @@ void Simulation::run_simulation() {
     // create_body(bodies, "Moon", moonPos, moonVel, 0.0123, 0.00452);
     int numIterations = 0, nbodies;
     double minTime = MAXFLOAT, maxTime = -1, avgTime = 0;
+    double minInsTime = MAXFLOAT, maxInsTime = -1, avgInsTime = 0;
+    double minCalcForcTime = MAXFLOAT, maxCalcForcTime = -1, avgCalcForcTime = 0;
+    double minKickTime = MAXFLOAT, maxKickTime = -1, avgKickTime = 0;
+    double minCollTime = MAXFLOAT, maxCollTime = -1, avgCollTime = 0;
+    double minDriftTime = MAXFLOAT, maxDriftTime = -1, avgDriftTime = 0;
     std::cout << "Numero de iteraciones: " << std::endl;
     std::cin >> numIterations;
     std::cout << "cantidad de cuerpos en la simulacion:" << std::endl;
     std::cin >> nbodies;
     create_many_bodies(bodies, nbodies);
+    calcManager.update_forces(bodies);
     for (int x = numIterations; x > 0; x--) {
 
 
@@ -84,7 +90,7 @@ void Simulation::run_simulation() {
         //     std::endl << "Y: " << yMin <<
         //     std::endl << "Z: " << zMin << std::endl;
 
-        calcManager.update_forces(bodies);
+
         int i = 0;
         double k_energy=0;
         Vec3 momentum;
@@ -156,7 +162,52 @@ void Simulation::run_simulation() {
             minTime = total_time0.count();
         }
         avgTime += total_time0.count()/numIterations;
+
+        if (calcManager.insTime > maxInsTime) maxInsTime = calcManager.insTime;
+        if (calcManager.insTime < minInsTime) minInsTime = calcManager.insTime;
+        avgInsTime += calcManager.insTime/numIterations;
+
+        if (calcManager.calcForcTime > maxCalcForcTime) maxCalcForcTime = calcManager.calcForcTime;
+        if (calcManager.calcForcTime < minCalcForcTime) minCalcForcTime = calcManager.calcForcTime;
+        avgCalcForcTime += calcManager.calcForcTime/numIterations;
+
+        if (calcManager.kickTime > maxKickTime) maxKickTime = calcManager.kickTime;
+        if (calcManager.kickTime < minKickTime) minKickTime = calcManager.kickTime;
+        avgKickTime += calcManager.kickTime/numIterations;
+
+        if (calcManager.driftTime > maxDriftTime) maxDriftTime = calcManager.driftTime;
+        if (calcManager.driftTime < minDriftTime) minDriftTime = calcManager.driftTime;
+        avgDriftTime += calcManager.driftTime/numIterations;
+
+        if (calcManager.collTime > maxCollTime) maxCollTime = calcManager.collTime;
+        if (calcManager.collTime < minCollTime) minCollTime = calcManager.collTime;
+        avgCollTime += calcManager.collTime/numIterations;
+
+
+
     }
+    std::cout << "========TIEMPOS========" << std::endl;
+    std::cout << "MAX INSERTION TIME (microseconds): " << maxInsTime << std::endl;
+    std::cout << "AVERAGE INSERTION TIME (microseconds): " << avgInsTime << std::endl;
+    std::cout << "MIN INSERTION TIME (microseconds): " << minInsTime << std::endl << std::endl;
+
+    std::cout << "MAX KICK TIME (microseconds): " << maxKickTime << std::endl;
+    std::cout << "AVERAGE KICK TIME (microseconds): " << avgKickTime << std::endl;
+    std::cout << "MIN KICK TIME (microseconds): " << minKickTime << std::endl << std::endl;
+
+    std::cout << "MAX DRIFT TIME (microseconds): " << maxDriftTime << std::endl;
+    std::cout << "AVERAGE DRIFT TIME (microseconds): " << avgDriftTime << std::endl;
+    std::cout << "MIN DRIFT TIME (microseconds): " << minDriftTime << std::endl << std::endl;
+
+    std::cout << "MAX COLLISION TIME (microseconds): " << maxCollTime << std::endl;
+    std::cout << "AVERAGE COLLISION TIME (microseconds): " << avgCollTime << std::endl;
+    std::cout << "MIN COLLISION TIME (microseconds): " << minCollTime << std::endl << std::endl;
+
+    std::cout << "MAX CALC FORCES TIME (microseconds): " << maxCalcForcTime << std::endl;
+    std::cout << "AVERAGE CALC FORCES TIME (microseconds): " << avgCalcForcTime << std::endl;
+    std::cout << "MIN CALC FORCES TIME (microseconds): " << minCalcForcTime << std::endl << std::endl;
+
+    std::cout << "========EJECUCION TOTAL========" << std::endl;
     std::cout << "MAX TIME (microseconds): " << maxTime << std::endl;
     std::cout << "AVERAGE TIME (microseconds): " << avgTime << std::endl;
     std::cout << "MIN TIME (microseconds): " << minTime << std::endl;
