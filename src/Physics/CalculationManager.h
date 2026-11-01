@@ -33,7 +33,7 @@ class CalculationManager {
     void leapfrog_integration_kdk(CelestialBodies &bodies);
     void root_space(CelestialBodies &bodies);
 
-    double insTime, calcForcTime, kickTime, driftTime, collTime;
+    double insTime, calcForcTime, kickTime, driftTime, collTime, uptMassTime, crtSpcTime;
 
 private:
     SpatialOctree *root;

@@ -28,6 +28,8 @@ void Simulation::run_simulation() {
     double minKickTime = MAXFLOAT, maxKickTime = -1, avgKickTime = 0;
     double minCollTime = MAXFLOAT, maxCollTime = -1, avgCollTime = 0;
     double minDriftTime = MAXFLOAT, maxDriftTime = -1, avgDriftTime = 0;
+    double minCrtSpcTime = MAXFLOAT, maxCrtSpcTime = -1, avgCrtSpcTime = 0;
+    double minUptMassTime = MAXFLOAT, maxUptMassTime = -1, avgUptMassTime = 0;
     std::cout << "Numero de iteraciones: " << std::endl;
     std::cin >> numIterations;
     std::cout << "cantidad de cuerpos en la simulacion:" << std::endl;
@@ -102,9 +104,9 @@ void Simulation::run_simulation() {
         //std::cout << "tamanio sizeof(CelestialBody): " << sizeof(CelestialBodies)<<std::endl;
         std::chrono::duration<double, std::micro> step_time(0);
         std::chrono::duration<double> total_time0(0);
-        auto startTotal0 = std::chrono::high_resolution_clock::now();
+        auto startTotal0 = std::chrono::steady_clock::now();
         //while (i<=1) {
-            auto start = std::chrono::high_resolution_clock::now();
+            auto start = std::chrono::steady_clock::now();
             calcManager.step(bodies);
             // if (i%1000==0) {
             //       std::cout << "==============================" << std::endl;
@@ -145,10 +147,10 @@ void Simulation::run_simulation() {
             //     i=0;
             // }
             i++;
-            auto end = std::chrono::high_resolution_clock::now();
+            auto end = std::chrono::steady_clock::now();
             step_time += end - start;
         //}
-        auto endTotal0 = std::chrono::high_resolution_clock::now();
+        auto endTotal0 = std::chrono::steady_clock::now();
         total_time0 = endTotal0 - startTotal0;
         //for (int j = 0; j < bodies.size(); j++) momentum = momentum + bodies.get_velocity(j) * bodies.get_mass(j);
         // std::cout << "Final momentum: " << "(" << momentum.get_x() << ", " << momentum.get_y() << ", "
@@ -162,6 +164,14 @@ void Simulation::run_simulation() {
             minTime = total_time0.count();
         }
         avgTime += total_time0.count()/numIterations;
+
+        if (calcManager.crtSpcTime > maxCrtSpcTime) maxCrtSpcTime = calcManager.crtSpcTime;
+        if (calcManager.crtSpcTime < minCrtSpcTime) minCrtSpcTime = calcManager.crtSpcTime;
+        avgCrtSpcTime += calcManager.crtSpcTime/numIterations;
+
+        if (calcManager.uptMassTime > maxUptMassTime) maxUptMassTime = calcManager.uptMassTime;
+        if (calcManager.uptMassTime < minUptMassTime) minUptMassTime = calcManager.uptMassTime;
+        avgUptMassTime += calcManager.uptMassTime/numIterations;
 
         if (calcManager.insTime > maxInsTime) maxInsTime = calcManager.insTime;
         if (calcManager.insTime < minInsTime) minInsTime = calcManager.insTime;
@@ -186,7 +196,11 @@ void Simulation::run_simulation() {
 
 
     }
-    std::cout << "========TIEMPOS========" << std::endl;
+    std::cout << "========FUNC========" << std::endl;
+    std::cout << "MAX CREATION TIME (microseconds): " << maxInsTime << std::endl;
+    std::cout << "AVERAGE CREATION TIME (microseconds): " << avgInsTime << std::endl;
+    std::cout << "MIN CREATION TIME (microseconds): " << minInsTime << std::endl << std::endl;
+
     std::cout << "MAX INSERTION TIME (microseconds): " << maxInsTime << std::endl;
     std::cout << "AVERAGE INSERTION TIME (microseconds): " << avgInsTime << std::endl;
     std::cout << "MIN INSERTION TIME (microseconds): " << minInsTime << std::endl << std::endl;
@@ -207,7 +221,7 @@ void Simulation::run_simulation() {
     std::cout << "AVERAGE CALC FORCES TIME (microseconds): " << avgCalcForcTime << std::endl;
     std::cout << "MIN CALC FORCES TIME (microseconds): " << minCalcForcTime << std::endl << std::endl;
 
-    std::cout << "========EJECUCION TOTAL========" << std::endl;
+    std::cout << "========TOTAL========" << std::endl;
     std::cout << "MAX TIME (microseconds): " << maxTime << std::endl;
     std::cout << "AVERAGE TIME (microseconds): " << avgTime << std::endl;
     std::cout << "MIN TIME (microseconds): " << minTime << std::endl;
@@ -232,19 +246,19 @@ void create_many_bodies(CelestialBodies & bodies, int N) {
 
         double angle = ((double)rand() / RAND_MAX) * 2.0 * M_PI;
         //por alguna razón tarda más en ejecutarse si calcula esto:
-        // double angle2 = ((double)rand() / RAND_MAX) * 2.0 * M_PI;
+         double angle2 = ((double)rand() / RAND_MAX) * 2.0 * M_PI;
         // y genera una posición así:
-        // Vec3 pos(
-        //     r * cos(angle) * sin(angle2),
-        //     r * sin(angle) * sin(angle2),
-        //     r * cos(angle2)
-        // );
-
         Vec3 pos(
-            r * cos(angle) ,
-            r * sin(angle) ,
-            r * cos(angle)
+            r * cos(angle) * sin(angle2),
+            r * sin(angle) * sin(angle2),
+            r * cos(angle2)
         );
+
+        // Vec3 pos(
+        //     r * cos(angle) ,
+        //     r * sin(angle) ,
+        //     r * cos(angle)
+        // );
 
 
         double v = sqrt(units::G * centerMass / r);

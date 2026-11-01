@@ -36,24 +36,36 @@ void CalculationManager::update_forces(CelestialBodies &bodies) {
         root = nullptr;
     }
     root_space(bodies);
+    std::chrono::duration<double, std::micro> total_time_0(0);
+    auto start = std::chrono::steady_clock::now();
     create_structure();
+    auto end = std::chrono::steady_clock::now();
+    total_time_0 = end - start;
+    crtSpcTime = total_time_0.count();
+
     std::chrono::duration<double, std::micro> total_time(0);
-    auto start = std::chrono::high_resolution_clock::now();
+    start = std::chrono::steady_clock::now();
     reinsert_bodies(bodies);
-    auto end = std::chrono::high_resolution_clock::now();
+    end = std::chrono::steady_clock::now();
     total_time = end - start;
     insTime = total_time.count();
     // std::cout << std::endl << root->get_name() << std::endl
     //                          << " Tiempo de reinsercion de cuerpos en microsegundos : "
     //                          << total_time.count() << std::endl;
+    std::chrono::duration<double, std::micro> total_time4(0);
+    start = std::chrono::steady_clock::now();
     root->refresh_mass_centers(bodies);
+    end = std::chrono::steady_clock::now();
+    total_time4 = end - start;
+    uptMassTime = total_time4.count();
+
     root->refresh_theta_value();
     std::chrono::duration<double, std::micro> total_time2(0);
-    auto start2 = std::chrono::high_resolution_clock::now();
+    auto start2 = std::chrono::steady_clock::now();
     //#pragma omp parallel for schedule(dynamic, 100)
     // #pragma omp parallel for schedule(dynamic, 64)
     root->calc_forces(bodies);//fuerzas actualizadas
-    auto end2 = std::chrono::high_resolution_clock::now();
+    auto end2 = std::chrono::steady_clock::now();
     total_time2 = end2 - start2;
     calcForcTime = total_time2.count();
     // std::cout << "Tiempo de calculo de fuerzas de cuerpos en microsegundos : "
@@ -77,26 +89,26 @@ void CalculationManager::leapfrog_integration_kdk(CelestialBodies &bodies) {
     //este código debería ir antes del while principal del programa:
     //update_forces(bodies);
     std::chrono::duration<double, std::micro> total_time(0);
-    auto start = std::chrono::high_resolution_clock::now();
+    auto start = std::chrono::steady_clock::now();
     leapfrog_integration_kick(bodies); //avanza de t a t + dt/2 pero solo las velocidades
-    auto end = std::chrono::high_resolution_clock::now();
+    auto end = std::chrono::steady_clock::now();
     total_time = end - start;
     kickTime = total_time.count();
 
     std::chrono::duration<double, std::micro> total_time2(0);
-    start = std::chrono::high_resolution_clock::now();
+    start = std::chrono::steady_clock::now();
     leapfrog_integration_drift(bodies); //avanza de t a t + dt y se actualiza el resto de atributos
     //como las posiciones se actualizaron entonces el octree se debe actualizar
     //porque solo representa un instante t de tiempo
-    end = std::chrono::high_resolution_clock::now();
+    end = std::chrono::steady_clock::now();
     total_time2 = end - start;
     driftTime = total_time2.count();
     //acá se deberían resolver las colisiones pero ojo que las velocidades actualizadas van a ser de dt/2
 
     std::chrono::duration<double, std::micro> total_time3(0);
-    start = std::chrono::high_resolution_clock::now();
+    start = std::chrono::steady_clock::now();
     int deleted = collisions(root, bodies);
-    end = std::chrono::high_resolution_clock::now();
+    end = std::chrono::steady_clock::now();
     total_time3 = end - start;
     collTime = total_time3.count();
     if (numStep % 5 == 0 || deleted > 0) update_forces(bodies);

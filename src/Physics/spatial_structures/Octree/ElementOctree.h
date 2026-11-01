@@ -10,7 +10,7 @@
 class ElementOctree {
 public:
     ElementOctree();
-    virtual ~ElementOctree();
+    ~ElementOctree();
 
     Vec3 get_center() const;
     void set_center(const Vec3 &center);

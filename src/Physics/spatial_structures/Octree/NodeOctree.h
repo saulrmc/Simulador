@@ -8,7 +8,7 @@
 class NodeOctree {
 public:
     NodeOctree();
-    virtual ~NodeOctree();
+    ~NodeOctree();
     bool has_children() const;
     void calc_avg_values();
     const NodeOctree* n_child(int index) const;
