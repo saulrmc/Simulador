@@ -10,6 +10,7 @@
 #include "CelestialBodies.h"
 
 constexpr int CAPACITY = 4;
+constexpr int MAX_DEPTH = 32;
 
 template <typename Derived>
 class SpatialStructure {

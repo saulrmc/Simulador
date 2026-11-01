@@ -35,7 +35,8 @@ private:
 
     NodeOctree* root;
     void iterative_insert(const CelestialBodies& bodies, int indexBody);
-    void recursively_calc_forces(const NodeOctree* node, CelestialBodies& bodies, int bodyIndex);
+    void recursively_calc_forces(const NodeOctree* node,
+        CelestialBodies& bodies, int bodyIndex, Vec3 &newForce);
     uint8_t octant_for_position(Vec3 position, Vec3& center);
 
     template<typename Callback>
@@ -83,6 +84,7 @@ inline void Octree::create_space_impl() {
     root = new NodeOctree();
     root->element_octree.size = this->size;
     root->element_octree.center = this->center;
+    num_bodies = 0;
 }
 
 
@@ -91,7 +93,7 @@ inline void Octree::refresh_mass_centers_impl(CelestialBodies& bodies) {
 }
 
 inline void Octree::refresh_theta_value_impl() {
-    // también sería bueno probarlo para ver si realmente
+    // TODO: también sería bueno probarlo para ver si realmente
     // esos valores están buenos para esos rangos
     if (num_bodies < 100) this->theta = 0;
     else if (num_bodies < 1000) this->theta = 0.3;

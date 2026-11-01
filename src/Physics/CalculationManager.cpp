@@ -111,8 +111,12 @@ void CalculationManager::leapfrog_integration_kdk(CelestialBodies &bodies) {
     end = std::chrono::steady_clock::now();
     total_time3 = end - start;
     collTime = total_time3.count();
-    if (numStep % 5 == 0 || deleted > 0) update_forces(bodies);
-    else preserve_root_and_update_forces(bodies);
+
+    //  TODO: Realmente vale la pena reconstruir el árbol siempre?
+    // if (numStep % 5 == 0 || deleted > 0) update_forces(bodies);
+    // else preserve_root_and_update_forces(bodies);
+    update_forces(bodies);
+
     //update_forces(bodies);
     leapfrog_integration_kick(bodies);
 }

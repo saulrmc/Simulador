@@ -12,7 +12,7 @@ class Simulation {
     public:
     Simulation();
     virtual ~Simulation();
-    void run_simulation();
+    void run_simulation(int argc, char** argv);
     private:
     CalculationManager calcManager{};
     CelestialBodies  bodies;

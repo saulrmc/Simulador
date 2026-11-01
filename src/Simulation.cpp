@@ -6,13 +6,14 @@
 
 #include <chrono>
 #include <iostream>
+#include <random>
 Simulation::Simulation() {
 }
 
 Simulation::~Simulation() {
 }
 
-void Simulation::run_simulation() {
+void Simulation::run_simulation(int argc, char** argv) {
     //para probar el correcto funcionamiento...
     // double v_circular = sqrt(units::G * (1.0 + 0.0123) / 1.0);
     // Vec3 earthVel = Vec3(0, -v_circular*0.0123/(1+0.0123), 0);
@@ -103,7 +104,7 @@ void Simulation::run_simulation() {
         // momentum = Vec3(0, 0, 0);
         //std::cout << "tamanio sizeof(CelestialBody): " << sizeof(CelestialBodies)<<std::endl;
         std::chrono::duration<double, std::micro> step_time(0);
-        std::chrono::duration<double> total_time0(0);
+        std::chrono::duration<double, std::micro> total_time0(0);
         auto startTotal0 = std::chrono::steady_clock::now();
         //while (i<=1) {
             auto start = std::chrono::steady_clock::now();
@@ -197,9 +198,9 @@ void Simulation::run_simulation() {
 
     }
     std::cout << "========FUNC========" << std::endl;
-    std::cout << "MAX CREATION TIME (microseconds): " << maxInsTime << std::endl;
-    std::cout << "AVERAGE CREATION TIME (microseconds): " << avgInsTime << std::endl;
-    std::cout << "MIN CREATION TIME (microseconds): " << minInsTime << std::endl << std::endl;
+    std::cout << "MAX CREATION TIME (microseconds): " << maxCrtSpcTime << std::endl;
+    std::cout << "AVERAGE CREATION TIME (microseconds): " << avgCrtSpcTime << std::endl;
+    std::cout << "MIN CREATION TIME (microseconds): " << minCrtSpcTime << std::endl << std::endl;
 
     std::cout << "MAX INSERTION TIME (microseconds): " << maxInsTime << std::endl;
     std::cout << "AVERAGE INSERTION TIME (microseconds): " << avgInsTime << std::endl;
@@ -220,6 +221,10 @@ void Simulation::run_simulation() {
     std::cout << "MAX CALC FORCES TIME (microseconds): " << maxCalcForcTime << std::endl;
     std::cout << "AVERAGE CALC FORCES TIME (microseconds): " << avgCalcForcTime << std::endl;
     std::cout << "MIN CALC FORCES TIME (microseconds): " << minCalcForcTime << std::endl << std::endl;
+
+    std::cout << "MAX UPDATE MASSES TIME (microseconds): " << maxUptMassTime << std::endl;
+    std::cout << "AVERAGE UPDATE MASSES TIME (microseconds): " << avgUptMassTime << std::endl;
+    std::cout << "MIN UPDATE MASSES TIME (microseconds): " << minUptMassTime << std::endl << std::endl;
 
     std::cout << "========TOTAL========" << std::endl;
     std::cout << "MAX TIME (microseconds): " << maxTime << std::endl;
@@ -276,5 +281,18 @@ void create_many_bodies(CelestialBodies & bodies, int N) {
         double radius = 0.001;
 
         create_body(bodies, "Body_" + std::to_string(i), pos, vel, mass, radius);
+    }
+}
+
+
+void create_uniform_cube(CelestialBodies& bodies, int N, double halfSide) {
+    std::mt19937_64 rng(12345);
+    std::uniform_real_distribution<double> coord(-halfSide, halfSide);
+    std::uniform_real_distribution<double> mass(0.001, 0.011);
+
+    for (int i = 0; i < N; ++i) {
+        Vec3 p(coord(rng), coord(rng), coord(rng));
+        create_body(bodies, "Body_" + std::to_string(i),
+                    p, Vec3(0, 0, 0), mass(rng), 0.001);
     }
 }

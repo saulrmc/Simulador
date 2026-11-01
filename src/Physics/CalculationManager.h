@@ -34,6 +34,8 @@ class CalculationManager {
     void root_space(CelestialBodies &bodies);
 
     double insTime, calcForcTime, kickTime, driftTime, collTime, uptMassTime, crtSpcTime;
+    double get_theta() const { return root ? root->get_theta() : 0.0; }
+    const std::string& get_structure_name() const { return root->get_name(); }
 
 private:
     SpatialOctree *root;
