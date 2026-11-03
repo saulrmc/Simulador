@@ -10,6 +10,8 @@
 CalculationManager::CalculationManager() {
     root = new SpatialOctree();
     numStep=0;
+    insTime = calcForcTime = kickTime = driftTime = collTime = 0.0;
+    uptMassTime = crtSpcTime = delTime = bboxTime = 0.0;
 }
 
 CalculationManager::~CalculationManager() {
@@ -31,11 +33,22 @@ void CalculationManager::reinsert_bodies(CelestialBodies &bodies) {
 
 
 void CalculationManager::update_forces(CelestialBodies &bodies) {
+    using clock = std::chrono::steady_clock;
+
+    // Destruccion del arbol del paso anterior. En el octree de punteros es un
+    // recorrido recursivo con un free() por nodo, asi que se mide aparte.
+    auto phaseStart = clock::now();
     if (root) {
         delete root;
         root = nullptr;
     }
+    delTime = std::chrono::duration<double, std::micro>(clock::now() - phaseStart).count();
+
+    // Recalculo de la caja contenedora (O(N) por paso).
+    phaseStart = clock::now();
     root_space(bodies);
+    bboxTime = std::chrono::duration<double, std::micro>(clock::now() - phaseStart).count();
+
     std::chrono::duration<double, std::micro> total_time_0(0);
     auto start = std::chrono::steady_clock::now();
     create_structure();

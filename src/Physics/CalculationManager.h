@@ -4,6 +4,7 @@
 #pragma once
 #ifndef SIMULADORGRAVITACIONAL_GESTORCALCULOS_H
 #define SIMULADORGRAVITACIONAL_GESTORCALCULOS_H
+#include <string>
 #include <vector>
 #include "PhysicsUtils.h"
 #include "Collisions.h"
@@ -33,9 +34,16 @@ class CalculationManager {
     void leapfrog_integration_kdk(CelestialBodies &bodies);
     void root_space(CelestialBodies &bodies);
 
-    double insTime, calcForcTime, kickTime, driftTime, collTime, uptMassTime, crtSpcTime;
+    // Tiempos de la última llamada a update_forces / leapfrog_integration_kdk,
+    // en microsegundos. Los usan los benchmarks.
+    double insTime, calcForcTime, kickTime, driftTime, collTime,
+           uptMassTime, crtSpcTime, delTime, bboxTime;
+
     double get_theta() const { return root ? root->get_theta() : 0.0; }
-    const std::string& get_structure_name() const { return root->get_name(); }
+    const std::string& get_structure_name() const {
+        static const std::string unknown = "None";
+        return root ? root->get_name() : unknown;
+    }
 
 private:
     SpatialOctree *root;
