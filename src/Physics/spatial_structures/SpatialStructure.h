@@ -18,7 +18,7 @@ public:
     void create_space() { static_cast<Derived*>(this)->create_space_impl(); }
     void insert(CelestialBodies& bodies) { static_cast<Derived*>(this)->insert_impl(bodies); }
     void calc_forces(CelestialBodies& bodies) { static_cast<Derived*>(this)->calc_forces_impl(bodies); }
-    void refresh_mass_centers(CelestialBodies& bodies) { static_cast<Derived*>(this)->refresh_mass_centers_impl(bodies); }
+    void refresh_nodes(CelestialBodies& bodies) { static_cast<Derived*>(this)->refresh_nodes_impl(bodies); }
     void refresh_theta_value() { static_cast<Derived*>(this)->refresh_theta_value_impl(); }
     void set_size(int s) { static_cast<Derived*>(this)->set_size_impl(s); }
     void set_center(Vec3 c) { static_cast<Derived*>(this)->set_center_impl(c); }

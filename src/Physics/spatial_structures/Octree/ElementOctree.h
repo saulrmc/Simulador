@@ -20,6 +20,8 @@ public:
     void set_mass(double mass);
     double get_size() const;
     void set_size(const double size);
+    double get_max_radius() const ;
+    void set_max_radius(const double max_radius);
 
     friend class Octree;
     friend class NodeOctree;
@@ -28,6 +30,7 @@ public:
      //centro de masa del cubo
     Vec3 centerOfMass;
     double mass; //masa total que está contenida en el espacio cúbico
+    double maxRadius; // El radio máximo que está contenido en el espacio que abarca el cubo
 
     // Centro del cubo
     Vec3 center;
@@ -42,6 +45,7 @@ inline ElementOctree::ElementOctree() {
     mass = 0;
     center=Vec3(0,0,0);
     size = 0;
+    maxRadius = 0;
     //body=nullptr;
 }
 
@@ -81,5 +85,13 @@ inline double ElementOctree::get_size() const {
 
 inline void ElementOctree::set_size(const double size) {
     this->size = size;
+}
+
+inline double ElementOctree::get_max_radius() const {
+    return maxRadius;
+}
+
+inline void ElementOctree::set_max_radius(const double max_radius) {
+    maxRadius = max_radius;
 }
 #endif //SIMULADORGRAVITACIONAL_ELEMENTOCTREE_H

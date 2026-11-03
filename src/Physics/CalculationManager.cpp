@@ -67,7 +67,7 @@ void CalculationManager::update_forces(CelestialBodies &bodies) {
     //                          << total_time.count() << std::endl;
     std::chrono::duration<double, std::micro> total_time4(0);
     start = std::chrono::steady_clock::now();
-    root->refresh_mass_centers(bodies);
+    root->refresh_nodes(bodies);
     end = std::chrono::steady_clock::now();
     total_time4 = end - start;
     uptMassTime = total_time4.count();
@@ -92,7 +92,7 @@ void CalculationManager::step(CelestialBodies &bodies) {
 
 void CalculationManager::preserve_root_and_update_forces(CelestialBodies &bodies) {
     root->refresh_theta_value();
-    root->refresh_mass_centers(bodies);
+    root->refresh_nodes(bodies);
     root->calc_forces(bodies);//fuerzas actualizadas
 }
 

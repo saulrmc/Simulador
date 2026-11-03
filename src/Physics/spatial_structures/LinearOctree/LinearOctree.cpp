@@ -67,7 +67,7 @@ void LinearOctree::insert_impl(CelestialBodies &bodies) {
     leafOffset = (numLeaves - 1) / 7;
 }
 
-void LinearOctree::refresh_mass_centers_impl(CelestialBodies &bodies) {
+void LinearOctree::refresh_nodes_impl(CelestialBodies &bodies) {
     uint64_t numLeaves = uint64_t(1) << (3 * treeDepth);
     uint64_t totalNodes = leafOffset + numLeaves;
 

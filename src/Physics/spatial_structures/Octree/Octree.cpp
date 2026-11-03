@@ -3,13 +3,14 @@
 //
 #include "Octree.h"
 
-void Octree::recursive_refresh_mass_centers(NodeOctree* node) {
+void Octree::recursive_refresh_nodes(NodeOctree* node) {
     if (!node) return;
     if (node->has_children()) {
         for (auto& i : node->children) {
-            recursive_refresh_mass_centers(i);
+            recursive_refresh_nodes(i);
         }
         node->calc_avg_values();
+        node->calc_max_radius();
     }
 }
 
@@ -24,6 +25,9 @@ void Octree::iterative_insert(const CelestialBodies& bodies, int indexBody) {
                     (node->element_octree.centerOfMass * node->element_octree.mass
                     + bodies.get_position(indexBody) * bodies.get_mass(indexBody)) / new_mass;
                 node->element_octree.mass = new_mass;
+                if (bodies.get_radius(indexBody) > node->element_octree.maxRadius) {
+                    node->element_octree.maxRadius = bodies.get_radius(indexBody);
+                }
                 node->element_octree.indexBodies.push_back(indexBody);
                 ++this->num_bodies;
                 return;
@@ -35,12 +39,16 @@ void Octree::iterative_insert(const CelestialBodies& bodies, int indexBody) {
                 node->element_octree.indexBodies.clear();
                 node->element_octree.mass = 0;
                 node->element_octree.centerOfMass = Vec3(0, 0, 0);
+                node->element_octree.maxRadius = -1;
                 for (int oldIdx : oldIndices) {
                     int octant = octant_for_position(
                         bodies.get_position(oldIdx),
                         node->element_octree.center);
                     node->children[octant]->element_octree.indexBodies.push_back(oldIdx);
                     node->children[octant]->element_octree.mass += bodies.get_mass(oldIdx);
+                    if (bodies.get_radius(oldIdx) > node->children[octant]->element_octree.maxRadius) {
+                        node->children[octant]->element_octree.maxRadius = bodies.get_radius(oldIdx);
+                    }
                     num_bodies++;
                 }
                 for (int i = 0; i < 8; i++) {

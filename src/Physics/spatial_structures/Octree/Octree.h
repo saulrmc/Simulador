@@ -20,7 +20,7 @@ private:
     void create_space_impl();
     void insert_impl(CelestialBodies& bodies);
     void calc_forces_impl(CelestialBodies& bodies);
-    void refresh_mass_centers_impl(CelestialBodies& bodies);
+    void refresh_nodes_impl(CelestialBodies& bodies);
     void refresh_theta_value_impl();
     void set_size_impl(int s);
     void set_center_impl(Vec3 c);
@@ -43,9 +43,18 @@ private:
     void recursive_query_region(NodeOctree* node, Callback&& on_pair,
         CelestialBodies& bodies, int bodyIndex) {
         if (!node) return;
-        if (!overlap_node(node->element_octree.center, node->element_octree.size,
-                bodies, bodyIndex))
-            return;
+        if (bodies.is_deleted(bodyIndex)) return;
+        // if (!overlap_node(node->element_octree.center, node->element_octree.size,
+        //         bodies, bodyIndex))
+        //     return;
+        double r = bodies.get_radius(bodyIndex) + node->element_octree.maxRadius;
+        const Vec3 pos = bodies.get_position(bodyIndex);
+        const Vec3 closest = closest_point(
+            node->get_node_center(),
+            node->get_node_size(),
+            pos
+        );
+        if ((closest - pos).magnitude_2() > r * r) return;
         if (node->has_children()) {
             for (int i = 0; i < 8; i++)
                 recursive_query_region(node->children[i], on_pair, bodies, bodyIndex);
@@ -59,7 +68,7 @@ private:
         }
     }
 
-    void recursive_refresh_mass_centers(NodeOctree* node);
+    void recursive_refresh_nodes(NodeOctree* node);
     int num_bodies;
     double theta = 0, theta2 = 0;
     double size;
@@ -88,8 +97,8 @@ inline void Octree::create_space_impl() {
 }
 
 
-inline void Octree::refresh_mass_centers_impl(CelestialBodies& bodies) {
-    recursive_refresh_mass_centers(root);
+inline void Octree::refresh_nodes_impl(CelestialBodies& bodies) {
+    recursive_refresh_nodes(root);
 }
 
 inline void Octree::refresh_theta_value_impl() {

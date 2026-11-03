@@ -52,7 +52,7 @@ private:
     void build_virtual_tree(CelestialBodies& bodies, std::vector<VirtualNode>& vec,
         uint64_t a, uint64_t b, int startDepth);
     Vec3 cell_center_of(int nodeIndex, int depth) const;
-    void refresh_mass_centers_impl(CelestialBodies& bodies);
+    void refresh_nodes_impl(CelestialBodies& bodies);
     void refresh_theta_value_impl();
     void set_size_impl(int size);
     void set_center_impl(Vec3 center);

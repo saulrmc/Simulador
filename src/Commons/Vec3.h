@@ -19,6 +19,7 @@ class Vec3 {
     Vec3 operator/(const Vec3 &v) const;
     double dot(const Vec3& v) const;
     double magnitude() const;
+    double magnitude_2() const;
     Vec3 normalize() const;
     double distance(const Vec3& v) const;
     double get_x() const;
@@ -76,6 +77,10 @@ inline double Vec3::dot(const Vec3 &v) const {
 
 inline double Vec3::magnitude() const {
     return std::sqrt(x * x + y * y + z * z);
+}
+
+inline double Vec3::magnitude_2() const {
+    return x * x + y * y + z * z;
 }
 
 inline Vec3 Vec3::normalize() const {

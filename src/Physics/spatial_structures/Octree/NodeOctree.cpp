@@ -61,3 +61,11 @@ void NodeOctree::calc_avg_values() {
         }
     }
 }
+
+void NodeOctree::calc_max_radius() {
+    this->element_octree.maxRadius = -1;
+    for (int i = 0; i < 8; i++) {
+        if (this->children[i]->element_octree.maxRadius > element_octree.maxRadius)
+            this->element_octree.maxRadius = this->children[i]->element_octree.maxRadius;
+    }
+}

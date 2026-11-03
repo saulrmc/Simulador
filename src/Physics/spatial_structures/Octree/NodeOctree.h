@@ -11,6 +11,7 @@ public:
     ~NodeOctree();
     bool has_children() const;
     void calc_avg_values();
+    void calc_max_radius();
     const NodeOctree* n_child(int index) const;
     friend class Octree;
     //exclusivo de este problema (osea del simulador)
